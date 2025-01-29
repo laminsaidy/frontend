@@ -1,16 +1,22 @@
 import React from 'react'
 
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom"
+import PrivateRoute from "./utils/PrivateRoute"
+import { AuthProvider } from './context/AuthContext'
 
-// import {BrowserRouter as Router, Route, Switch} from "react-router-dom"
-// import PrivateRoute from "./utils/PrivateRoute"
-// import { AuthProvider } from './context/AuthContext'
 
-// import Homepage from './pages/Homepage'
+import Navbar from './pages/Navbar'
+import Homepage from './pages/Homepage'
 
 
 function App() {
   return (
-    <div>App</div>
-  )
+    <Router>
+      <AuthProvider>
+        < Navbar/>
+
+      </AuthProvider>     
+    </Router>
+    )
 }      
 export default App;
