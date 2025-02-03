@@ -26,7 +26,10 @@ function Loginpage() {
   return (
     <div>
       <section className="min-vh-85" style={{ backgroundColor: "#7D5A75" }}>
-        <div className="container py-5" style={{ marginTop: "80px", paddingBottom: "20px" }}>
+        <div
+          className="container py-5"
+          style={{ marginTop: "80px", paddingBottom: "20px" }}
+        >
           {/* Adjust margin-top to avoid navbar overlap */}
           <div className="row d-flex justify-content-center align-items-center h-100">
             <div className="col col-xl-10">
@@ -138,6 +141,19 @@ function Loginpage() {
           </div>
         </div>
       </section>
+
+      <footer className="bg-light text-center text-lg-start">
+        <div class="footer">
+          <p>
+            Copy right &copy;2025; Designed by{" "}
+            <span class="creator">
+              <a href="https://github.com/laminsaidy" target="_blank">
+                Lamin Saidy
+              </a>
+            </span>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
