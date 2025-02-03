@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom"; // Correct import for v5
 import Swal from "sweetalert2";
 
 const AuthContext = createContext();
@@ -15,12 +15,12 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(() => {
     const tokens = localStorage.getItem("authTokens");
-    return tokens ? jwtDecode(tokens) : null;
+    return tokens ? jwtDecode(JSON.parse(tokens).access) : null; // Decode the access token
   });
 
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
+  const history = useHistory(); // Correct usage of useHistory for v5
 
   const loginUser = async (email, password) => {
     try {
@@ -32,12 +32,13 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         setAuthTokens(data);
         setUser(jwtDecode(data.access));
         localStorage.setItem("authTokens", JSON.stringify(data));
-        navigate("/");
+        history.push("/"); // Redirect to home page after login
         Swal.fire({
           title: "Login Successful",
           icon: "success",
@@ -48,20 +49,12 @@ export const AuthProvider = ({ children }) => {
           showConfirmButton: false,
         });
       } else {
-        Swal.fire({
-          title: "Invalid username or password",
-          icon: "error",
-          toast: true,
-          timer: 6000,
-          position: "top-right",
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
+        throw new Error(data.detail || "Invalid username or password");
       }
     } catch (error) {
       console.error("Login error:", error);
       Swal.fire({
-        title: "An error occurred during login",
+        title: error.message || "An error occurred during login",
         icon: "error",
         toast: true,
         timer: 6000,
@@ -83,7 +76,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.status === 201) {
-        navigate("/login");
+        history.push("/login"); // Redirect to login page after registration
         Swal.fire({
           title: "Registration Successful. Please login.",
           icon: "success",
@@ -94,20 +87,13 @@ export const AuthProvider = ({ children }) => {
           showConfirmButton: false,
         });
       } else {
-        Swal.fire({
-          title: `Error: ${response.status}`,
-          icon: "error",
-          toast: true,
-          timer: 6000,
-          position: "top-right",
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Error: ${response.status}`);
       }
     } catch (error) {
       console.error("Registration error:", error);
       Swal.fire({
-        title: "An error occurred during registration",
+        title: error.message || "An error occurred during registration",
         icon: "error",
         toast: true,
         timer: 6000,
@@ -122,7 +108,7 @@ export const AuthProvider = ({ children }) => {
     setAuthTokens(null);
     setUser(null);
     localStorage.removeItem("authTokens");
-    navigate("/login");
+    history.push("/login"); // Redirect to login page after logout
     Swal.fire({
       title: "You have been logged out",
       icon: "success",
@@ -149,7 +135,7 @@ export const AuthProvider = ({ children }) => {
       setUser(jwtDecode(authTokens.access));
     }
     setLoading(false);
-  }, [authTokens]);
+  }, [authTokens, loading]);
 
   return (
     <AuthContext.Provider value={contextData}>

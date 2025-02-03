@@ -1,36 +1,34 @@
 import React, { useContext } from "react";
-import { jwtDecode } from "jwt-decode";
 import AuthContext from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
 function Navbar() {
-  const { user, logoutUser } = useContext(AuthContext);
-  const token = localStorage.getItem("authTokens");
-
-  let user_id = null;
-  if (token) {
-    const decoded = jwtDecode(token);
-    user_id = decoded?.user_id;
-  }
+  // Accessing logoutUser from AuthContext
+  const { logoutUser } = useContext(AuthContext); 
+  const token = localStorage.getItem("authTokens"); 
+  // Retrieving the auth token from localStorage
 
   return (
     <div>
-      <nav className="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
+      <nav
+        className="navbar navbar-expand-lg navbar-dark fixed-top bg-dark"
+        style={{ paddingTop: "10px", paddingBottom: "10px", zIndex: "10" }} 
+      >
         <div className="container-fluid">
-          {/* Left Side - Logo */}
-          <a className="navbar-brand" href="#">
+          {/* Logo Link - Clicking the logo redirects to the homepage */}
+          <Link className="navbar-brand" to="/">
             <img
               style={{
                 width: "120px",
                 padding: "6px",
-                backgroundColor: "none", // Set a solid background color
+                backgroundColor: "none",
               }}
               src="https://i.imgur.com/OyJ8xmm.png"
               alt="Logo"
             />
-          </a>
+          </Link>
 
-          {/* Navbar Toggler for Mobile View */}
+          {/* Navbar toggler for responsive mobile view */}
           <button
             className="navbar-toggler"
             type="button"
@@ -43,17 +41,20 @@ function Navbar() {
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          {/* Right Side - Navbar Links */}
+          {/* Collapsible navbar content */}
           <div
             className="collapse navbar-collapse justify-content-end"
             id="navbarNav"
           >
             <ul className="navbar-nav">
+              {/* Home Link */}
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="#">
+                <Link className="nav-link active" aria-current="page" to="/">
                   Home
-                </a>
+                </Link>
               </li>
+
+              {/* Login and Register links (only shown if no token) */}
               {!token && (
                 <>
                   <li className="nav-item">
@@ -68,21 +69,32 @@ function Navbar() {
                   </li>
                 </>
               )}
+
+              {/* Dashboard and Logout links (only shown if token exists) */}
               {token && (
                 <>
                   <li className="nav-item">
-                    <a className="nav-link" href="/dashboard">
+                    <Link className="nav-link" to="/dashboard">
                       Dashboard
-                    </a>
+                    </Link>
                   </li>
                   <li className="nav-item">
-                    <a
+                    {/* Logout button */}
+                    <button
                       className="nav-link"
-                      onClick={logoutUser}
-                      style={{ cursor: "pointer" }}
+                      onClick={logoutUser} // Calls logoutUser function from AuthContext
+                      style={{
+                        cursor: "pointer", // Ensures the button looks clickable
+                        background: "none", // No background
+                        border: "none", // No border
+                        color: "inherit", // Inherit the color from parent
+                        padding: 0, // No padding
+                        textDecoration: "none" // No underline
+                      }}
+                      aria-label="Logout" // Accessibility label for the button
                     >
                       Logout
-                    </a>
+                    </button>
                   </li>
                 </>
               )}
