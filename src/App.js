@@ -9,8 +9,6 @@ import Loginpage from "./pages/Loginpage";
 import Registerpage from "./pages/Registerpage";
 
 function App() {
-  console.log("App is rendering");
-
   return (
     <Router>
       <AuthProvider>
