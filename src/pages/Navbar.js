@@ -4,15 +4,15 @@ import { Link } from "react-router-dom";
 
 function Navbar() {
   // Accessing logoutUser from AuthContext
-  const { logoutUser } = useContext(AuthContext); 
-  const token = localStorage.getItem("authTokens"); 
+  const { logoutUser } = useContext(AuthContext);
+  const token = localStorage.getItem("authTokens");
   // Retrieving the auth token from localStorage
 
   return (
     <div>
       <nav
         className="navbar navbar-expand-lg navbar-dark fixed-top bg-dark"
-        style={{ paddingTop: "10px", paddingBottom: "10px", zIndex: "10" }} 
+        style={{ paddingTop: "10px", paddingBottom: "10px", zIndex: "10" }}
       >
         <div className="container-fluid">
           {/* Logo Link - Clicking the logo redirects to the homepage */}
@@ -89,7 +89,7 @@ function Navbar() {
                         border: "none", // No border
                         color: "inherit", // Inherit the color from parent
                         padding: 0, // No padding
-                        textDecoration: "none" // No underline
+                        textDecoration: "none", // No underline
                       }}
                       aria-label="Logout" // Accessibility label for the button
                     >
