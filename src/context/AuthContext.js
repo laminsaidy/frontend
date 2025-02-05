@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useHistory } from "react-router-dom"; // Correct import for v5
+import { useHistory } from "react-router-dom"; // For v5
 import Swal from "sweetalert2";
 
 const AuthContext = createContext();
@@ -15,12 +15,12 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(() => {
     const tokens = localStorage.getItem("authTokens");
-    return tokens ? jwtDecode(JSON.parse(tokens).access) : null; // Decode the access token
+    return tokens ? jwtDecode(JSON.parse(tokens).access) : null;
   });
 
   const [loading, setLoading] = useState(true);
 
-  const history = useHistory(); // Correct usage of useHistory for v5
+  const history = useHistory(); // For v5
 
   const loginUser = async (email, password) => {
     try {
@@ -88,7 +88,15 @@ export const AuthProvider = ({ children }) => {
         });
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.detail || `Error: ${response.status}`);
+        if (errorData.email) {
+          throw new Error(errorData.email[0]);
+        } else if (errorData.username) {
+          throw new Error(errorData.username[0]);
+        } else if (errorData.password) {
+          throw new Error(errorData.password[0]);
+        } else {
+          throw new Error(errorData.detail || `Error: ${response.status}`);
+        }
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -120,6 +128,31 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const refreshToken = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/token/refresh/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refresh: authTokens.refresh }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setAuthTokens(data);
+        localStorage.setItem("authTokens", JSON.stringify(data));
+        setUser(jwtDecode(data.access));
+      } else {
+        throw new Error("Failed to refresh token");
+      }
+    } catch (error) {
+      console.error("Token refresh error:", error);
+      logoutUser(); // Log out the user if token refresh fails
+    }
+  };
+
   const contextData = {
     user,
     setUser,
@@ -128,11 +161,18 @@ export const AuthProvider = ({ children }) => {
     registerUser,
     loginUser,
     logoutUser,
+    refreshToken,
   };
 
   useEffect(() => {
     if (authTokens) {
-      setUser(jwtDecode(authTokens.access));
+      const decodedToken = jwtDecode(authTokens.access);
+      const isTokenExpired = decodedToken.exp * 1000 < Date.now();
+      if (isTokenExpired) {
+        logoutUser();
+      } else {
+        setUser(decodedToken);
+      }
     }
     setLoading(false);
   }, [authTokens, loading]);

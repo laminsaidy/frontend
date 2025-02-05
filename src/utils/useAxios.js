@@ -1,5 +1,5 @@
 import axios from "axios";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // Corrected import
 import dayjs from "dayjs";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
@@ -15,21 +15,34 @@ const useAxios = () => {
   });
 
   axiosInstance.interceptors.request.use(async (req) => {
-    const user = jwt_decode(authTokens.access);
+    if (!authTokens?.access) {
+      // Handle the case where authTokens is missing
+      return req;
+    }
+
+    const user = jwtDecode(authTokens.access); // Use jwtDecode
     const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
 
     if (!isExpired) return req;
 
-    const response = await axios.post(`${baseURL}/token/refresh/`, {
-      refresh: authTokens.refresh,
-    });
-    localStorage.setItem("authTokens", JSON.stringify(response.data));
-    localStorage.setItem("authTokens", JSON.stringify(response.data));
+    try {
+      const response = await axios.post(`${baseURL}/token/refresh/`, {
+        refresh: authTokens.refresh,
+      });
 
-    setAuthTokens(response.data);
-    setUser(jwt_decode(response.data.access));
+      localStorage.setItem("authTokens", JSON.stringify(response.data));
+      setAuthTokens(response.data);
+      setUser(jwtDecode(response.data.access)); // Use jwtDecode
 
-    req.headers.Authorization = `Bearer ${response.data.access}`;
+      req.headers.Authorization = `Bearer ${response.data.access}`;
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      // Handle the error (e.g., log out the user)
+      setAuthTokens(null);
+      setUser(null);
+      localStorage.removeItem("authTokens");
+    }
+
     return req;
   });
 
