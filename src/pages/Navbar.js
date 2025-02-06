@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 function Navbar() {
   // Accessing logoutUser from AuthContext
   const { logoutUser } = useContext(AuthContext);
-  const token = localStorage.getItem("authTokens");
-  // Retrieving the auth token from localStorage
+  const token = localStorage.getItem("authTokens"); // Retrieving the auth token from localStorage
 
   return (
     <div>
@@ -46,10 +45,19 @@ function Navbar() {
             className="collapse navbar-collapse justify-content-end"
             id="navbarNav"
           >
-            <ul className="navbar-nav">
+            <ul className="navbar-nav" style={{ display: "flex", alignItems: "center" }}>
               {/* Home Link */}
-              <li className="nav-item">
-                <Link className="nav-link active" aria-current="page" to="/">
+              <li className="nav-item" style={{ marginRight: "10px" }}>
+                <Link
+                  className="nav-link"
+                  to="/"
+                  style={{
+                    color: "white",
+                    padding: "0.5rem 1rem",
+                    textDecoration: "none",
+                    fontSize: "1rem",
+                  }}
+                >
                   Home
                 </Link>
               </li>
@@ -57,13 +65,31 @@ function Navbar() {
               {/* Login and Register links (only shown if no token) */}
               {!token && (
                 <>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/login">
+                  <li className="nav-item" style={{ marginRight: "10px" }}>
+                    <Link
+                      className="nav-link"
+                      to="/login"
+                      style={{
+                        color: "white",
+                        padding: "0.5rem 1rem",
+                        textDecoration: "none",
+                        fontSize: "1rem",
+                      }}
+                    >
                       Login
                     </Link>
                   </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/register">
+                  <li className="nav-item" style={{ marginRight: "10px" }}>
+                    <Link
+                      className="nav-link"
+                      to="/register"
+                      style={{
+                        color: "white",
+                        padding: "0.5rem 1rem",
+                        textDecoration: "none",
+                        fontSize: "1rem",
+                      }}
+                    >
                       Register
                     </Link>
                   </li>
@@ -73,8 +99,17 @@ function Navbar() {
               {/* Dashboard and Logout links (only shown if token exists) */}
               {token && (
                 <>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/dashboard">
+                  <li className="nav-item" style={{ marginRight: "10px" }}>
+                    <Link
+                      className="nav-link"
+                      to="/dashboard"
+                      style={{
+                        color: "white",
+                        padding: "0.5rem 1rem",
+                        textDecoration: "none",
+                        fontSize: "1rem",
+                      }}
+                    >
                       Dashboard
                     </Link>
                   </li>
@@ -82,16 +117,17 @@ function Navbar() {
                     {/* Logout button */}
                     <button
                       className="nav-link"
-                      onClick={logoutUser} // Calls logoutUser function from AuthContext
+                      onClick={logoutUser}
                       style={{
-                        cursor: "pointer", // Ensures the button looks clickable
-                        background: "none", // No background
-                        border: "none", // No border
-                        color: "inherit", // Inherit the color from parent
-                        padding: 0, // No padding
-                        textDecoration: "none", // No underline
+                        cursor: "pointer",
+                        background: "none",
+                        border: "none",
+                        color: "white",
+                        padding: "0.5rem 1rem",
+                        textDecoration: "none",
+                        fontSize: "1rem",
                       }}
-                      aria-label="Logout" // Accessibility label for the button
+                      aria-label="Logout"
                     >
                       Logout
                     </button>
@@ -102,6 +138,18 @@ function Navbar() {
           </div>
         </div>
       </nav>
+
+      {/* Add hover effect using CSS */}
+      <style>
+        {`
+          .navbar-nav .nav-link:hover {
+            color: #ccc !important; /* Light gray on hover */
+          }
+          .navbar-nav button.nav-link:hover {
+            color: #ccc !important; /* Light gray on hover for the Logout button */
+          }
+        `}
+      </style>
     </div>
   );
 }

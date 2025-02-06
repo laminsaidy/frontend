@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode"; // Library to decode JWT tokens
 const Dashboard = () => {
   // State to store the API response
   const [apiResponse, setApiResponse] = useState("");
+  const [error, setError] = useState(""); // State for error messages
 
   // Custom Axios instance with authentication headers
   const axiosInstance = useCustomAxios();
@@ -22,6 +23,13 @@ const Dashboard = () => {
     userName = decodedToken.username;
     fullName = decodedToken.full_name;
     userImage = decodedToken.image;
+
+    // Check for token expiration (assuming 'exp' exists in the JWT payload)
+    if (decodedToken.exp * 1000 < Date.now()) {
+      setError("Your session has expired. Please log in again.");
+    }
+  } else {
+    setError("No authentication token found. Please log in.");
   }
 
   // Function to fetch data using a GET request
@@ -30,8 +38,8 @@ const Dashboard = () => {
       const result = await axiosInstance.get("/test/");
       setApiResponse(result.data.response); // Update state with the response
     } catch (err) {
-      console.error(err); // Log errors to the console
-      setApiResponse("An error occurred while fetching data."); // Set error message
+      console.error(err);
+      setError("An error occurred while fetching data.");
     }
   };
 
@@ -41,20 +49,24 @@ const Dashboard = () => {
       const result = await axiosInstance.post("/test/");
       setApiResponse(result.data.response); // Update state with the response
     } catch (err) {
-      console.error(err); // Log errors to the console
-      setApiResponse("An error occurred while posting data."); // Set error message
+      console.error(err);
+      setError("An error occurred while posting data.");
     }
   };
 
-  // useEffect to call fetchGetData when the component mounts
+  // useEffect to call fetchGetData when the component mounts (only if valid token exists)
   useEffect(() => {
-    fetchGetData();
-  }, []);
+    if (authToken && !error) {
+      fetchGetData();
+    }
+  }, [authToken, error]);
 
-  // useEffect to call fetchPostData when the component mounts
-  useEffect(() => {
-    fetchPostData();
-  }, []);
+  // Handle manual POST request (triggered by button)
+  const handlePostData = () => {
+    if (!error) {
+      fetchPostData();
+    }
+  };
 
   return (
     <div>
@@ -162,10 +174,17 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Alert to display API response */}
-            <div className="alert alert-success">
-              <strong>{apiResponse}</strong>
-            </div>
+            {/* Error or Alert to display API response */}
+            {error && (
+              <div className="alert alert-danger">
+                <strong>{error}</strong>
+              </div>
+            )}
+            {!error && apiResponse && (
+              <div className="alert alert-success">
+                <strong>{apiResponse}</strong>
+              </div>
+            )}
 
             {/* Section title */}
             <h2>Section title</h2>
@@ -196,6 +215,13 @@ const Dashboard = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Button to trigger POST request */}
+            {!error && (
+              <button className="btn btn-primary" onClick={handlePostData}>
+                Post Data
+              </button>
+            )}
           </main>
         </div>
       </div>
