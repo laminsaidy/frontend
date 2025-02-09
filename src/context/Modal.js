@@ -34,13 +34,13 @@ handleInputChange = (event) => {
     this.setState({ currentItem: updatedItem });
   };
 
-  render() {
-    const { toggle } = this.props; // Destructure toggle function from props
+
+render() {
+    const { toggle, onSave } = this.props; // Destructuring onSave from props
     return (
       <Modal isOpen={true} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Task Details</ModalHeader>
+        <ModalHeader toggle={toggle}> Task Item </ModalHeader>
         <ModalBody>
-          <Form>
           <Form>
             {/* 1. Title input */}
             <FormGroup>
@@ -53,7 +53,7 @@ handleInputChange = (event) => {
                 placeholder="Enter Task Title"
               />
             </FormGroup>
-
+  
             {/* 2. Description input */}
             <FormGroup>
               <Label for="description">Description</Label>
@@ -65,7 +65,7 @@ handleInputChange = (event) => {
                 placeholder="Enter Task Description"
               />
             </FormGroup>
-
+  
             {/* 3. Completed checkbox */}
             <FormGroup check>
               <Label for="completed">
@@ -79,16 +79,15 @@ handleInputChange = (event) => {
               </Label>
             </FormGroup>
           </Form>
-          </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={toggle}>
+          <Button color="success" onClick={() => onSave(this.state.activeItem)}>
             Save
           </Button>
         </ModalFooter>
       </Modal>
     );
-  }
+  }  
 }
 
 export default TaskModal;
