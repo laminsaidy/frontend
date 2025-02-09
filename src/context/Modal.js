@@ -23,7 +23,7 @@ class TaskModal extends Component {
   // Handler for input changes, including checkboxes
 handleInputChange = (event) => {
     const { name, type, checked, value } = event.target;
-    
+
     // Determine the value based on the input type
     const updatedValue = type === "checkbox" ? checked : value;
 
@@ -41,7 +41,44 @@ handleInputChange = (event) => {
         <ModalHeader toggle={toggle}>Task Details</ModalHeader>
         <ModalBody>
           <Form>
-            {/* Form fields will be added here */}
+          <Form>
+            {/* 1. Title input */}
+            <FormGroup>
+              <Label for="title">Title</Label>
+              <Input
+                type="text"
+                name="title"
+                value={this.state.activeItem.title}
+                onChange={this.handleChange}
+                placeholder="Enter Task Title"
+              />
+            </FormGroup>
+
+            {/* 2. Description input */}
+            <FormGroup>
+              <Label for="description">Description</Label>
+              <Input
+                type="text"
+                name="description"
+                value={this.state.activeItem.description}
+                onChange={this.handleChange}
+                placeholder="Enter Task Description"
+              />
+            </FormGroup>
+
+            {/* 3. Completed checkbox */}
+            <FormGroup check>
+              <Label for="completed">
+                <Input
+                  type="checkbox"
+                  name="completed"
+                  checked={this.state.activeItem.completed}
+                  onChange={this.handleChange}
+                />
+                Completed
+              </Label>
+            </FormGroup>
+          </Form>
           </Form>
         </ModalBody>
         <ModalFooter>
