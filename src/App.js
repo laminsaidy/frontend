@@ -22,6 +22,8 @@ function App() {
           <Route exact path="/login" render={() => <Loginpage />} />
           <Route exact path="/register" render={() => <Registerpage />} />
           <PrivateRoute exact path="/dashboard" component={Dashboard} />
+          <PrivateRoute exact path="/tasks" component={TaskManager} />
+
         </Switch>
       </AuthProvider>
     </Router>
