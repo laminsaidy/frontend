@@ -7,6 +7,9 @@ import Homepage from "./pages/Homepage";
 import Dashboard from "./pages/Dashboard";
 import Loginpage from "./pages/Loginpage";
 import Registerpage from "./pages/Registerpage";
+import TaskManager from "./pages/TaskManager";
+
+
 
 function App() {
   return (
@@ -14,6 +17,7 @@ function App() {
       <AuthProvider>
         <Navbar />
         <Switch>
+          <Route exact path="/tasks" render={() => <TaskManager />} />
           <Route exact path="/" render={() => <Homepage />} />
           <Route exact path="/login" render={() => <Loginpage />} />
           <Route exact path="/register" render={() => <Registerpage />} />
