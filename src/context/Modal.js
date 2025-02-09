@@ -20,6 +20,20 @@ class TaskModal extends Component {
     };
   }
 
+  // Handler for input changes, including checkboxes
+handleInputChange = (event) => {
+    const { name, type, checked, value } = event.target;
+    
+    // Determine the value based on the input type
+    const updatedValue = type === "checkbox" ? checked : value;
+
+    // Update the current item in the state
+    const updatedItem = { ...this.state.currentItem, [name]: updatedValue };
+
+    // Set the updated item to the state
+    this.setState({ currentItem: updatedItem });
+  };
+
   render() {
     const { toggle } = this.props; // Destructure toggle function from props
     return (
