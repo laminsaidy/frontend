@@ -1,16 +1,17 @@
 import React, { Component } from "react";
 import axios from "axios";
-import Modal from "./context/Modal";
-
+import TaskModal from "../context/TaskModal";
 
 class TaskManager extends Component {
   constructor(props) {
+    console.log("TaskManager component rendered");
     super(props);
     this.state = {
       viewCompleted: false,
       activeItem: { title: "", description: "", completed: false },
       taskList: [],
       modal: false,
+      loading: true, // Add loading state
     };
   }
 
@@ -21,8 +22,11 @@ class TaskManager extends Component {
   refreshList = () => {
     axios
       .get("http://localhost:8000/api/tasks/")
-      .then((res) => this.setState({ taskList: res.data }))
-      .catch((err) => console.log(err));
+      .then((res) => this.setState({ taskList: res.data, loading: false }))
+      .catch((err) => {
+        console.error("Error fetching tasks:", err);
+        this.setState({ taskList: [], loading: false }); // Set loading to false on error
+      });
   };
 
   toggle = () => {
@@ -52,35 +56,61 @@ class TaskManager extends Component {
     const item = { title: "", description: "", completed: false };
     this.setState({ activeItem: item, modal: !this.state.modal });
   };
-  
-  editItem = item => {
+
+  editItem = (item) => {
     this.setState({ activeItem: item, modal: !this.state.modal });
   };
-  
+
   renderItems = () => {
     const { viewCompleted } = this.state;
-    const newItems = this.state.taskList.filter(item => item.completed === viewCompleted);
-    return newItems.map(item => (
-      <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
-        <span className={`todo-title mr-2 ${viewCompleted ? "completed-todo" : ""}`} title={item.description}>
+    const newItems = this.state.taskList.filter(
+      (item) => item.completed === viewCompleted
+    );
+    return newItems.map((item) => (
+      <li
+        key={item.id}
+        className="list-group-item d-flex justify-content-between align-items-center"
+      >
+        <span
+          className={`todo-title mr-2 ${viewCompleted ? "completed-todo" : ""}`}
+          title={item.description}
+        >
           {item.title}
         </span>
         <span>
-          <button onClick={() => this.editItem(item)} className="btn btn-secondary mr-2">Edit</button>
-          <button onClick={() => this.handleDelete(item)} className="btn btn-danger">Delete</button>
+          <button
+            onClick={() => this.editItem(item)}
+            className="btn btn-secondary mr-2"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => this.handleDelete(item)}
+            className="btn btn-danger"
+          >
+            Delete
+          </button>
         </span>
       </li>
     ));
   };
 
   render() {
+    const { loading } = this.state;
+
+    if (loading) {
+      return <div>Loading tasks...</div>;
+    }
+
     return (
-      <main className="content">
+      <main className="content" style={{ paddingTop: "140px" }}>
         <h1 className="text-black text-uppercase text-center my-4">Task Manager</h1>
         <div className="row">
           <div className="col-md-6 col-sm-10 mx-auto p-0">
             <div className="card p-3">
-              <button onClick={this.createItem} className="btn btn-primary">Add task</button>
+              <button onClick={this.createItem} className="btn btn-primary">
+                Add task
+              </button>
               <ul className="list-group list-group-flush">
                 {this.renderItems()}
               </ul>
@@ -88,7 +118,7 @@ class TaskManager extends Component {
           </div>
         </div>
         {this.state.modal && (
-          <Modal
+          <TaskModal
             activeItem={this.state.activeItem}
             toggle={this.toggle}
             onSave={this.handleSubmit}
@@ -97,8 +127,6 @@ class TaskManager extends Component {
       </main>
     );
   }
-  
-  
 }
 
 export default TaskManager;

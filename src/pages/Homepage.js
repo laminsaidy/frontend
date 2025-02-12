@@ -73,10 +73,10 @@ function Homepage() {
           {/* /container */}
         </main>
         <footer className="bg-light text-center text-lg-start">
-          <div class="footer">
+          <div className="footer">
             <p>
               Copy right &copy;2025; Designed by{" "}
-              <span class="creator">
+              <span className="creator">
                 <a href="https://github.com/laminsaidy" target="_blank">
                   Lamin Saidy
                 </a>

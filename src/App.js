@@ -4,12 +4,9 @@ import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./pages/Navbar";
 import Homepage from "./pages/Homepage";
-import Dashboard from "./pages/Dashboard";
 import Loginpage from "./pages/Loginpage";
 import Registerpage from "./pages/Registerpage";
 import TaskManager from "./pages/TaskManager";
-
-
 
 function App() {
   return (
@@ -17,19 +14,16 @@ function App() {
       <AuthProvider>
         <Navbar />
         <Switch>
-          <Route exact path="/tasks" render={() => <TaskManager />} />
           <Route exact path="/" render={() => <Homepage />} />
           <Route exact path="/login" render={() => <Loginpage />} />
           <Route exact path="/register" render={() => <Registerpage />} />
-          <PrivateRoute exact path="/dashboard" component={Dashboard} />
-          <PrivateRoute exact path="/tasks" component={TaskManager} />
 
+          {/* Use PrivateRoute for protected TaskManager page */}
+          <PrivateRoute exact path="/tasks" component={TaskManager} />
         </Switch>
       </AuthProvider>
     </Router>
   );
 }
-
-
 
 export default App;

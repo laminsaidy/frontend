@@ -3,9 +3,9 @@ import AuthContext from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
 function Navbar() {
-  // Accessing logoutUser from AuthContext
-  const { logoutUser } = useContext(AuthContext);
-  const token = localStorage.getItem("authTokens"); // Retrieving the auth token from localStorage
+  // Accessing user and logoutUser from AuthContext
+  const { user, logoutUser } = useContext(AuthContext);
+  const isAuthenticated = !!user; // Check if user is authenticated
 
   return (
     <div>
@@ -31,8 +31,8 @@ function Navbar() {
           <button
             className="navbar-toggler"
             type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
+            data-toggle="collapse"
+            data-target="#navbarNav"
             aria-controls="navbarNav"
             aria-expanded="false"
             aria-label="Toggle navigation"
@@ -62,8 +62,8 @@ function Navbar() {
                 </Link>
               </li>
 
-              {/* Login and Register links (only shown if no token) */}
-              {!token && (
+              {/* Login and Register links (only shown if not authenticated) */}
+              {!isAuthenticated && (
                 <>
                   <li className="nav-item" style={{ marginRight: "10px" }}>
                     <Link
@@ -96,13 +96,13 @@ function Navbar() {
                 </>
               )}
 
-              {/* Dashboard and Logout links (only shown if token exists) */}
-              {token && (
+              {/* Task Manager and Logout links (only shown if authenticated) */}
+              {isAuthenticated && (
                 <>
                   <li className="nav-item" style={{ marginRight: "10px" }}>
                     <Link
                       className="nav-link"
-                      to="/dashboard"
+                      to="/tasks"
                       style={{
                         color: "white",
                         padding: "0.5rem 1rem",
@@ -110,7 +110,7 @@ function Navbar() {
                         fontSize: "1rem",
                       }}
                     >
-                      Dashboard
+                      Task Manager
                     </Link>
                   </li>
                   <li className="nav-item">

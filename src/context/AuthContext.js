@@ -1,6 +1,6 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useHistory } from "react-router-dom"; // For v5
+import { useHistory } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const AuthContext = createContext();
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
 
-  const history = useHistory(); // For v5
+  const history = useHistory(); 
 
   const loginUser = async (email, password) => {
     try {
@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logoutUser = () => {
+  const logoutUser = useCallback(() => {
     setAuthTokens(null);
     setUser(null);
     localStorage.removeItem("authTokens");
@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
       timerProgressBar: true,
       showConfirmButton: false,
     });
-  };
+  }, [history]);
 
   const refreshToken = async () => {
     try {
@@ -174,8 +174,8 @@ export const AuthProvider = ({ children }) => {
         setUser(decodedToken);
       }
     }
-    setLoading(false);
-  }, [authTokens, loading]);
+    setLoading(false); // Only set loading to false once after first effect
+  }, [authTokens, logoutUser]); // Removed 'loading' from the dependencies
 
   return (
     <AuthContext.Provider value={contextData}>

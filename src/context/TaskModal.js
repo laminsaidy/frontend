@@ -8,6 +8,9 @@ import {
   ModalBody,
   ModalFooter,
   Form,
+  FormGroup,
+  Label,
+  Input
 } from "reactstrap";
 
 // Creating a class-based modal component
@@ -21,7 +24,7 @@ class TaskModal extends Component {
   }
 
   // Handler for input changes, including checkboxes
-handleInputChange = (event) => {
+  handleInputChange = (event) => {
     const { name, type, checked, value } = event.target;
 
     // Determine the value based on the input type
@@ -34,8 +37,7 @@ handleInputChange = (event) => {
     this.setState({ currentItem: updatedItem });
   };
 
-
-render() {
+  render() {
     const { toggle, onSave } = this.props; // Destructuring onSave from props
     return (
       <Modal isOpen={true} toggle={toggle}>
@@ -48,32 +50,32 @@ render() {
               <Input
                 type="text"
                 name="title"
-                value={this.state.activeItem.title}
-                onChange={this.handleChange}
+                value={this.state.currentItem.title} // Updated reference
+                onChange={this.handleInputChange} // Updated handler
                 placeholder="Enter Task Title"
               />
             </FormGroup>
-  
+
             {/* 2. Description input */}
             <FormGroup>
               <Label for="description">Description</Label>
               <Input
                 type="text"
                 name="description"
-                value={this.state.activeItem.description}
-                onChange={this.handleChange}
+                value={this.state.currentItem.description} // Updated reference
+                onChange={this.handleInputChange} // Updated handler
                 placeholder="Enter Task Description"
               />
             </FormGroup>
-  
+
             {/* 3. Completed checkbox */}
             <FormGroup check>
               <Label for="completed">
                 <Input
                   type="checkbox"
                   name="completed"
-                  checked={this.state.activeItem.completed}
-                  onChange={this.handleChange}
+                  checked={this.state.currentItem.completed} // Updated reference
+                  onChange={this.handleInputChange} // Updated handler
                 />
                 Completed
               </Label>
@@ -81,13 +83,13 @@ render() {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="success" onClick={() => onSave(this.state.activeItem)}>
+          <Button color="success" onClick={() => onSave(this.state.currentItem)}>
             Save
           </Button>
         </ModalFooter>
       </Modal>
     );
-  }  
+  }
 }
 
 export default TaskModal;

@@ -74,6 +74,7 @@ function Loginpage() {
                             id="form2Example17"
                             className="form-control form-control-lg"
                             name="email"
+                            autoComplete="username" // Add this
                           />
                           <label
                             className="form-label"
@@ -90,6 +91,7 @@ function Loginpage() {
                             id="form2Example27"
                             className="form-control form-control-lg"
                             name="password"
+                            autoComplete="current-password" // Add this
                           />
                           <label
                             className="form-label"
@@ -143,10 +145,10 @@ function Loginpage() {
       </section>
 
       <footer className="bg-light text-center text-lg-start">
-        <div class="footer">
+        <div className="footer">
           <p>
             Copy right &copy;2025; Designed by{" "}
-            <span class="creator">
+            <span className="creator">
               <a href="https://github.com/laminsaidy" target="_blank">
                 Lamin Saidy
               </a>
