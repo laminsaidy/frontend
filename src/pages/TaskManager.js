@@ -95,6 +95,49 @@ class TaskManager extends Component {
     ));
   };
 
+  renderTabList = () => {
+    const tabStyle = {
+      padding: "5px 8px",
+      border: "1px solid rgb(5, 5, 128)",
+      borderRadius: "10px",
+      marginRight: "5px",
+      cursor: "pointer",
+    };
+  
+    const completedTabStyle = {
+      ...tabStyle,
+      backgroundColor: "green", // Green color for completed tab
+      color: "#fff",
+    };
+  
+    const incompleteTabStyle = {
+      ...tabStyle,
+      backgroundColor: "red", // Red color for incomplete tab
+      color: "#fff",
+    };
+  
+    return (
+      <div className="my-5 tab-list">
+        <span
+          onClick={() => this.displayCompleted(true)}
+          style={this.state.viewCompleted ? completedTabStyle : tabStyle}
+        >
+          completed
+        </span>
+        <span
+          onClick={() => this.displayCompleted(false)}
+          style={this.state.viewCompleted ? tabStyle : incompleteTabStyle}
+        >
+          Incompleted
+        </span>
+      </div>
+    );
+  };  
+
+  displayCompleted = (viewCompleted) => {
+    this.setState({ viewCompleted });
+  };
+
   render() {
     const { loading } = this.state;
 
@@ -111,6 +154,8 @@ class TaskManager extends Component {
               <button onClick={this.createItem} className="btn btn-primary">
                 Add task
               </button>
+              {/* Render the tab buttons */}
+              {this.renderTabList()}
               <ul className="list-group list-group-flush">
                 {this.renderItems()}
               </ul>
