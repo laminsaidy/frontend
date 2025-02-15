@@ -4,14 +4,13 @@ import TaskModal from "../context/TaskModal";
 
 class TaskManager extends Component {
   constructor(props) {
-    console.log("TaskManager component rendered");
     super(props);
     this.state = {
-      viewCompleted: false,
-      activeItem: { title: "", description: "", completed: false },
+      viewStatus: "Open", // Default view
+      activeItem: { title: "", description: "", status: "Open", priority: "Medium", category: "General", due_date: "" },
       taskList: [],
       modal: false,
-      loading: true, // Add loading state
+      loading: true,
     };
   }
 
@@ -22,10 +21,17 @@ class TaskManager extends Component {
   refreshList = () => {
     axios
       .get("http://localhost:8000/api/tasks/")
-      .then((res) => this.setState({ taskList: res.data, loading: false }))
+      .then((res) => {
+        console.log("Updated task list:", res.data); // Debugging
+        const tasksWithOverdue = res.data.map(task => ({
+          ...task,
+          overdue: task.due_date && new Date(task.due_date) < new Date() && task.status !== "Done",
+        }));
+        this.setState({ taskList: tasksWithOverdue, loading: false });
+      })
       .catch((err) => {
         console.error("Error fetching tasks:", err);
-        this.setState({ taskList: [], loading: false }); // Set loading to false on error
+        this.setState({ taskList: [], loading: false });
       });
   };
 
@@ -35,25 +41,39 @@ class TaskManager extends Component {
 
   handleSubmit = (item) => {
     this.toggle();
+    console.log("Submitting item:", item); // Debugging
+
+    // Ensure category is a string, not an array
+    const payload = {
+      ...item,
+      category: Array.isArray(item.category) ? item.category[0] : item.category,
+    };
+
     if (item.id) {
-      axios
-        .put(`http://localhost:8000/api/tasks/${item.id}/`, item)
-        .then((res) => this.refreshList());
+      axios.put(`http://localhost:8000/api/tasks/${item.id}/`, payload)
+        .then(this.refreshList)
+        .catch((error) => {
+          console.error("Error occurred while updating the task:", error.response ? error.response.data : error.message);
+        });
       return;
     }
-    axios
-      .post("http://localhost:8000/api/tasks/", item)
-      .then((res) => this.refreshList());
+    axios.post("http://localhost:8000/api/tasks/", payload)
+      .then(this.refreshList)
+      .catch((error) => {
+        console.error("Error occurred while creating the task:", error.response ? error.response.data : error.message);
+      });
   };
 
   handleDelete = (item) => {
-    axios
-      .delete(`http://localhost:8000/api/tasks/${item.id}/`)
-      .then((res) => this.refreshList());
+    axios.delete(`http://localhost:8000/api/tasks/${item.id}/`)
+      .then(this.refreshList)
+      .catch((error) => {
+        console.error("Error occurred while deleting the task:", error.response ? error.response.data : error.message);
+      });
   };
 
   createItem = () => {
-    const item = { title: "", description: "", completed: false };
+    const item = { title: "", description: "", status: "Open", priority: "Medium", category: "General", due_date: "" };
     this.setState({ activeItem: item, modal: !this.state.modal });
   };
 
@@ -62,32 +82,23 @@ class TaskManager extends Component {
   };
 
   renderItems = () => {
-    const { viewCompleted } = this.state;
-    const newItems = this.state.taskList.filter(
-      (item) => item.completed === viewCompleted
-    );
-    return newItems.map((item) => (
-      <li
-        key={item.id}
-        className="list-group-item d-flex justify-content-between align-items-center"
-      >
+    const { viewStatus } = this.state;
+    const filteredItems = this.state.taskList.filter((item) => item.status === viewStatus);
+    console.log("Filtered items:", filteredItems); // Debugging
+
+    return filteredItems.map((item) => (
+      <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
         <span
-          className={`todo-title mr-2 ${viewCompleted ? "completed-todo" : ""}`}
+          className={`todo-title mr-2 ${item.overdue ? "text-danger" : ""}`}
           title={item.description}
         >
-          {item.title}
+          {item.title} - {item.priority} - {item.category} {item.overdue ? "(Overdue)" : ""}
         </span>
         <span>
-          <button
-            onClick={() => this.editItem(item)}
-            className="btn btn-secondary mr-2"
-          >
+          <button onClick={() => this.editItem(item)} className="btn btn-secondary mr-2">
             Edit
           </button>
-          <button
-            onClick={() => this.handleDelete(item)}
-            className="btn btn-danger"
-          >
+          <button onClick={() => this.handleDelete(item)} className="btn btn-danger">
             Delete
           </button>
         </span>
@@ -96,46 +107,30 @@ class TaskManager extends Component {
   };
 
   renderTabList = () => {
-    const tabStyle = {
-      padding: "5px 8px",
-      border: "1px solid rgb(5, 5, 128)",
-      borderRadius: "10px",
-      marginRight: "5px",
-      cursor: "pointer",
-    };
-  
-    const completedTabStyle = {
-      ...tabStyle,
-      backgroundColor: "green", // Green color for completed tab
-      color: "#fff",
-    };
-  
-    const incompleteTabStyle = {
-      ...tabStyle,
-      backgroundColor: "red", // Red color for incomplete tab
-      color: "#fff",
-    };
-  
+    const statuses = ["Open", "In Progress", "Done"];
+    const colors = { Open: "red", "In Progress": "orange", Done: "green" };
+
     return (
       <div className="my-5 tab-list">
-        <span
-          onClick={() => this.displayCompleted(true)}
-          style={this.state.viewCompleted ? completedTabStyle : tabStyle}
-        >
-          completed
-        </span>
-        <span
-          onClick={() => this.displayCompleted(false)}
-          style={this.state.viewCompleted ? tabStyle : incompleteTabStyle}
-        >
-          Incompleted
-        </span>
+        {statuses.map((status) => (
+          <span
+            key={status}
+            onClick={() => this.setState({ viewStatus: status })}
+            style={{
+              padding: "5px 8px",
+              border: "1px solid rgb(5, 5, 128)",
+              borderRadius: "10px",
+              marginRight: "5px",
+              cursor: "pointer",
+              backgroundColor: this.state.viewStatus === status ? colors[status] : "white",
+              color: this.state.viewStatus === status ? "white" : "black",
+            }}
+          >
+            {status}
+          </span>
+        ))}
       </div>
     );
-  };  
-
-  displayCompleted = (viewCompleted) => {
-    this.setState({ viewCompleted });
   };
 
   render() {
@@ -154,21 +149,12 @@ class TaskManager extends Component {
               <button onClick={this.createItem} className="btn btn-primary">
                 Add task
               </button>
-              {/* Render the tab buttons */}
               {this.renderTabList()}
-              <ul className="list-group list-group-flush">
-                {this.renderItems()}
-              </ul>
+              <ul className="list-group list-group-flush">{this.renderItems()}</ul>
             </div>
           </div>
         </div>
-        {this.state.modal && (
-          <TaskModal
-            activeItem={this.state.activeItem}
-            toggle={this.toggle}
-            onSave={this.handleSubmit}
-          />
-        )}
+        {this.state.modal && <TaskModal activeItem={this.state.activeItem} toggle={this.toggle} onSave={this.handleSubmit} />}
       </main>
     );
   }

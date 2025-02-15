@@ -1,84 +1,62 @@
 import React, { Component } from "react";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from "reactstrap";
 
-// Importing necessary components from reactstrap
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Form,
-  FormGroup,
-  Label,
-  Input
-} from "reactstrap";
-
-// Creating a class-based modal component
 class TaskModal extends Component {
   constructor(props) {
     super(props);
-    // Initialize state with the active item passed via props
     this.state = {
       currentItem: this.props.activeItem,
     };
   }
 
-  // Handler for input changes, including checkboxes
   handleInputChange = (event) => {
-    const { name, type, checked, value } = event.target;
-
-    // Determine the value based on the input type
-    const updatedValue = type === "checkbox" ? checked : value;
-
-    // Update the current item in the state
-    const updatedItem = { ...this.state.currentItem, [name]: updatedValue };
-
-    // Set the updated item to the state
-    this.setState({ currentItem: updatedItem });
+    const { name, value } = event.target;
+    this.setState({ currentItem: { ...this.state.currentItem, [name]: value } });
   };
 
   render() {
-    const { toggle, onSave } = this.props; // Destructuring onSave from props
+    const { toggle, onSave } = this.props;
     return (
       <Modal isOpen={true} toggle={toggle}>
         <ModalHeader toggle={toggle}> Task Item </ModalHeader>
         <ModalBody>
           <Form>
-            {/* 1. Title input */}
             <FormGroup>
               <Label for="title">Title</Label>
-              <Input
-                type="text"
-                name="title"
-                value={this.state.currentItem.title} // Updated reference
-                onChange={this.handleInputChange} // Updated handler
-                placeholder="Enter Task Title"
-              />
+              <Input type="text" name="title" value={this.state.currentItem.title} onChange={this.handleInputChange} placeholder="Enter Task Title" />
             </FormGroup>
 
-            {/* 2. Description input */}
             <FormGroup>
               <Label for="description">Description</Label>
-              <Input
-                type="text"
-                name="description"
-                value={this.state.currentItem.description} // Updated reference
-                onChange={this.handleInputChange} // Updated handler
-                placeholder="Enter Task Description"
-              />
+              <Input type="text" name="description" value={this.state.currentItem.description} onChange={this.handleInputChange} placeholder="Enter Task Description" />
             </FormGroup>
 
-            {/* 3. Completed checkbox */}
-            <FormGroup check>
-              <Label for="completed">
-                <Input
-                  type="checkbox"
-                  name="completed"
-                  checked={this.state.currentItem.completed} // Updated reference
-                  onChange={this.handleInputChange} // Updated handler
-                />
-                Completed
-              </Label>
+            <FormGroup>
+              <Label for="status">Status</Label>
+              <Input type="select" name="status" value={this.state.currentItem.status || "Open"} onChange={this.handleInputChange}>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+              </Input>
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="priority">Priority</Label>
+              <Input type="select" name="priority" value={this.state.currentItem.priority} onChange={this.handleInputChange}>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </Input>
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="category">Category</Label>
+              <Input type="text" name="category" value={this.state.currentItem.category} onChange={this.handleInputChange} placeholder="Enter Category" />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="due_date">Due Date</Label>
+              <Input type="date" name="due_date" value={this.state.currentItem.due_date} onChange={this.handleInputChange} />
             </FormGroup>
           </Form>
         </ModalBody>
