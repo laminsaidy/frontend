@@ -86,24 +86,38 @@ class TaskManager extends Component {
     const filteredItems = this.state.taskList.filter((item) => item.status === viewStatus);
     console.log("Filtered items:", filteredItems); // Debugging
 
-    return filteredItems.map((item) => (
-      <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
-        <span
-          className={`todo-title mr-2 ${item.overdue ? "text-danger" : ""}`}
-          title={item.description}
-        >
-          {item.title} - {item.priority} - {item.category} {item.overdue ? "(Overdue)" : ""}
-        </span>
-        <span>
-          <button onClick={() => this.editItem(item)} className="btn btn-secondary mr-2">
-            Edit
-          </button>
-          <button onClick={() => this.handleDelete(item)} className="btn btn-danger">
-            Delete
-          </button>
-        </span>
-      </li>
-    ));
+    return filteredItems.map((item) => {
+      // Define priority colors
+      const priorityColors = {
+        High: "#ff4444", // Red for High priority
+        Medium: "#ffbb33", // Yellow for Medium priority
+        Low: "#00C851", // Green for Low priority
+      };
+
+      // Get the color based on the task's priority
+      const priorityColor = priorityColors[item.priority] || "#000000"; // Default to black if priority is unknown
+
+      return (
+        <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
+          <span
+            className={`todo-title mr-2 ${item.overdue ? "text-danger" : ""}`}
+            title={item.description}
+          >
+            {item.title} - 
+            <span style={{ color: priorityColor, fontWeight: "bold" }}>{item.priority}</span> - 
+            {item.category} {item.overdue ? "(Overdue)" : ""}
+          </span>
+          <span>
+            <button onClick={() => this.editItem(item)} className="btn btn-secondary mr-2">
+              Edit
+            </button>
+            <button onClick={() => this.handleDelete(item)} className="btn btn-danger">
+              Delete
+            </button>
+          </span>
+        </li>
+      );
+    });
   };
 
   renderTabList = () => {
