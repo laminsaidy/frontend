@@ -7,7 +7,14 @@ class TaskManager extends Component {
     super(props);
     this.state = {
       viewStatus: "Open", // Default view
-      activeItem: { title: "", description: "", status: "Open", priority: "Medium", category: "General", due_date: "" },
+      activeItem: {
+        title: "",
+        description: "",
+        status: "Open",
+        priority: "Medium",
+        category: "General",
+        due_date: "",
+      },
       taskList: [],
       modal: false,
       loading: true,
@@ -23,9 +30,12 @@ class TaskManager extends Component {
       .get("http://localhost:8000/api/tasks/")
       .then((res) => {
         console.log("Updated task list:", res.data); // Debugging
-        const tasksWithOverdue = res.data.map(task => ({
+        const tasksWithOverdue = res.data.map((task) => ({
           ...task,
-          overdue: task.due_date && new Date(task.due_date) < new Date() && task.status !== "Done",
+          overdue:
+            task.due_date &&
+            new Date(task.due_date) < new Date() &&
+            task.status !== "Done",
         }));
         this.setState({ taskList: tasksWithOverdue, loading: false });
       })
@@ -50,30 +60,49 @@ class TaskManager extends Component {
     };
 
     if (item.id) {
-      axios.put(`http://localhost:8000/api/tasks/${item.id}/`, payload)
+      axios
+        .put(`http://localhost:8000/api/tasks/${item.id}/`, payload)
         .then(this.refreshList)
         .catch((error) => {
-          console.error("Error occurred while updating the task:", error.response ? error.response.data : error.message);
+          console.error(
+            "Error occurred while updating the task:",
+            error.response ? error.response.data : error.message
+          );
         });
       return;
     }
-    axios.post("http://localhost:8000/api/tasks/", payload)
+    axios
+      .post("http://localhost:8000/api/tasks/", payload)
       .then(this.refreshList)
       .catch((error) => {
-        console.error("Error occurred while creating the task:", error.response ? error.response.data : error.message);
+        console.error(
+          "Error occurred while creating the task:",
+          error.response ? error.response.data : error.message
+        );
       });
   };
 
   handleDelete = (item) => {
-    axios.delete(`http://localhost:8000/api/tasks/${item.id}/`)
+    axios
+      .delete(`http://localhost:8000/api/tasks/${item.id}/`)
       .then(this.refreshList)
       .catch((error) => {
-        console.error("Error occurred while deleting the task:", error.response ? error.response.data : error.message);
+        console.error(
+          "Error occurred while deleting the task:",
+          error.response ? error.response.data : error.message
+        );
       });
   };
 
   createItem = () => {
-    const item = { title: "", description: "", status: "Open", priority: "Medium", category: "General", due_date: "" };
+    const item = {
+      title: "",
+      description: "",
+      status: "Open",
+      priority: "Medium",
+      category: "General",
+      due_date: "",
+    };
     this.setState({ activeItem: item, modal: !this.state.modal });
   };
 
@@ -83,7 +112,9 @@ class TaskManager extends Component {
 
   renderItems = () => {
     const { viewStatus } = this.state;
-    const filteredItems = this.state.taskList.filter((item) => item.status === viewStatus);
+    const filteredItems = this.state.taskList.filter(
+      (item) => item.status === viewStatus
+    );
     console.log("Filtered items:", filteredItems); // Debugging
 
     return filteredItems.map((item) => {
@@ -98,20 +129,38 @@ class TaskManager extends Component {
       const priorityColor = priorityColors[item.priority] || "#000000"; // Default to black if priority is unknown
 
       return (
-        <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
+        <li
+          key={item.id}
+          className="list-group-item d-flex justify-content-between align-items-center"
+        >
           <span
             className={`todo-title mr-2 ${item.overdue ? "text-danger" : ""}`}
             title={item.description}
+            style={{
+              cursor: "pointer",
+              textDecoration: "underline",
+              color: "blue",
+            }}
+            onClick={() => this.props.history.push(`/task/${item.id}`)}
           >
-            {item.title} - 
-            <span style={{ color: priorityColor, fontWeight: "bold" }}>{item.priority}</span> - 
-            {item.category} {item.overdue ? "(Overdue)" : ""}
+            {item.title} -{" "}
+            <span style={{ color: priorityColor, fontWeight: "bold" }}>
+              {item.priority}
+            </span>{" "}
+            - {item.category} {item.overdue ? "(Overdue)" : ""}
           </span>
+
           <span>
-            <button onClick={() => this.editItem(item)} className="btn btn-secondary mr-2">
+            <button
+              onClick={() => this.editItem(item)}
+              className="btn btn-secondary mr-2"
+            >
               Edit
             </button>
-            <button onClick={() => this.handleDelete(item)} className="btn btn-danger">
+            <button
+              onClick={() => this.handleDelete(item)}
+              className="btn btn-danger"
+            >
               Delete
             </button>
           </span>
@@ -136,7 +185,8 @@ class TaskManager extends Component {
               borderRadius: "10px",
               marginRight: "5px",
               cursor: "pointer",
-              backgroundColor: this.state.viewStatus === status ? colors[status] : "white",
+              backgroundColor:
+                this.state.viewStatus === status ? colors[status] : "white",
               color: this.state.viewStatus === status ? "white" : "black",
             }}
           >
@@ -156,7 +206,9 @@ class TaskManager extends Component {
 
     return (
       <main className="content" style={{ paddingTop: "140px" }}>
-        <h1 className="text-black text-uppercase text-center my-4">Task Manager</h1>
+        <h1 className="text-black text-uppercase text-center my-4">
+          Task Manager
+        </h1>
         <div className="row">
           <div className="col-md-6 col-sm-10 mx-auto p-0">
             <div className="card p-3">
@@ -164,11 +216,19 @@ class TaskManager extends Component {
                 Add task
               </button>
               {this.renderTabList()}
-              <ul className="list-group list-group-flush">{this.renderItems()}</ul>
+              <ul className="list-group list-group-flush">
+                {this.renderItems()}
+              </ul>
             </div>
           </div>
         </div>
-        {this.state.modal && <TaskModal activeItem={this.state.activeItem} toggle={this.toggle} onSave={this.handleSubmit} />}
+        {this.state.modal && (
+          <TaskModal
+            activeItem={this.state.activeItem}
+            toggle={this.toggle}
+            onSave={this.handleSubmit}
+          />
+        )}
       </main>
     );
   }

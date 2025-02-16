@@ -7,6 +7,9 @@ import Homepage from "./pages/Homepage";
 import Loginpage from "./pages/Loginpage";
 import Registerpage from "./pages/Registerpage";
 import TaskManager from "./pages/TaskManager";
+import TaskDetail from "./pages/TaskDetail";
+
+
 
 function App() {
   return (
@@ -20,6 +23,8 @@ function App() {
 
           {/* Use PrivateRoute for protected TaskManager page */}
           <PrivateRoute exact path="/tasks" component={TaskManager} />
+          <Route path="/task/:id" component={TaskDetail} />
+
         </Switch>
       </AuthProvider>
     </Router>

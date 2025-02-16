@@ -37,3 +37,25 @@ body {
   background-color: rgb(5, 5, 128);
   color:#fff;
 } */
+
+/* Style for Task Detail Page */
+.task-detail-container {
+  padding: 20px;
+}
+
+.task-detail-container h2 {
+  border: none !important;       /* Remove any borders */
+  outline: none !important;      /* Remove any outlines */
+  text-decoration: none !important; /* Remove underlines */
+  padding-bottom: 10px;          /* Space below the title */
+}
+
+.task-detail-container p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.task-detail-container .overdue {
+  color: red;
+  font-weight: bold;
+}
