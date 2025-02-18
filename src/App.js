@@ -9,22 +9,17 @@ import Registerpage from "./pages/Registerpage";
 import TaskManager from "./pages/TaskManager";
 import TaskDetail from "./pages/TaskDetail";
 
-
-
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Navbar />
         <Switch>
-          <Route exact path="/" render={() => <Homepage />} />
-          <Route exact path="/login" render={() => <Loginpage />} />
-          <Route exact path="/register" render={() => <Registerpage />} />
-
-          {/* Use PrivateRoute for protected TaskManager page */}
-          <PrivateRoute exact path="/tasks" component={TaskManager} />
+          <Route exact path="/" component={Homepage} />
+          <Route exact path="/login" component={Loginpage} />
+          <Route exact path="/register" component={Registerpage} />
+          <PrivateRoute exact path="/tasks" component={TaskManager} /> 
           <Route path="/task/:id" component={TaskDetail} />
-
         </Switch>
       </AuthProvider>
     </Router>

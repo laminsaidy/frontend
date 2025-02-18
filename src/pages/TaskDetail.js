@@ -20,45 +20,44 @@ class TaskDetail extends Component {
       .catch((err) => console.error("Error fetching task details:", err));
   }
 
+  handleBack = () => {
+    // Navigate to the TaskManager page
+    this.props.history.push("/tasks");
+  };
+
   render() {
     const { task, loading } = this.state;
     if (loading) return <div>Loading...</div>;
 
     return (
       <div style={{ padding: "20px", marginTop: "80px" }}>
-        {/* Add debugging styles */}
-        <h2
-          style={{
-            border: "none",
-            outline: "none",
-            textDecoration: "none",
-            borderBottom: "none", // Only one borderBottom property
-            paddingBottom: "10px",
-            backgroundColor: "yellow", // Temporary debug style
-          }}
-        >
-          {task.title}
-        </h2>
-        <p style={{ marginBottom: "10px", fontSize: "1rem" }}>
-          <strong>Description:</strong> {task.description}
-        </p>
-        <p style={{ marginBottom: "10px", fontSize: "1rem" }}>
-          <strong>Status:</strong> {task.status}
-        </p>
-        <p style={{ marginBottom: "10px", fontSize: "1rem" }}>
-          <strong>Priority:</strong> {task.priority}
-        </p>
-        <p style={{ marginBottom: "10px", fontSize: "1rem" }}>
-          <strong>Category:</strong> {task.category}
-        </p>
-        <p style={{ marginBottom: "10px", fontSize: "1rem" }}>
-          <strong>Due Date:</strong> {task.due_date || "No due date"}
-        </p>
+        <h2>{task.title}</h2>
+        <p><strong>Description:</strong> {task.description}</p>
+        <p><strong>Status:</strong> {task.status}</p>
+        <p><strong>Priority:</strong> {task.priority}</p>
+        <p><strong>Category:</strong> {task.category}</p>
+        <p><strong>Due Date:</strong> {task.due_date || "No due date"}</p>
         {task.overdue && (
           <p style={{ color: "red", fontWeight: "bold" }}>
             <strong>Overdue!</strong>
           </p>
         )}
+
+        {/* BACK button */}
+        <button
+          onClick={this.handleBack}
+          style={{
+            marginTop: "20px",
+            padding: "10px 20px",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          BACK
+        </button>
       </div>
     );
   }
