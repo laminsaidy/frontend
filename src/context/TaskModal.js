@@ -7,7 +7,7 @@ class TaskModal extends Component {
     this.state = {
       currentItem: {
         ...this.props.activeItem,
-        category: this.props.activeItem.category || "General", // Default category
+        category: this.props.activeItem.category || "General", 
       },
     };
   }

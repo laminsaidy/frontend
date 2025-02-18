@@ -138,7 +138,6 @@ class TaskManager extends Component {
             title={item.description}
             style={{
               cursor: "pointer",
-              textDecoration: "underline",
               color: "blue",
             }}
             onClick={() => this.props.history.push(`/task/${item.id}`)}

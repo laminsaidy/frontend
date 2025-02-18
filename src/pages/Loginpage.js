@@ -147,7 +147,11 @@ function Loginpage() {
           <p>
             Copy right &copy;2025; Designed by{" "}
             <span class="creator">
-              <a href="https://github.com/laminsaidy" target="_blank">
+              <a
+                href="https://github.com/laminsaidy"
+                target="_blank"
+                rel="noreferrer"
+              >
                 Lamin Saidy
               </a>
             </span>
