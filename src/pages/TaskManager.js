@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import TaskModal from "../context/TaskModal";
+import '../styles/components/TaskCard.css';
 
 class TaskManager extends Component {
   constructor(props) {
@@ -51,7 +52,6 @@ class TaskManager extends Component {
   handleSubmit = (item) => {
     this.toggle();
 
-    // Ensure category is a string, not an array
     const payload = {
       ...item,
       category: Array.isArray(item.category) ? item.category[0] : item.category,
@@ -114,64 +114,63 @@ class TaskManager extends Component {
       (item) => item.status === viewStatus
     );
 
-    return filteredItems.map((item) => {
-      // Define status colors
-      const statusColors = {
-        Open: "red",
-        "In Progress": "orange",
-        Done: "green",
-      };
-
-      // Define priority colors
-      const priorityColors = {
-        High: "#ff4444", 
-        Medium: "#ffbb33", 
-        Low: "#00C851", 
-      };
-
-      // Get the colors based on the task's status and priority
-      const statusColor = statusColors[item.status] || "#000000"; 
-      const priorityColor = priorityColors[item.priority] || "#000000"; 
-
-      return (
-        <li
-          key={item.id}
-          className="list-group-item d-flex justify-content-between align-items-center"
-        >
-          <span
-            className={`todo-title mr-2 ${item.overdue ? "text-danger" : ""}`}
-            title={item.description}
-            style={{ cursor: "pointer" }} 
-            onClick={() => this.props.history.push(`/task/${item.id}`)}
-          >
-            {item.title} -{" "}
-            <span style={{ color: priorityColor, fontWeight: "bold" }}>
-              {item.priority}
-            </span>{" "}
-            -{" "}
-            <span style={{ color: statusColor, fontWeight: "bold" }}>
-              {item.status}
-            </span>{" "}
-            - {item.category} {item.overdue ? "(Overdue)" : ""}
-          </span>
-
-          <span>
+    return filteredItems.map((item) => (
+      <div 
+        key={item.id}
+        className={`task-card ${item.priority.toLowerCase()} ${item.overdue ? 'overdue' : ''}`}
+        onClick={() => this.props.history.push(`/task/${item.id}`)}
+      >
+        <div className="task-card-header">
+          <h3 className="task-title">
+            {item.title}
+            {item.overdue && <span className="overdue-badge">OVERDUE</span>}
+          </h3>
+          <div className="task-actions">
             <button
-              onClick={() => this.editItem(item)}
-              className="btn btn-secondary mr-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                this.editItem(item);
+              }}
+              className="btn-edit"
             >
-              Edit
+              ✏️
             </button>
             <button
-              onClick={() => this.handleDelete(item)}
-              className="btn btn-danger"
+              onClick={(e) => {
+                e.stopPropagation();
+                this.handleDelete(item);
+              }}
+              className="btn-delete"
             >
-              Delete
+              🗑️
             </button>
+          </div>
+        </div>
+        
+        <div className="task-meta">
+          <span className={`priority-badge ${item.priority.toLowerCase()}`}>
+            {item.priority}
           </span>
-        </li>
-      );
-    });
+          <span className={`status-badge ${item.status.toLowerCase().replace(' ', '-')}`}>
+            {item.status}
+          </span>
+          <span className="task-category">
+            {item.category}
+          </span>
+          {item.due_date && (
+            <span className="task-due">
+              📅 {new Date(item.due_date).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+        
+        {item.description && (
+          <p className="task-description">
+            {item.description}
+          </p>
+        )}
+      </div>
+    ));
   };
 
   renderTabList = () => {
@@ -221,9 +220,9 @@ class TaskManager extends Component {
                 Add task
               </button>
               {this.renderTabList()}
-              <ul className="list-group list-group-flush">
+              <div className="task-list-container">
                 {this.renderItems()}
-              </ul>
+              </div>
             </div>
           </div>
         </div>
