@@ -6,7 +6,7 @@ class TaskManager extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      viewStatus: "Open", // Default view
+      viewStatus: "Open", 
       activeItem: {
         title: "",
         description: "",
@@ -29,7 +29,6 @@ class TaskManager extends Component {
     axios
       .get("http://localhost:8000/api/tasks/")
       .then((res) => {
-        console.log("Updated task list:", res.data); // Debugging
         const tasksWithOverdue = res.data.map((task) => ({
           ...task,
           overdue:
@@ -51,7 +50,6 @@ class TaskManager extends Component {
 
   handleSubmit = (item) => {
     this.toggle();
-    console.log("Submitting item:", item); // Debugging
 
     // Ensure category is a string, not an array
     const payload = {
@@ -115,18 +113,25 @@ class TaskManager extends Component {
     const filteredItems = this.state.taskList.filter(
       (item) => item.status === viewStatus
     );
-    console.log("Filtered items:", filteredItems); // Debugging
 
     return filteredItems.map((item) => {
-      // Define priority colors
-      const priorityColors = {
-        High: "#ff4444", // Red for High priority
-        Medium: "#ffbb33", // Yellow for Medium priority
-        Low: "#00C851", // Green for Low priority
+      // Define status colors
+      const statusColors = {
+        Open: "red",
+        "In Progress": "orange",
+        Done: "green",
       };
 
-      // Get the color based on the task's priority
-      const priorityColor = priorityColors[item.priority] || "#000000"; // Default to black if priority is unknown
+      // Define priority colors
+      const priorityColors = {
+        High: "#ff4444", 
+        Medium: "#ffbb33", 
+        Low: "#00C851", 
+      };
+
+      // Get the colors based on the task's status and priority
+      const statusColor = statusColors[item.status] || "#000000"; 
+      const priorityColor = priorityColors[item.priority] || "#000000"; 
 
       return (
         <li
@@ -136,15 +141,16 @@ class TaskManager extends Component {
           <span
             className={`todo-title mr-2 ${item.overdue ? "text-danger" : ""}`}
             title={item.description}
-            style={{
-              cursor: "pointer",
-              color: "blue",
-            }}
+            style={{ cursor: "pointer" }} 
             onClick={() => this.props.history.push(`/task/${item.id}`)}
           >
             {item.title} -{" "}
             <span style={{ color: priorityColor, fontWeight: "bold" }}>
               {item.priority}
+            </span>{" "}
+            -{" "}
+            <span style={{ color: statusColor, fontWeight: "bold" }}>
+              {item.status}
             </span>{" "}
             - {item.category} {item.overdue ? "(Overdue)" : ""}
           </span>

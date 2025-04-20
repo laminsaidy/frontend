@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         setAuthTokens(data);
         setUser(jwtDecode(data.access));
         localStorage.setItem("authTokens", JSON.stringify(data));
-        history.push("/"); // Redirect to home page after login
+        history.push("/"); 
         Swal.fire({
           title: "Login Successful",
           icon: "success",
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.status === 201) {
-        history.push("/login"); // Redirect to login page after registration
+        history.push("/login"); 
         Swal.fire({
           title: "Registration Successful. Please login.",
           icon: "success",
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }) => {
     setAuthTokens(null);
     setUser(null);
     localStorage.removeItem("authTokens");
-    history.push("/login"); // Redirect to login page after logout
+    history.push("/login"); 
     Swal.fire({
       title: "You have been logged out",
       icon: "success",
@@ -149,7 +149,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Token refresh error:", error);
-      logoutUser(); // Log out the user if token refresh fails
+      logoutUser(); 
     }
   };
 
@@ -174,8 +174,8 @@ export const AuthProvider = ({ children }) => {
         setUser(decodedToken);
       }
     }
-    setLoading(false); // Only set loading to false once after first effect
-  }, [authTokens, logoutUser]); // Removed 'loading' from the dependencies
+    setLoading(false); 
+  }, [authTokens, logoutUser]); 
 
   return (
     <AuthContext.Provider value={contextData}>
