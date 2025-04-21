@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import axios from "axios";
 import TaskModal from "../context/TaskModal";
+import ConfirmationDialog from "../context/ConfirmationDialog"; // Import the new component
 import '../styles/components/TaskCard.css';
 
 class TaskManager extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      viewStatus: "Open", 
+      viewStatus: "Open",
       activeItem: {
         title: "",
         description: "",
@@ -19,6 +20,8 @@ class TaskManager extends Component {
       taskList: [],
       modal: false,
       loading: true,
+      showConfirmationDialog: false,
+      itemToDelete: null,
     };
   }
 
@@ -81,8 +84,13 @@ class TaskManager extends Component {
   };
 
   handleDelete = (item) => {
+    this.setState({ showConfirmationDialog: true, itemToDelete: item });
+  };
+
+  confirmDelete = () => {
+    const { itemToDelete } = this.state;
     axios
-      .delete(`http://localhost:8000/api/tasks/${item.id}/`)
+      .delete(`http://localhost:8000/api/tasks/${itemToDelete.id}/`)
       .then(this.refreshList)
       .catch((error) => {
         console.error(
@@ -90,6 +98,11 @@ class TaskManager extends Component {
           error.response ? error.response.data : error.message
         );
       });
+    this.setState({ showConfirmationDialog: false, itemToDelete: null });
+  };
+
+  cancelDelete = () => {
+    this.setState({ showConfirmationDialog: false, itemToDelete: null });
   };
 
   createItem = () => {
@@ -115,7 +128,7 @@ class TaskManager extends Component {
     );
 
     return filteredItems.map((item) => (
-      <div 
+      <div
         key={item.id}
         className={`task-card ${item.priority.toLowerCase()} ${item.overdue ? 'overdue' : ''}`}
         onClick={() => this.props.history.push(`/task/${item.id}`)}
@@ -146,7 +159,7 @@ class TaskManager extends Component {
             </button>
           </div>
         </div>
-        
+
         <div className="task-meta">
           <span className={`priority-badge ${item.priority.toLowerCase()}`}>
             {item.priority}
@@ -163,7 +176,7 @@ class TaskManager extends Component {
             </span>
           )}
         </div>
-        
+
         {item.description && (
           <p className="task-description">
             {item.description}
@@ -202,7 +215,7 @@ class TaskManager extends Component {
   };
 
   render() {
-    const { loading } = this.state;
+    const { loading, showConfirmationDialog } = this.state;
 
     if (loading) {
       return <div>Loading tasks...</div>;
@@ -233,6 +246,12 @@ class TaskManager extends Component {
             onSave={this.handleSubmit}
           />
         )}
+        <ConfirmationDialog
+          show={showConfirmationDialog}
+          onConfirm={this.confirmDelete}
+          onCancel={this.cancelDelete}
+          message="Are you sure you want to delete this task?"
+        />
       </main>
     );
   }
