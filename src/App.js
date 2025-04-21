@@ -8,6 +8,8 @@ import Loginpage from "./pages/Loginpage";
 import Registerpage from "./pages/Registerpage";
 import TaskManager from "./pages/TaskManager";
 import TaskDetail from "./pages/TaskDetail";
+import AddTask from "./pages/AddTask"; 
+import TaskStatistics from "./pages/TaskStatistics"; 
 import NotFound from "./pages/NotFound"; 
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
           <Route exact path="/register" component={Registerpage} />
           <PrivateRoute exact path="/tasks" component={TaskManager} />
           <Route path="/task/:id" component={TaskDetail} />
+          <PrivateRoute exact path="/tasks/add" component={AddTask} /> 
+          <PrivateRoute exact path="/tasks/statistics" component={TaskStatistics} /> k
           <Route component={NotFound} /> 
         </Switch>
       </AuthProvider>

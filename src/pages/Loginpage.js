@@ -3,23 +3,23 @@ import { Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 
 function Loginpage() {
-  const { loginUser } = useContext(AuthContext); // Accessing loginUser from the AuthContext
+  const { loginUser } = useContext(AuthContext); 
 
   // Handle form submission
   const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
 
-    const email = e.target.email.value; // Get email value from form
-    const password = e.target.password.value; // Get password value from form
+    const email = e.target.email.value; 
+    const password = e.target.password.value; 
 
-    console.log("Email:", email); // Logging email value for testing
-    console.log("Password:", password); // Logging password value for testing
+    console.log("Email:", email); 
+    console.log("Password:", password); 
 
     // If both email and password are provided, attempt login
     if (email.length > 0 && password.length > 0) {
-      loginUser(email, password); // Calling loginUser with email and password
+      loginUser(email, password); 
     } else {
-      console.error("Email and password are required."); // If not both provided, log an error
+      console.error("Email and password are required."); 
     }
   };
 

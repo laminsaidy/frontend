@@ -1,0 +1,114 @@
+.jumbotron {
+    background-color: #f8f9fa;
+    padding: 2rem 1rem;
+    border-radius: 0.3rem;
+  }
+  
+  .task-summary, .recent-tasks {
+    margin: 20px 0;
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+  }
+  
+  .summary-label {
+    font-weight: bold;
+  }
+  
+  .summary-value {
+    font-size: 1.2rem;
+  }
+  
+  .recent-tasks ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .recent-tasks li {
+    margin: 10px 0;
+  }
+  
+  .recent-tasks .task-date {
+    margin-left: 10px;
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+  
+  .footer {
+    padding: 1rem 0;
+  }
+  
+  .footer p {
+    margin: 0;
+  }
+  
+  .footer .creator a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .footer .creator a:hover {
+    text-decoration: underline;
+  }
+  
+  .jumbotron {
+    margin-top: 20px; /* Add margin to create space */
+  }
+  
+  .container {
+    margin-top: 20px; /* Add margin to create space */
+  }
+  
+  .task-summary, .recent-tasks {
+    margin: 20px 0;
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+  }
+  
+  .summary-label {
+    font-weight: bold;
+  }
+  
+  .summary-value {
+    font-size: 1.2rem;
+  }
+  
+  .recent-tasks ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .recent-tasks li {
+    margin: 10px 0;
+  }
+  
+  .recent-tasks .task-date {
+    margin-left: 10px;
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+  
+  .footer {
+    padding: 1rem 0;
+  }
+  
+  .footer p {
+    margin: 0;
+  }
+  
+  .footer .creator a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .footer .creator a:hover {
+    text-decoration: underline;
+  }
+  
