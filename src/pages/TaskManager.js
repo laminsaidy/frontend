@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import TaskModal from "../context/TaskModal";
-import ConfirmationDialog from "../context/ConfirmationDialog"; // Import the new component
+import ConfirmationDialog from "../context/ConfirmationDialog"; 
 import '../styles/components/TaskCard.css';
 
 class TaskManager extends Component {

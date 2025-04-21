@@ -8,6 +8,7 @@ import Loginpage from "./pages/Loginpage";
 import Registerpage from "./pages/Registerpage";
 import TaskManager from "./pages/TaskManager";
 import TaskDetail from "./pages/TaskDetail";
+import NotFound from "./pages/NotFound"; 
 
 function App() {
   return (
@@ -18,8 +19,9 @@ function App() {
           <Route exact path="/" component={Homepage} />
           <Route exact path="/login" component={Loginpage} />
           <Route exact path="/register" component={Registerpage} />
-          <PrivateRoute exact path="/tasks" component={TaskManager} /> 
+          <PrivateRoute exact path="/tasks" component={TaskManager} />
           <Route path="/task/:id" component={TaskDetail} />
+          <Route component={NotFound} /> 
         </Switch>
       </AuthProvider>
     </Router>
