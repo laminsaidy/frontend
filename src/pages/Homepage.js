@@ -74,14 +74,9 @@ const Homepage = () => {
           {/* Example row of columns */}
           <div className="row">
             <div className="col-md-4">
-              <h2>Quick Actions</h2>
+              <h2>Inspirational Quote</h2>
               <p>
-                Quickly add or view your tasks.
-              </p>
-              <p>
-                <Link to="/tasks/add" className="btn btn-secondary" role="button">
-                  Add Task »
-                </Link>
+                "The best way to get something done is to begin. But the true secret? Break it down, track each step, and watch progress build momentum."
               </p>
             </div>
             <div className="col-md-4">
