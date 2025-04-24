@@ -1,0 +1,47 @@
+/* Loginpage.css */
+
+.login-section {
+    background-color: #7D5A75;
+    margin-top: 80px;
+    padding-bottom: 20px;
+  }
+  
+  .login-container {
+    border-radius: 1rem;
+  }
+  
+  .login-image {
+    border-radius: 1rem 0 0 1rem;
+  }
+  
+  .login-icon {
+    color: #ff6219;
+  }
+  
+  .login-heading {
+    letter-spacing: 1px;
+  }
+  
+  .register-link {
+    color: #393f81;
+  }
+  
+  .footer {
+    background-color: #f8f9fa;
+    padding: 1rem 0;
+    text-align: center;
+  }
+  
+  .footer p {
+    margin: 0;
+  }
+  
+  .footer .creator a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .footer .creator a:hover {
+    text-decoration: underline;
+  }
+  
