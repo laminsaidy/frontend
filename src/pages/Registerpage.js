@@ -1,6 +1,7 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
+import '../styles/components/Registerpage.css';
 
 function Registerpage() {
   // State hooks to handle form inputs for email, username, password, and confirm password
@@ -26,23 +27,18 @@ function Registerpage() {
 
   return (
     <div>
-      <section className="min-vh-85" style={{ backgroundColor: "#7D5A75" }}>
-        <div
-          className="container py-5"
-          style={{ marginTop: "80px", paddingBottom: "20px" }}
-        >
-          {/* Adjust margin-top to avoid navbar overlap */}
+      <section className="min-vh-85 register-section">
+        <div className="container py-5">
           <div className="row d-flex justify-content-center align-items-center h-100">
             <div className="col col-xl-10">
-              <div className="card" style={{ borderRadius: "1rem" }}>
+              <div className="card register-container">
                 <div className="row g-0">
                   {/* Left-side image */}
                   <div className="col-md-6 col-lg-5 d-none d-md-block">
                     <img
                       src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp"
                       alt="register form"
-                      className="img-fluid"
-                      style={{ borderRadius: "1rem 0 0 1rem" }}
+                      className="img-fluid register-image"
                     />
                   </div>
                   {/* Right-side form */}
@@ -52,20 +48,14 @@ function Registerpage() {
                       <form onSubmit={handleSubmit}>
                         {/* Welcome message */}
                         <div className="d-flex align-items-center mb-3 pb-1">
-                          <i
-                            className="fas fa-cubes fa-2x me-3"
-                            style={{ color: "#ff6219" }}
-                          />
+                          <i className="fas fa-cubes fa-2x me-3 register-icon" />
                           <span className="h2 fw-bold mb-0">
                             Welcome! <b>👋</b>
                           </span>
                         </div>
 
                         {/* Header text */}
-                        <h5
-                          className="fw-normal mb-3 pb-3"
-                          style={{ letterSpacing: 1 }}
-                        >
+                        <h5 className="fw-normal mb-3 pb-3 register-heading">
                           Sign Up Please!
                         </h5>
 
@@ -124,12 +114,9 @@ function Registerpage() {
                         </div>
 
                         {/* Link to Login page if the user already has an account */}
-                        <p
-                          className="mb-5 pb-lg-2"
-                          style={{ color: "#393f81" }}
-                        >
+                        <p className="mb-5 pb-lg-2 login-link">
                           Already have an account?{" "}
-                          <Link to="/login" style={{ color: "#393f81" }}>
+                          <Link to="/login" className="login-link">
                             Login Now
                           </Link>
                         </p>
@@ -152,12 +139,16 @@ function Registerpage() {
       </section>
 
       {/* Footer with copyright */}
-      <footer className="bg-light text-center text-lg-start">
+      <footer className="bg-light text-center text-lg-start footer">
         <div className="footer">
           <p>
-            Copy right &copy;2025; Designed by{" "}
+            Copyright &copy; 2025; Designed by{" "}
             <span className="creator">
-              <a href="https://github.com/laminsaidy" target="_blank">
+              <a
+                href="https://github.com/laminsaidy"
+                target="_blank"
+                rel="noreferrer"
+              >
                 Lamin Saidy
               </a>
             </span>
