@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
 import TaskModal from "../context/TaskModal";
-import ConfirmationDialog from "../context/ConfirmationDialog"; 
-import '../styles/components/TaskCard.css';
+import ConfirmationDialog from "../context/ConfirmationDialog";
+import '../styles/components/TaskManager.css';
 
 class TaskManager extends Component {
   constructor(props) {
@@ -196,16 +196,7 @@ class TaskManager extends Component {
           <span
             key={status}
             onClick={() => this.setState({ viewStatus: status })}
-            style={{
-              padding: "5px 8px",
-              border: "1px solid rgb(5, 5, 128)",
-              borderRadius: "10px",
-              marginRight: "5px",
-              cursor: "pointer",
-              backgroundColor:
-                this.state.viewStatus === status ? colors[status] : "white",
-              color: this.state.viewStatus === status ? "white" : "black",
-            }}
+            className={this.state.viewStatus === status ? `active ${status.toLowerCase().replace(' ', '-')}` : ''}
           >
             {status}
           </span>
@@ -222,8 +213,8 @@ class TaskManager extends Component {
     }
 
     return (
-      <main className="content" style={{ paddingTop: "140px" }}>
-        <h1 className="text-black text-uppercase text-center my-4">
+      <main className="content">
+        <h1 className="task-manager-header">
           Task Manager
         </h1>
         <div className="row">
