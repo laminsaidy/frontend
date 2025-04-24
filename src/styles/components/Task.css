@@ -1,4 +1,4 @@
-/* Task Cards - Improved with shorter, elegant status indicator */
+
 .task-card {
   background: white;
   border-radius: 8px;
@@ -8,7 +8,7 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   position: relative;
   overflow: hidden;
-  border-left: none; /* Remove the border-left */
+  border-left: none; 
 }
 
 .task-card::before {
@@ -16,10 +16,10 @@
   position: absolute;
   left: 0;
   top: 10%;
-  height: 80%; /* Makes the line shorter */
-  width: 3px; /* Thinner line */
+  height: 80%; 
+  width: 3px; 
   background: var(--gray-500);
-  border-radius: 0 3px 3px 0; /* Rounded ends */
+  border-radius: 0 3px 3px 0; 
 }
 
 .task-card:hover {
@@ -27,7 +27,7 @@
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* Priority colors - now using the pseudo-element */
+/* Priority colors using the pseudo-element */
 .task-card.high::before { background: var(--danger); }
 .task-card.medium::before { background: var(--warning); }
 .task-card.low::before { background: var(--success); }
@@ -108,7 +108,7 @@
 
 /* Improved Add Task Form - prevents header overlap */
 .add-task-container {
-  margin-top: 80px; /* Increased top margin */
+  margin-top: 80px; 
   padding: 30px;
   background-color: #fff;
   border-radius: 8px;

@@ -139,17 +139,7 @@ function Navbar() {
         </div>
       </nav>
 
-      {/* Add hover effect using CSS */}
-      <style>
-        {`
-          .navbar-nav .nav-link:hover {
-            color: #ccc !important; /* Light gray on hover */
-          }
-          .navbar-nav button.nav-link:hover {
-            color: #ccc !important; /* Light gray on hover for the Logout button */
-          }
-        `}
-      </style>
+      
     </div>
   );
 }
