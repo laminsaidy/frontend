@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import './TaskDetail.css';
 
 class TaskDetail extends Component {
   constructor(props) {
@@ -30,32 +31,21 @@ class TaskDetail extends Component {
     if (loading) return <div>Loading...</div>;
 
     return (
-      <div style={{ padding: "20px", marginTop: "80px" }}>
-        <h2>{task.title}</h2>
-        <p><strong>Description:</strong> {task.description}</p>
-        <p><strong>Status:</strong> {task.status}</p>
-        <p><strong>Priority:</strong> {task.priority}</p>
-        <p><strong>Category:</strong> {task.category}</p>
-        <p><strong>Due Date:</strong> {task.due_date || "No due date"}</p>
+      <div className="task-detail-container">
+        <h2 className="task-detail-header">{task.title}</h2>
+        <p className="task-detail-description"><strong>Description:</strong> {task.description}</p>
+        <p className="task-detail-status"><strong>Status:</strong> {task.status}</p>
+        <p className="task-detail-priority"><strong>Priority:</strong> {task.priority}</p>
+        <p className="task-detail-category"><strong>Category:</strong> {task.category}</p>
+        <p className="task-detail-due-date"><strong>Due Date:</strong> {task.due_date || "No due date"}</p>
         {task.overdue && (
-          <p style={{ color: "red", fontWeight: "bold" }}>
+          <p className="task-detail-overdue">
             <strong>Overdue!</strong>
           </p>
         )}
 
         {/* BACK button */}
-        <button
-          onClick={this.handleBack}
-          style={{
-            marginTop: "20px",
-            padding: "10px 20px",
-            backgroundColor: "#007bff",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
+        <button className="back-button" onClick={this.handleBack}>
           BACK
         </button>
       </div>
