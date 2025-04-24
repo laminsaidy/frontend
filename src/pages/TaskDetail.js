@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import './TaskDetail.css';
+import '../styles/components/Taskdetail.css';
 
 class TaskDetail extends Component {
   constructor(props) {

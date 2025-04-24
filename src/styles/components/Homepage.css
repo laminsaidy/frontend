@@ -1,114 +1,41 @@
-.jumbotron {
-    background-color: #f8f9fa;
-    padding: 2rem 1rem;
-    border-radius: 0.3rem;
-  }
-  
-  .task-summary, .recent-tasks {
-    margin: 20px 0;
-  }
-  
-  .summary-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-  }
-  
-  .summary-label {
-    font-weight: bold;
-  }
-  
-  .summary-value {
-    font-size: 1.2rem;
-  }
-  
-  .recent-tasks ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .recent-tasks li {
-    margin: 10px 0;
-  }
-  
-  .recent-tasks .task-date {
-    margin-left: 10px;
-    font-size: 0.9rem;
-    color: #6c757d;
-  }
-  
-  .footer {
-    padding: 1rem 0;
-  }
-  
-  .footer p {
-    margin: 0;
-  }
-  
-  .footer .creator a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .footer .creator a:hover {
-    text-decoration: underline;
-  }
-  
-  .jumbotron {
-    margin-top: 20px; 
-  }
-  
-  .container {
-    margin-top: 20px; 
-  }
-  
-  .task-summary, .recent-tasks {
-    margin: 20px 0;
-  }
-  
-  .summary-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-  }
-  
-  .summary-label {
-    font-weight: bold;
-  }
-  
-  .summary-value {
-    font-size: 1.2rem;
-  }
-  
-  .recent-tasks ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .recent-tasks li {
-    margin: 10px 0;
-  }
-  
-  .recent-tasks .task-date {
-    margin-left: 10px;
-    font-size: 0.9rem;
-    color: #6c757d;
-  }
-  
-  .footer {
-    padding: 1rem 0;
-  }
-  
-  .footer p {
-    margin: 0;
-  }
-  
-  .footer .creator a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .footer .creator a:hover {
-    text-decoration: underline;
-  }
-  
+.homepage-container {
+  text-align: center;
+  max-width: 600px;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+}
+
+.homepage-container h1 {
+  color: #4a6fa5;
+  margin-bottom: 1.5rem;
+}
+
+.homepage-container p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  color: #666;
+}
+
+.btn {
+  display: inline-block;
+  background-color: #4a6fa5;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #3a5a80;
+}
+
+.illustration {
+  width: 150px;
+  margin-bottom: 1.5rem;
+}
