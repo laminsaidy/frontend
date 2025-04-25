@@ -12,11 +12,12 @@ const Homepage = () => {
         <circle cx="9" cy="12" r="1" fill="#4a6fa5"/>
         <circle cx="9" cy="16" r="1" fill="#4a6fa5"/>
       </svg>
-      
+
       <h1>Welcome to Your Task Manager</h1>
       <p>Organize your work, manage your projects, and boost your productivity with our simple yet powerful task management tool.</p>
-      
+
       <a href="/tasks" className="btn">Get Started</a>
+
     </div>
   );
 };

@@ -1,41 +1,84 @@
 .homepage-container {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   max-width: 600px;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin: 6rem auto 0; /* Added top margin to clear navbar */
+  padding: 4rem 2rem;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  margin: 6rem auto 0;
+  text-align: center;
+  background-image: url('/static/images/homepage.jpg'); 
+  background-size: cover;
+  background-position: center;
 }
 
 .homepage-container h1 {
-  color: #4a6fa5;
-  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 2.2rem;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+  animation: fadeIn 1s ease-in-out; 
 }
 
 .homepage-container p {
   font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  color: #666;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+  color: #333; 
+  animation: fadeIn 1.5s ease-in-out; 
 }
+
+
 
 .btn {
   display: inline-block;
   background-color: #4a6fa5;
   color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 5px;
+  padding: 0.9rem 2rem;
+  border-radius: 30px;
   text-decoration: none;
   font-weight: 500;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
+  animation: bounce 1s ease-in-out;
 }
 
 .btn:hover {
   background-color: #3a5a80;
+  transform: translateY(-2px);
 }
 
 .illustration {
-  width: 150px;
-  margin-bottom: 1.5rem;
+  width: 160px;
+  margin-bottom: 2rem;
+  animation: fadeIn 1s ease-in-out; 
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 2rem;
+  font-size: 0.9rem;
+  color: #999;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
 }
