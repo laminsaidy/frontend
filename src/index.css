@@ -3,3 +3,14 @@
 /* body {
   padding-top: 1px;
 } */
+
+/* Prevent anchor scrolling */
+/* html {
+    scroll-behavior: auto !important;
+    overflow-anchor: none;
+  } */
+  
+  /* Optional: If you have a fixed header/navbar */
+  /* body {
+    padding-top: 60px; 
+  } */

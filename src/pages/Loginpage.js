@@ -94,12 +94,12 @@ function Loginpage() {
                           </Link>
                         </p>
 
-                        <a href="#!" className="small text-muted">
+                        <Link to="/terms" className="small text-muted me-2">
                           Terms of use.
-                        </a>
-                        <a href="#!" className="small text-muted">
+                        </Link>
+                        <Link to="/privacy" className="small text-muted">
                           Privacy policy
-                        </a>
+                        </Link>
                       </form>
                     </div>
                   </div>

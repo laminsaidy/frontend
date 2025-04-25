@@ -8,13 +8,17 @@ import Loginpage from "./pages/Loginpage";
 import Registerpage from "./pages/Registerpage";
 import TaskManager from "./pages/TaskManager";
 import TaskDetail from "./pages/TaskDetail";
-import AddTask from "./pages/AddTask"; 
-import NotFound from "./pages/NotFound"; 
+import AddTask from "./pages/AddTask";
+import NotFound from "./pages/NotFound";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+// import ScrollToTop from "./utils/ScrollToTop"; 
 
 function App() {
   return (
     <Router>
       <AuthProvider>
+        {/* <ScrollToTop />  */}
         <Navbar />
         <Switch>
           <Route exact path="/" component={Homepage} />
@@ -22,8 +26,10 @@ function App() {
           <Route exact path="/register" component={Registerpage} />
           <PrivateRoute exact path="/tasks" component={TaskManager} />
           <Route path="/task/:id" component={TaskDetail} />
-          <PrivateRoute exact path="/tasks/add" component={AddTask} /> 
-          <Route component={NotFound} /> 
+          <PrivateRoute exact path="/tasks/add" component={AddTask} />
+          <Route exact path="/terms" component={TermsOfService} />
+          <Route exact path="/privacy" component={PrivacyPolicy} />
+          <Route component={NotFound} />
         </Switch>
       </AuthProvider>
     </Router>

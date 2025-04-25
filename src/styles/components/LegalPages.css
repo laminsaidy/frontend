@@ -1,0 +1,64 @@
+/* LegalPages.css */
+.legal-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Changed from center */
+    min-height: 80vh;
+    padding: 2rem;
+    padding-top: 40px; /* Added top padding */
+    background-color: #f8f9fa;
+    overflow-anchor: none; /* Prevents scroll jumping */
+  }
+  
+  .legal-content {
+    max-width: 800px;
+    width: 100%;
+    background: white;
+    padding: 3rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    scroll-margin-top: 20px; /* Helps with fixed headers */
+  }
+  
+  .legal-title {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    scroll-margin-top: 20px; /* Ensures title is visible */
+  }
+  
+  /* Rest of your existing CSS remains the same */
+  .legal-section {
+    margin-bottom: 2rem;
+  }
+  
+  .legal-section h2 {
+    color: #3498db;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+  }
+  
+  .legal-section p {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .legal-content {
+      padding: 2rem;
+    }
+    
+    .legal-title {
+      font-size: 2rem;
+    }
+    
+    .legal-page-container {
+      padding: 1.5rem;
+      padding-top: 30px;
+    }
+  }
