@@ -1,5 +1,5 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode"; // Corrected import
+import { jwtDecode } from "jwt-decode"; 
 import dayjs from "dayjs";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
@@ -32,7 +32,7 @@ const useAxios = () => {
 
       localStorage.setItem("authTokens", JSON.stringify(response.data));
       setAuthTokens(response.data);
-      setUser(jwtDecode(response.data.access)); // Use jwtDecode
+      setUser(jwtDecode(response.data.access)); 
 
       req.headers.Authorization = `Bearer ${response.data.access}`;
     } catch (error) {
