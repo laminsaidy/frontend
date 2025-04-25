@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
-import '../styles/components/Loginpage.css';
+import "../styles/components/Loginpage.css";
 
 function Loginpage() {
   const { loginUser } = useContext(AuthContext);
@@ -45,10 +45,9 @@ function Loginpage() {
                 <div className="row g-0">
                   <div className="col-md-6 col-lg-5 d-none d-md-block">
                     <img
-                      src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp"
+                      src="/static/images/Smiley.jpg" 
                       alt="login form"
                       className="img-fluid login-image"
-                      crossOrigin="anonymous" // Added for security
                     />
                   </div>
                   <div className="col-md-6 col-lg-7 d-flex align-items-center">
@@ -101,8 +100,8 @@ function Loginpage() {
                         </div>
 
                         <div className="pt-1 mb-4">
-                          <button 
-                            className="btn btn-dark btn-lg btn-block" 
+                          <button
+                            className="btn btn-dark btn-lg btn-block"
                             type="submit"
                             disabled={isLoading}
                           >
