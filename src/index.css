@@ -5,12 +5,12 @@
 } */
 
 /* Prevent anchor scrolling */
-/* html {
+html {
     scroll-behavior: auto !important;
     overflow-anchor: none;
-  } */
+  }
   
-  /* Optional: If you have a fixed header/navbar */
-  /* body {
+  /* for a fixed header/navbar */
+  body {
     padding-top: 60px; 
-  } */
+  }

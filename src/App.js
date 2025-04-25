@@ -12,13 +12,13 @@ import AddTask from "./pages/AddTask";
 import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-// import ScrollToTop from "./utils/ScrollToTop"; 
+import ScrollToTop from "./utils/ScrollToTop"; 
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        {/* <ScrollToTop />  */}
+        <ScrollToTop /> 
         <Navbar />
         <Switch>
           <Route exact path="/" component={Homepage} />
