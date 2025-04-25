@@ -121,6 +121,19 @@ class TaskManager extends Component {
     this.setState({ activeItem: item, modal: !this.state.modal });
   };
 
+  updateTaskStatus = (item, newStatus) => {
+    const payload = { ...item, status: newStatus };
+    axios
+      .put(`http://localhost:8000/api/tasks/${item.id}/`, payload)
+      .then(this.refreshList)
+      .catch((error) => {
+        console.error(
+          "Error occurred while updating the task status:",
+          error.response ? error.response.data : error.message
+        );
+      });
+  };
+
   renderItems = () => {
     const { viewStatus } = this.state;
     const filteredItems = this.state.taskList.filter(
@@ -157,6 +170,28 @@ class TaskManager extends Component {
             >
               🗑️
             </button>
+            {viewStatus === "Open" && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  this.updateTaskStatus(item, "In Progress");
+                }}
+                className="btn-status"
+              >
+                In Progress
+              </button>
+            )}
+            {viewStatus === "In Progress" && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  this.updateTaskStatus(item, "Done");
+                }}
+                className="btn-status"
+              >
+                Done
+              </button>
+            )}
           </div>
         </div>
 

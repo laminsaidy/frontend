@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import "../styles/components/Loginpage.css";
+import SmileyImage from "../assets/images/Smiley.jpg";
 
 function Loginpage() {
   const { loginUser } = useContext(AuthContext);
@@ -45,7 +46,7 @@ function Loginpage() {
                 <div className="row g-0">
                   <div className="col-md-6 col-lg-5 d-none d-md-block">
                     <img
-                      src="/static/images/Smiley.jpg" 
+                      src={SmileyImage}
                       alt="login form"
                       className="img-fluid login-image"
                     />
