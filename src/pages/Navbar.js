@@ -1,21 +1,42 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import AuthContext from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
 function Navbar() {
-  // Accessing user and logoutUser from AuthContext
   const { user, logoutUser } = useContext(AuthContext);
-  const isAuthenticated = !!user; // Check if user is authenticated
+  const isAuthenticated = !!user;
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const navbarRef = useRef(null);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  const handleClickOutside = (event) => {
+    if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+      setIsCollapsed(true);
+    }
+  };
+
+  const handleNavLinkClick = () => {
+    setIsCollapsed(true);
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div>
+    <div ref={navbarRef}>
       <nav
         className="navbar navbar-expand-lg navbar-dark fixed-top bg-dark"
         style={{ paddingTop: "10px", paddingBottom: "10px", zIndex: "10" }}
       >
         <div className="container-fluid">
-          {/* Logo Link - Clicking the logo redirects to the homepage */}
-          <Link className="navbar-brand" to="/">
+          <Link className="navbar-brand" to="/" onClick={handleNavLinkClick}>
             <img
               style={{
                 width: "120px",
@@ -26,31 +47,26 @@ function Navbar() {
               alt="Logo"
             />
           </Link>
-
-          {/* Navbar toggler for responsive mobile view */}
           <button
             className="navbar-toggler"
             type="button"
-            data-toggle="collapse"
-            data-target="#navbarNav"
+            onClick={toggleCollapse}
             aria-controls="navbarNav"
-            aria-expanded="false"
+            aria-expanded={!isCollapsed}
             aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-
-          {/* Collapsible navbar content */}
           <div
-            className="collapse navbar-collapse justify-content-end"
+            className={`collapse navbar-collapse justify-content-end ${!isCollapsed ? "show" : ""}`}
             id="navbarNav"
           >
             <ul className="navbar-nav" style={{ display: "flex", alignItems: "center" }}>
-              {/* Home Link */}
               <li className="nav-item" style={{ marginRight: "10px" }}>
                 <Link
                   className="nav-link"
                   to="/"
+                  onClick={handleNavLinkClick}
                   style={{
                     color: "white",
                     padding: "0.5rem 1rem",
@@ -61,14 +77,13 @@ function Navbar() {
                   Home
                 </Link>
               </li>
-
-              {/* Login and Register links (only shown if not authenticated) */}
               {!isAuthenticated && (
                 <>
                   <li className="nav-item" style={{ marginRight: "10px" }}>
                     <Link
                       className="nav-link"
                       to="/login"
+                      onClick={handleNavLinkClick}
                       style={{
                         color: "white",
                         padding: "0.5rem 1rem",
@@ -83,6 +98,7 @@ function Navbar() {
                     <Link
                       className="nav-link"
                       to="/register"
+                      onClick={handleNavLinkClick}
                       style={{
                         color: "white",
                         padding: "0.5rem 1rem",
@@ -95,14 +111,13 @@ function Navbar() {
                   </li>
                 </>
               )}
-
-              {/* Task Manager and Logout links (only shown if authenticated) */}
               {isAuthenticated && (
                 <>
                   <li className="nav-item" style={{ marginRight: "10px" }}>
                     <Link
                       className="nav-link"
                       to="/tasks"
+                      onClick={handleNavLinkClick}
                       style={{
                         color: "white",
                         padding: "0.5rem 1rem",
@@ -114,10 +129,12 @@ function Navbar() {
                     </Link>
                   </li>
                   <li className="nav-item">
-                    {/* Logout button */}
                     <button
                       className="nav-link"
-                      onClick={logoutUser}
+                      onClick={() => {
+                        logoutUser();
+                        handleNavLinkClick();
+                      }}
                       style={{
                         cursor: "pointer",
                         background: "none",
@@ -138,8 +155,6 @@ function Navbar() {
           </div>
         </div>
       </nav>
-
-      
     </div>
   );
 }

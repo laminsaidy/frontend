@@ -188,7 +188,6 @@ class TaskManager extends Component {
 
   renderTabList = () => {
     const statuses = ["Open", "In Progress", "Done"];
-    const colors = { Open: "red", "In Progress": "orange", Done: "green" };
 
     return (
       <div className="my-5 tab-list">
