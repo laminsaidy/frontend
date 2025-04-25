@@ -2,24 +2,15 @@ import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import '../styles/components/Registerpage.css';
+import registerImage from '../assets/images/register.jpg'; 
 
 function Registerpage() {
-  // State hooks to handle form inputs for email, username, password, and confirm password
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-
-  // Destructure registerUser from AuthContext
   const { registerUser } = useContext(AuthContext);
 
-  // Log form input values to the console for debugging purposes
-  console.log(email);
-  console.log(username);
-  console.log(password);
-  console.log(password2);
-
-  // Handle form submission and call registerUser with the form data
   const handleSubmit = async (e) => {
     e.preventDefault();
     registerUser(email, username, password, password2);
@@ -33,20 +24,16 @@ function Registerpage() {
             <div className="col col-xl-10">
               <div className="card register-container">
                 <div className="row g-0">
-                  {/* Left-side image */}
                   <div className="col-md-6 col-lg-5 d-none d-md-block">
                     <img
-                      src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp"
+                      src={registerImage}
                       alt="register form"
                       className="img-fluid register-image"
                     />
                   </div>
-                  {/* Right-side form */}
                   <div className="col-md-6 col-lg-7 d-flex align-items-center">
                     <div className="card-body p-4 p-lg-5 text-black">
-                      {/* Registration form */}
-                      <form onSubmit={handleSubmit}>
-                        {/* Welcome message */}
+                      <form onSubmit={handleSubmit} autoComplete="on">
                         <div className="d-flex align-items-center mb-3 pb-1">
                           <i className="fas fa-cubes fa-2x me-3 register-icon" />
                           <span className="h2 fw-bold mb-0">
@@ -54,56 +41,75 @@ function Registerpage() {
                           </span>
                         </div>
 
-                        {/* Header text */}
                         <h5 className="fw-normal mb-3 pb-3 register-heading">
                           Sign Up Please!
                         </h5>
 
-                        {/* Email input field */}
+                        {/* Email Input */}
                         <div className="form-outline mb-4">
                           <input
                             type="email"
-                            id="form2Example17"
+                            id="registerEmail"
                             className="form-control form-control-lg"
                             placeholder="Email Address"
+                            autoComplete="email"
                             onChange={(e) => setEmail(e.target.value)}
+                            required
                           />
+                          <label className="form-label" htmlFor="registerEmail">
+                            Email Address
+                          </label>
                         </div>
 
-                        {/* Username input field */}
+                        {/* Username Input */}
                         <div className="form-outline mb-4">
                           <input
                             type="text"
-                            id="form2Example17"
+                            id="registerUsername"
                             className="form-control form-control-lg"
                             placeholder="Username"
+                            autoComplete="username"
                             onChange={(e) => setUsername(e.target.value)}
+                            required
                           />
+                          <label className="form-label" htmlFor="registerUsername">
+                            Username
+                          </label>
                         </div>
 
-                        {/* Password input field */}
+                        {/* Password Input */}
                         <div className="form-outline mb-4">
                           <input
                             type="password"
-                            id="form2Example17"
+                            id="registerPassword"
                             className="form-control form-control-lg"
                             placeholder="Password"
+                            autoComplete="new-password"
                             onChange={(e) => setPassword(e.target.value)}
+                            required
+                            minLength="8"
                           />
+                          <label className="form-label" htmlFor="registerPassword">
+                            Password
+                          </label>
                         </div>
 
-                        {/* Confirm password input field */}
+                        {/* Confirm Password Input */}
                         <div className="form-outline mb-4">
                           <input
                             type="password"
-                            id="form2Example27"
+                            id="registerConfirmPassword"
                             className="form-control form-control-lg"
                             placeholder="Confirm Password"
+                            autoComplete="new-password"
                             onChange={(e) => setPassword2(e.target.value)}
+                            required
                           />
+                          <label className="form-label" htmlFor="registerConfirmPassword">
+                            Confirm Password
+                          </label>
                         </div>
 
-                        {/* Submit button */}
                         <div className="pt-1 mb-4">
                           <button
                             className="btn btn-dark btn-lg btn-block"
@@ -113,7 +119,6 @@ function Registerpage() {
                           </button>
                         </div>
 
-                        {/* Link to Login page if the user already has an account */}
                         <p className="mb-5 pb-lg-2 login-link">
                           Already have an account?{" "}
                           <Link to="/login" className="login-link">
@@ -121,13 +126,12 @@ function Registerpage() {
                           </Link>
                         </p>
 
-                        {/* Links to terms of use and privacy policy */}
-                        <a href="#!" className="small text-muted">
+                        <Link to="/terms" className="small text-muted me-2">
                           Terms of use.
-                        </a>
-                        <a href="#!" className="small text-muted">
+                        </Link>
+                        <Link to="/privacy" className="small text-muted">
                           Privacy policy
-                        </a>
+                        </Link>
                       </form>
                     </div>
                   </div>
@@ -138,7 +142,6 @@ function Registerpage() {
         </div>
       </section>
 
-      {/* Footer with copyright */}
       <footer className="bg-light text-center text-lg-start footer">
         <div className="footer">
           <p>
@@ -147,7 +150,7 @@ function Registerpage() {
               <a
                 href="https://github.com/laminsaidy"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 Lamin Saidy
               </a>
