@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: frontend
-    env: static
-    staticPublishPath: build
-    buildCommand: npm install && npm run build
-    startCommand: serve -s build
