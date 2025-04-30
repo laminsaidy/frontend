@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const AuthContext = createContext();
-
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
@@ -19,16 +18,16 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [loading, setLoading] = useState(true);
-
-  const history = useHistory(); 
+  const history = useHistory();
 
   const loginUser = async (email, password) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/token/", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/token/`, {  // Use the env variable here
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
@@ -38,7 +37,7 @@ export const AuthProvider = ({ children }) => {
         setAuthTokens(data);
         setUser(jwtDecode(data.access));
         localStorage.setItem("authTokens", JSON.stringify(data));
-        history.push("/"); 
+        history.push("/");
         Swal.fire({
           title: "Login Successful",
           icon: "success",
@@ -67,16 +66,17 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (email, username, password, password2) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/register/", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/register/`, {  // Use the env variable here
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ email, username, password, password2 }),
       });
 
       if (response.status === 201) {
-        history.push("/login"); 
+        history.push("/login");
         Swal.fire({
           title: "Registration Successful. Please login.",
           icon: "success",
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }) => {
     setAuthTokens(null);
     setUser(null);
     localStorage.removeItem("authTokens");
-    history.push("/login"); 
+    history.push("/login");
     Swal.fire({
       title: "You have been logged out",
       icon: "success",
@@ -130,11 +130,12 @@ export const AuthProvider = ({ children }) => {
 
   const refreshToken = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/token/refresh/", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/token/refresh/`, {  // Use the env variable here
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ refresh: authTokens.refresh }),
       });
 
@@ -149,7 +150,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Token refresh error:", error);
-      logoutUser(); 
+      logoutUser();
     }
   };
 
@@ -174,8 +175,8 @@ export const AuthProvider = ({ children }) => {
         setUser(decodedToken);
       }
     }
-    setLoading(false); 
-  }, [authTokens, logoutUser]); 
+    setLoading(false);
+  }, [authTokens, logoutUser]);
 
   return (
     <AuthContext.Provider value={contextData}>
