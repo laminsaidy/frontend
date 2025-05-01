@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (email, password) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/token/`, {  // Use the env variable here
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/`, { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (email, username, password, password2) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/register/`, {  // Use the env variable here
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/register/`, { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +130,7 @@ export const AuthProvider = ({ children }) => {
 
   const refreshToken = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/token/refresh/`, {  // Use the env variable here
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/token/refresh/`, {  
         method: "POST",
         headers: {
           "Content-Type": "application/json",
