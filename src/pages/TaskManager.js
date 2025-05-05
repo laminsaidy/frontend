@@ -1,150 +1,178 @@
-import React, { Component } from "react";
-import axios from "axios";
-import TaskModal from "../context/TaskModal";
+import React, { useState, useEffect, useCallback } from "react";
+import useAxios from "../utils/useAxios";
 import ConfirmationDialog from "../context/ConfirmationDialog";
-import '../styles/components/TaskManager.css';
+import TaskModal from "../context/TaskModal";
+import "../styles/components/TaskManager.css";
 
-class TaskManager extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      viewStatus: "Open",
-      activeItem: {
-        title: "",
-        description: "",
-        status: "Open",
-        priority: "Medium",
-        category: "General",
-        due_date: "",
-      },
-      taskList: [],
-      modal: false,
-      loading: true,
-      showConfirmationDialog: false,
-      itemToDelete: null,
-    };
-  }
+const TaskManager = () => {
+  const axiosInstance = useAxios();
+  const [initialized, setInitialized] = useState(false);
+  const [viewStatus, setViewStatus] = useState("Open");
+  const [activeItem, setActiveItem] = useState({
+    title: "",
+    description: "",
+    status: "Open",
+    priority: "Medium",
+    category: "General",
+    due_date: "",
+  });
+  const [taskList, setTaskList] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [error, setError] = useState(null);
 
-  componentDidMount() {
-    this.refreshList();
-  }
-
-  refreshList = () => {
-    axios
-      .get("http://localhost:8000/api/tasks/")
-      .then((res) => {
-        const tasksWithOverdue = res.data.map((task) => ({
-          ...task,
-          overdue:
-            task.due_date &&
-            new Date(task.due_date) < new Date() &&
-            task.status !== "Done",
-        }));
-        this.setState({ taskList: tasksWithOverdue, loading: false });
-      })
-      .catch((err) => {
-        console.error("Error fetching tasks:", err);
-        this.setState({ taskList: [], loading: false });
-      });
+  // Safe API call wrapper
+  const safeApiCall = async (fn, errorMessage) => {
+    try {
+      setError(null);
+      return await fn();
+    } catch (err) {
+      console.error(errorMessage, err);
+      setError(errorMessage);
+      setLoading(false);
+      throw err;
+    }
   };
 
-  toggle = () => {
-    this.setState({ modal: !this.state.modal });
-  };
-
-  handleSubmit = (item) => {
-    this.toggle();
-
-    const payload = {
-      ...item,
-      category: Array.isArray(item.category) ? item.category[0] : item.category,
-    };
-
-    if (item.id) {
-      axios
-        .put(`http://localhost:8000/api/tasks/${item.id}/`, payload)
-        .then(this.refreshList)
-        .catch((error) => {
-          console.error(
-            "Error occurred while updating the task:",
-            error.response ? error.response.data : error.message
-          );
-        });
+  const refreshList = useCallback(() => {
+    if (!axiosInstance) {
+      setError("API connection not available");
+      setLoading(false);
       return;
     }
-    axios
-      .post("http://localhost:8000/api/tasks/", payload)
-      .then(this.refreshList)
-      .catch((error) => {
-        console.error(
-          "Error occurred while creating the task:",
-          error.response ? error.response.data : error.message
-        );
-      });
-  };
 
-  handleDelete = (item) => {
-    this.setState({ showConfirmationDialog: true, itemToDelete: item });
-  };
+    safeApiCall(
+      () =>
+        axiosInstance.get("/tasks/").then((res) => {
+          const tasksWithOverdue = res.data.map((task) => ({
+            ...task,
+            overdue:
+              task.due_date &&
+              new Date(task.due_date) < new Date() &&
+              task.status !== "Done",
+          }));
+          setTaskList(tasksWithOverdue);
+          setLoading(false);
+        }),
+      "Error fetching tasks"
+    );
+  }, [axiosInstance]);
 
-  confirmDelete = () => {
-    const { itemToDelete } = this.state;
-    axios
-      .delete(`http://localhost:8000/api/tasks/${itemToDelete.id}/`)
-      .then(this.refreshList)
-      .catch((error) => {
-        console.error(
-          "Error occurred while deleting the task:",
-          error.response ? error.response.data : error.message
-        );
-      });
-    this.setState({ showConfirmationDialog: false, itemToDelete: null });
-  };
+  useEffect(() => {
+    refreshList();
+    setInitialized(true);
+  }, [refreshList]);
 
-  cancelDelete = () => {
-    this.setState({ showConfirmationDialog: false, itemToDelete: null });
-  };
-
-  createItem = () => {
-    const item = {
+  // Open modal to create a new task
+  const createItem = () => {
+    setActiveItem({
       title: "",
       description: "",
       status: "Open",
       priority: "Medium",
       category: "General",
       due_date: "",
+    });
+    setModal(true);
+  };
+
+  // Toggle the task modal
+  const toggle = () => {
+    setModal(!modal);
+  };
+
+  // Edit an existing task
+  const editItem = (item) => {
+    setActiveItem(item);
+    setModal(true);
+  };
+
+  // Handle save from modal (create or update)
+  const handleSubmit = (item) => {
+    toggle();
+    const payload = {
+      ...item,
+      category: Array.isArray(item.category) ? item.category[0] : item.category,
     };
-    this.setState({ activeItem: item, modal: !this.state.modal });
+
+    if (item.id) {
+      // Update existing task
+      safeApiCall(
+        () => axiosInstance.put(`/tasks/${item.id}/`, payload),
+        "Error updating task"
+      ).then(refreshList);
+    } else {
+      // Create new task
+      safeApiCall(
+        () => axiosInstance.post("/tasks/", payload),
+        "Error creating task"
+      ).then(refreshList);
+    }
   };
 
-  editItem = (item) => {
-    this.setState({ activeItem: item, modal: !this.state.modal });
+  // Open confirmation dialog for deletion
+  const handleDelete = (item) => {
+    setItemToDelete(item);
+    setShowConfirmationDialog(true);
   };
 
-  updateTaskStatus = (item, newStatus) => {
+  // Confirm deletion of a task
+  const confirmDelete = () => {
+    if (!itemToDelete) return;
+    safeApiCall(
+      () => axiosInstance.delete(`/tasks/${itemToDelete.id}/`),
+      "Error deleting task"
+    ).then(() => {
+      setShowConfirmationDialog(false);
+      setItemToDelete(null);
+      refreshList();
+    });
+  };
+
+  // Cancel delete action
+  const cancelDelete = () => {
+    setShowConfirmationDialog(false);
+    setItemToDelete(null);
+  };
+
+  // Update task status
+  const updateTaskStatus = (item, newStatus) => {
     const payload = { ...item, status: newStatus };
-    axios
-      .put(`http://localhost:8000/api/tasks/${item.id}/`, payload)
-      .then(this.refreshList)
-      .catch((error) => {
-        console.error(
-          "Error occurred while updating the task status:",
-          error.response ? error.response.data : error.message
-        );
-      });
+    safeApiCall(
+      () => axiosInstance.put(`/tasks/${item.id}/`, payload),
+      "Error updating task status"
+    ).then(refreshList);
   };
 
-  renderItems = () => {
-    const { viewStatus } = this.state;
-    const filteredItems = this.state.taskList.filter(
-      (item) => item.status === viewStatus
+  // Tab navigation (Open / In Progress / Done)
+  const renderTabList = () => {
+    const statuses = ["Open", "In Progress", "Done"];
+    return (
+      <div className="my-5 tab-list">
+        {statuses.map((status) => (
+          <span
+            key={status}
+            onClick={() => setViewStatus(status)}
+            className={viewStatus === status ? `active ${status.toLowerCase().replace(' ', '-')}` : ''}
+          >
+            {status}
+          </span>
+        ))}
+      </div>
     );
+  };
+
+  // Render tasks filtered by status
+  const renderItems = () => {
+    const filteredItems = taskList.filter((item) => item.status === viewStatus);
 
     return filteredItems.map((item) => (
       <div
         key={item.id}
         className={`task-card ${item.priority.toLowerCase()} ${item.overdue ? 'overdue' : ''}`}
-        onClick={() => this.props.history.push(`/task/${item.id}`)}
+        onClick={() => window.history.pushState({}, '', `/task/${item.id}`)}
       >
         <div className="task-card-header">
           <h3 className="task-title">
@@ -155,7 +183,7 @@ class TaskManager extends Component {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                this.editItem(item);
+                editItem(item);
               }}
               className="btn-edit"
             >
@@ -164,7 +192,7 @@ class TaskManager extends Component {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                this.handleDelete(item);
+                handleDelete(item);
               }}
               className="btn-delete"
             >
@@ -174,7 +202,7 @@ class TaskManager extends Component {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  this.updateTaskStatus(item, "In Progress");
+                  updateTaskStatus(item, "In Progress");
                 }}
                 className="btn-status"
               >
@@ -185,7 +213,7 @@ class TaskManager extends Component {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  this.updateTaskStatus(item, "Done");
+                  updateTaskStatus(item, "Done");
                 }}
                 className="btn-status"
               >
@@ -221,65 +249,48 @@ class TaskManager extends Component {
     ));
   };
 
-  renderTabList = () => {
-    const statuses = ["Open", "In Progress", "Done"];
+  // Add this early return if initialization fails
+  if (!initialized && error) {
+    return <div className="error-message">Initialization error: {error}</div>;
+  }
 
-    return (
-      <div className="my-5 tab-list">
-        {statuses.map((status) => (
-          <span
-            key={status}
-            onClick={() => this.setState({ viewStatus: status })}
-            className={this.state.viewStatus === status ? `active ${status.toLowerCase().replace(' ', '-')}` : ''}
-          >
-            {status}
-          </span>
-        ))}
-      </div>
-    );
-  };
+  if (loading) {
+    return <div>Loading tasks...</div>;
+  }
 
-  render() {
-    const { loading, showConfirmationDialog } = this.state;
+  if (error) {
+    return <div className="error-message">Error: {error}</div>;
+  }
 
-    if (loading) {
-      return <div>Loading tasks...</div>;
-    }
-
-    return (
-      <main className="content">
-        <h1 className="task-manager-header">
-          Task Manager
-        </h1>
-        <div className="row">
-          <div className="col-md-6 col-sm-10 mx-auto p-0">
-            <div className="card p-3">
-              <button onClick={this.createItem} className="btn btn-primary">
-                Add task
-              </button>
-              {this.renderTabList()}
-              <div className="task-list-container">
-                {this.renderItems()}
-              </div>
-            </div>
+  return (
+    <main className="content">
+      <h1 className="task-manager-header">Task Manager</h1>
+      <div className="row">
+        <div className="col-md-6 col-sm-10 mx-auto p-0">
+          <div className="card p-3">
+            <button onClick={createItem} className="btn btn-primary">
+              Add task
+            </button>
+            {renderTabList()}
+            <div className="task-list-container">{renderItems()}</div>
           </div>
         </div>
-        {this.state.modal && (
-          <TaskModal
-            activeItem={this.state.activeItem}
-            toggle={this.toggle}
-            onSave={this.handleSubmit}
-          />
-        )}
-        <ConfirmationDialog
-          show={showConfirmationDialog}
-          onConfirm={this.confirmDelete}
-          onCancel={this.cancelDelete}
-          message="Are you sure you want to delete this task?"
+      </div>
+      {modal && (
+        <TaskModal
+          activeItem={activeItem}
+          toggle={toggle}
+          onSave={handleSubmit}
         />
-      </main>
-    );
-  }
-}
+      )}
+      <ConfirmationDialog
+        show={showConfirmationDialog}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        message="Are you sure you want to delete this task?"
+      />
+    </main>
+  );
+};
 
 export default TaskManager;
