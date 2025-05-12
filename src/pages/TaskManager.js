@@ -36,12 +36,12 @@ const TaskManager = () => {
     };
     const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current);
       }
@@ -60,16 +60,18 @@ const TaskManager = () => {
       const response = await fn();
       return response;
     } catch (err) {
-      if (err.name === 'AbortError') {
+      if (err.name === "AbortError") {
         throw err; // Let the calling code handle abort errors
       }
 
       if (err.code === "ERR_NETWORK" || !err.response) {
         if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           return safeApiCall(fn, errorMessage, retries - 1);
         }
-        setError("Network Error: Unable to connect to server. Please check your connection.");
+        setError(
+          "Network Error: Unable to connect to server. Please check your connection."
+        );
       } else if (err.response?.status === 400) {
         setValidationErrors(err.response.data || {});
         setError("Validation error: Please check your inputs");
@@ -86,7 +88,8 @@ const TaskManager = () => {
   // Network-aware refresh function with timeout and rate limiting
   const refreshList = useCallback(async () => {
     const now = Date.now();
-    if (now - lastRefreshTime.current < 2000) { // 2 second cooldown
+    if (now - lastRefreshTime.current < 2000) {
+      // 2 second cooldown
       return;
     }
     lastRefreshTime.current = now;
@@ -105,35 +108,33 @@ const TaskManager = () => {
 
     try {
       setLoading(true);
-      
+
       // Cancel any pending requests
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
       abortControllerRef.current = new AbortController();
 
-      await safeApiCall(
-        async () => {
-          const response = await axiosInstance.get("/tasks/", {
-            timeout: 10000,
-            signal: abortControllerRef.current.signal
-          });
+      await safeApiCall(async () => {
+        const response = await axiosInstance.get("/tasks/", {
+          timeout: 10000,
+          signal: abortControllerRef.current.signal,
+        });
 
-          const now = new Date();
-          const tasksWithOverdue = response.data.map((task) => ({
-            ...task,
-            overdue: task.due_date &&
-              new Date(task.due_date) < now &&
-              task.status !== "Done",
-          }));
+        const now = new Date();
+        const tasksWithOverdue = response.data.map((task) => ({
+          ...task,
+          overdue:
+            task.due_date &&
+            new Date(task.due_date) < now &&
+            task.status !== "Done",
+        }));
 
-          setTaskList(tasksWithOverdue);
-          return response;
-        },
-        "Failed to load tasks. Please try again."
-      );
+        setTaskList(tasksWithOverdue);
+        return response;
+      }, "Failed to load tasks. Please try again.");
     } catch (error) {
-      if (error.name !== 'AbortError') {
+      if (error.name !== "AbortError") {
         console.error("Refresh error:", error);
       }
     } finally {
@@ -149,7 +150,7 @@ const TaskManager = () => {
           await refreshList();
           setInitialized(true);
         } catch (error) {
-          if (error.name !== 'AbortError') {
+          if (error.name !== "AbortError") {
             console.error("Initialization error:", error);
           }
         }
@@ -165,7 +166,7 @@ const TaskManager = () => {
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current);
       }
-      
+
       refreshTimeoutRef.current = setTimeout(() => {
         refreshList();
       }, 500); // Small debounce to prevent rapid refreshes
@@ -179,18 +180,19 @@ const TaskManager = () => {
   }, [isOnline, initialized, refreshList]);
 
   // Format payload for API with proper type conversion
+  // Update the formatPayload function:
   const formatPayload = (item) => {
     return {
       title: item.title.trim(),
       description: item.description?.trim() || "",
-      status: item.status,
-      priority: item.priority,
-      category: Array.isArray(item.category) ? item.category[0] : (item.category || "General"),
-      due_date: item.due_date || null
+      status: item.status[0] || "O", // First character for status
+      priority: item.priority[0] || "M", // First character for priority
+      category: item.category || "General",
+      due_date: item.due_date || null,
     };
   };
 
-  // Handle save from modal (create or update)
+  // Update the handleSubmit function:
   const handleSubmit = async (item) => {
     toggle();
     const payload = formatPayload(item);
@@ -199,24 +201,18 @@ const TaskManager = () => {
       setLoading(true);
       if (item.id) {
         await safeApiCall(
-          () => axiosInstance.put(`/tasks/${item.id}/`, payload, {
-            timeout: 10000,
-            signal: abortControllerRef.current?.signal
-          }),
+          () => axiosInstance.put(`/tasks/${item.id}/`, payload),
           "Error updating task"
         );
       } else {
         await safeApiCall(
-          () => axiosInstance.post("/tasks/", payload, {
-            timeout: 10000,
-            signal: abortControllerRef.current?.signal
-          }),
+          () => axiosInstance.post("/tasks/", payload),
           "Error creating task"
         );
       }
       await refreshList();
     } catch (error) {
-      // Error handling is done in safeApiCall
+      console.error("Submission error:", error);
     } finally {
       setLoading(false);
     }
@@ -244,7 +240,7 @@ const TaskManager = () => {
   const editItem = (item) => {
     setActiveItem({
       ...item,
-      due_date: item.due_date ? item.due_date.split('T')[0] : ""
+      due_date: item.due_date ? item.due_date.split("T")[0] : "",
     });
     setModal(true);
   };
@@ -262,10 +258,11 @@ const TaskManager = () => {
     try {
       setLoading(true);
       await safeApiCall(
-        () => axiosInstance.delete(`/tasks/${itemToDelete.id}/`, {
-          timeout: 10000,
-          signal: abortControllerRef.current?.signal
-        }),
+        () =>
+          axiosInstance.delete(`/tasks/${itemToDelete.id}/`, {
+            timeout: 10000,
+            signal: abortControllerRef.current?.signal,
+          }),
         "Error deleting task"
       );
       setShowConfirmationDialog(false);
@@ -290,10 +287,11 @@ const TaskManager = () => {
     try {
       setLoading(true);
       await safeApiCall(
-        () => axiosInstance.put(`/tasks/${item.id}/`, payload, {
-          timeout: 10000,
-          signal: abortControllerRef.current?.signal
-        }),
+        () =>
+          axiosInstance.put(`/tasks/${item.id}/`, payload, {
+            timeout: 10000,
+            signal: abortControllerRef.current?.signal,
+          }),
         "Error updating task status"
       );
       await refreshList();
@@ -313,7 +311,11 @@ const TaskManager = () => {
           <span
             key={status}
             onClick={() => setViewStatus(status)}
-            className={viewStatus === status ? `active ${status.toLowerCase().replace(' ', '-')}` : ''}
+            className={
+              viewStatus === status
+                ? `active ${status.toLowerCase().replace(" ", "-")}`
+                : ""
+            }
           >
             {status}
           </span>
@@ -329,8 +331,10 @@ const TaskManager = () => {
     return filteredItems.map((item) => (
       <div
         key={item.id}
-        className={`task-card ${item.priority.toLowerCase()} ${item.overdue ? 'overdue' : ''}`}
-        onClick={() => window.history.pushState({}, '', `/task/${item.id}`)}
+        className={`task-card ${item.priority.toLowerCase()} ${
+          item.overdue ? "overdue" : ""
+        }`}
+        onClick={() => window.history.pushState({}, "", `/task/${item.id}`)}
       >
         <div className="task-card-header">
           <h3 className="task-title">
@@ -385,12 +389,14 @@ const TaskManager = () => {
           <span className={`priority-badge ${item.priority.toLowerCase()}`}>
             {item.priority}
           </span>
-          <span className={`status-badge ${item.status.toLowerCase().replace(' ', '-')}`}>
+          <span
+            className={`status-badge ${item.status
+              .toLowerCase()
+              .replace(" ", "-")}`}
+          >
             {item.status}
           </span>
-          <span className="task-category">
-            {item.category}
-          </span>
+          <span className="task-category">{item.category}</span>
           {item.due_date && (
             <span className="task-due">
               📅 {new Date(item.due_date).toLocaleDateString()}
@@ -399,9 +405,7 @@ const TaskManager = () => {
         </div>
 
         {item.description && (
-          <p className="task-description">
-            {item.description}
-          </p>
+          <p className="task-description">{item.description}</p>
         )}
       </div>
     ));
@@ -430,7 +434,11 @@ const TaskManager = () => {
     <main className="content">
       <h1 className="task-manager-header">Task Manager</h1>
       {error && (
-        <div className={`alert ${error.includes("Network Error") ? "alert-warning" : "alert-danger"}`}>
+        <div
+          className={`alert ${
+            error.includes("Network Error") ? "alert-warning" : "alert-danger"
+          }`}
+        >
           {error}
           {error.includes("Network Error") && (
             <button
@@ -442,7 +450,8 @@ const TaskManager = () => {
           )}
           {Object.entries(validationErrors).map(([field, errors]) => (
             <div key={field}>
-              <strong>{field}:</strong> {Array.isArray(errors) ? errors.join(", ") : errors}
+              <strong>{field}:</strong>{" "}
+              {Array.isArray(errors) ? errors.join(", ") : errors}
             </div>
           ))}
         </div>

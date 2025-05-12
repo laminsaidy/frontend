@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (email, password) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/`, { 
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (email, username, password, password2) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/register/`, { 
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +130,7 @@ export const AuthProvider = ({ children }) => {
 
   const refreshToken = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/token/refresh/`, {  
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/refresh/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

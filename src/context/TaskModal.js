@@ -14,43 +14,81 @@ class TaskModal extends Component {
         due_date: props.activeItem.due_date || "",
         ...(props.activeItem.id && { id: props.activeItem.id })
       },
-      touched: {}
+      touched: {},
+      formErrors: {}
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    // Update errors when props change
+    if (prevProps.errors !== this.props.errors) {
+      this.setState({ formErrors: this.props.errors || {} });
+    }
   }
 
   handleInputChange = (event) => {
     const { name, value } = event.target;
-    this.setState({ 
-      currentItem: { 
-        ...this.state.currentItem, 
-        [name]: value 
+    this.setState({
+      currentItem: {
+        ...this.state.currentItem,
+        [name]: value
       },
       touched: {
         ...this.state.touched,
         [name]: true
+      },
+      formErrors: {
+        ...this.state.formErrors,
+        [name]: null // Clear error when user types
       }
     });
   };
 
   getFieldError = (fieldName) => {
-    const { errors } = this.props;
-    if (!errors || !this.state.touched[fieldName]) return null;
-    
-    const fieldErrors = errors[fieldName] || errors[`${fieldName}_detail`];
-    if (!fieldErrors) return null;
-    
-    return Array.isArray(fieldErrors) ? fieldErrors.join(", ") : fieldErrors;
+    const { formErrors, touched } = this.state;
+    if (!touched[fieldName]) return null;
+
+    const error = formErrors[fieldName] ||
+                 formErrors[`${fieldName}_detail`];
+
+    return error ? (Array.isArray(error) ? error.join(", ") : error) : null;
+  };
+
+  handleSubmit = () => {
+    const { currentItem } = this.state;
+    const { onSave } = this.props;
+
+    // Validate required fields before submission
+    const errors = {};
+    if (!currentItem.title.trim()) {
+      errors.title = "Title is required";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      this.setState({
+        formErrors: errors,
+        touched: {
+          title: true,
+          ...this.state.touched
+        }
+      });
+      return;
+    }
+
+    onSave(currentItem);
   };
 
   render() {
-    const { toggle, onSave } = this.props;
+    const { toggle } = this.props;
     const { currentItem } = this.state;
 
     return (
       <Modal isOpen={true} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Task Item</ModalHeader>
+        <ModalHeader toggle={toggle}>
+          {currentItem.id ? "Edit Task" : "Add New Task"}
+        </ModalHeader>
         <ModalBody>
-          <Form>
+          <Form onSubmit={(e) => { e.preventDefault(); this.handleSubmit(); }}>
             <FormGroup>
               <Label for="title">Title *</Label>
               <Input
@@ -60,6 +98,7 @@ class TaskModal extends Component {
                 onChange={this.handleInputChange}
                 placeholder="Enter Task Title"
                 invalid={!!this.getFieldError("title")}
+                required
               />
               <FormFeedback>{this.getFieldError("title")}</FormFeedback>
             </FormGroup>
@@ -137,7 +176,7 @@ class TaskModal extends Component {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="success" onClick={() => onSave(this.state.currentItem)}>
+          <Button color="primary" onClick={this.handleSubmit}>
             Save
           </Button>
           <Button color="secondary" onClick={toggle}>
