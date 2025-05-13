@@ -29,14 +29,9 @@ class TaskModal extends Component {
   // NEW: Enhanced error handling method
   getFieldError = (fieldName) => {
     const { formErrors } = this.state;
-    
+
     // Check for errors in different formats:
-    // 1. Exact field name match (e.g., "title")
-    // 2. Lowercase field name (e.g., "description" vs "Description")
-    // 3. Django-style field suffixes (e.g., "title_detail")
-    const error = formErrors[fieldName] || 
-                 formErrors[fieldName.toLowerCase()] || 
-                 formErrors[`${fieldName}_detail`];
+    const error = formErrors[fieldName] || formErrors[fieldName.toLowerCase()] || formErrors[`${fieldName}_detail`];
 
     // Format array errors into a string
     return error ? (Array.isArray(error) ? error.join(", ") : error) : null;
@@ -123,7 +118,7 @@ class TaskModal extends Component {
               <FormFeedback>{this.getFieldError("description")}</FormFeedback>
             </FormGroup>
 
-            {/* Example for status field */}
+            {/*status field */}
             <FormGroup>
               <Label for="status">Status</Label>
               <Input
@@ -141,6 +136,51 @@ class TaskModal extends Component {
             </FormGroup>
 
             {/* Add similar error handling for all other fields */}
+            <FormGroup>
+              <Label for="priority">Priority</Label>
+              <Input
+                type="select"
+                name="priority"
+                value={currentItem.priority}
+                onChange={this.handleInputChange}
+                invalid={!!this.getFieldError("priority")}
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </Input>
+              <FormFeedback>{this.getFieldError("priority")}</FormFeedback>
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="category">Category</Label>
+              <Input
+                type="select"
+                name="category"
+                value={currentItem.category}
+                onChange={this.handleInputChange}
+                invalid={!!this.getFieldError("category")}
+              >
+                <option value="General">General</option>
+                <option value="Work">Work</option>
+                <option value="Personal">Personal</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Other">Other</option>
+              </Input>
+              <FormFeedback>{this.getFieldError("category")}</FormFeedback>
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="due_date">Due Date</Label>
+              <Input
+                type="date"
+                name="due_date"
+                value={currentItem.due_date}
+                onChange={this.handleInputChange}
+                invalid={!!this.getFieldError("due_date")}
+              />
+              <FormFeedback>{this.getFieldError("due_date")}</FormFeedback>
+            </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>

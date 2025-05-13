@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import api from "../utils/api"; // Import the API service
+import api from "../utils/api"; 
 import '../styles/components/Task.css';
 
 const AddTask = () => {
@@ -9,7 +9,7 @@ const AddTask = () => {
     description: "",
     status: "Open",
     priority: "Medium",
-    category: "General",
+    category: "General", // Default category
     due_date: ""
   });
   const [errors, setErrors] = useState({});
@@ -105,8 +105,73 @@ const AddTask = () => {
           )}
         </div>
 
-        {/* Rest of your form fields remain the same */}
-        {/* ... */}
+        <div className="form-group">
+          <label>Description</label>
+          <textarea
+            className="form-control"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Status</label>
+          <select
+            className="form-control"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+          >
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Priority</label>
+          <select
+            className="form-control"
+            name="priority"
+            value={formData.priority}
+            onChange={handleChange}
+          >
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Category</label>
+          <select
+            className="form-control"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+          >
+            <option value="General">General</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Due Date</label>
+          <input
+            type="date"
+            className={`form-control ${errors.due_date ? 'is-invalid' : ''}`}
+            name="due_date"
+            value={formData.due_date}
+            onChange={handleChange}
+          />
+          {errors.due_date && (
+            <div className="invalid-feedback">{errors.due_date}</div>
+          )}
+        </div>
 
         <button
           type="submit"
