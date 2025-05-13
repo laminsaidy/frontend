@@ -36,6 +36,7 @@
 .task-title {
   font-size: 1.2rem;
   margin: 0;
+  font-weight: bold;
 }
 
 .overdue-badge {
@@ -82,26 +83,36 @@
 }
 
 .priority-badge,
-.status-badge,
 .task-category,
 .task-due {
-  padding: 2px 5px;
-  border-radius: 3px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #333;
 }
 
 .priority-badge.low {
-  background-color: #007bff;
-  color: white;
+  color: #007bff;
 }
 
 .priority-badge.medium {
-  background-color: #ffc107;
-  color: white;
+  color: #ffc107;
 }
 
 .priority-badge.high {
-  background-color: #dc3545;
-  color: white;
+  color: #dc3545;
+}
+
+.task-category {
+  color: #6c757d;
+}
+
+.task-due {
+  color: #17a2b8;
+}
+
+.status-badge {
+  padding: 2px 5px;
+  border-radius: 3px;
 }
 
 .status-badge.open {
