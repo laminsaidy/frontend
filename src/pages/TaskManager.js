@@ -28,6 +28,7 @@ const TaskManager = () => {
   const lastRefreshTime = useRef(0);
   const abortControllerRef = useRef(null);
 
+  // Status mappings
   const statusDisplayMap = {
     'O': 'Open',
     'P': 'In Progress',
@@ -35,8 +36,22 @@ const TaskManager = () => {
     'C': 'Cancelled'
   };
 
+  const statusCodeMap = {
+    'Open': 'O',
+    'In Progress': 'P',
+    'Done': 'D',
+    'Cancelled': 'C'
+  };
+
+  const priorityMap = {
+    'Low': 'L',
+    'Medium': 'M',
+    'High': 'H'
+  };
+
   const toggle = () => {
     setModal(!modal);
+    setValidationErrors({});
   };
 
   const createItem = () => {
@@ -67,6 +82,7 @@ const TaskManager = () => {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
+      refreshList();
     };
     const handleOffline = () => setIsOnline(false);
 
@@ -89,9 +105,7 @@ const TaskManager = () => {
     try {
       setError(null);
       setValidationErrors({});
-
-      const response = await fn();
-      return response;
+      return await fn();
     } catch (err) {
       if (err.name === "AbortError") {
         throw err;
@@ -111,7 +125,6 @@ const TaskManager = () => {
       } else {
         setError(errorMessage || "An unexpected error occurred");
       }
-
       throw err;
     }
   }, []);
@@ -140,21 +153,20 @@ const TaskManager = () => {
       }
       abortControllerRef.current = new AbortController();
 
-      await safeApiCall(async () => {
-        const response = await axiosInstance.get("/tasks/", {
+      const response = await safeApiCall(async () => {
+        const res = await axiosInstance.get("/tasks/", {
           timeout: 10000,
           signal: abortControllerRef.current.signal,
         });
 
         const now = new Date();
-        const tasksWithOverdue = response.data.map((task) => ({
+        return res.data.map((task) => ({
           ...task,
-          overdue: task.due_date && new Date(task.due_date) < now && task.status !== "Done",
+          overdue: task.due_date && new Date(task.due_date) < now && task.status !== "D",
         }));
-
-        setTaskList(tasksWithOverdue);
-        return response;
       }, "Failed to load tasks. Please try again.");
+
+      setTaskList(response);
     } catch (error) {
       if (error.name !== "AbortError") {
         setError("Failed to load tasks");
@@ -165,23 +177,10 @@ const TaskManager = () => {
   }, [axiosInstance, isOnline, safeApiCall]);
 
   const formatPayload = (item) => {
-    const statusMap = {
-      "Open": "O",
-      "In Progress": "P",
-      "Done": "D",
-      "Cancelled": "C"
-    };
-
-    const priorityMap = {
-      "Low": "L",
-      "Medium": "M",
-      "High": "H"
-    };
-
     return {
       title: item.title.trim(),
       description: item.description?.trim() || "",
-      status: statusMap[item.status] || "O",
+      status: statusCodeMap[item.status] || "O",
       priority: priorityMap[item.priority] || "M",
       category: item.category || "General",
       due_date: item.due_date || null,
@@ -218,6 +217,33 @@ const TaskManager = () => {
     }
   };
 
+  const updateTaskStatus = async (item, newStatusDisplay) => {
+    try {
+      setLoading(true);
+      
+      // Create complete payload with all required fields
+      const payload = formatPayload({
+        ...item,
+        status: newStatusDisplay
+      });
+
+      await safeApiCall(
+        () => axiosInstance.put(`/tasks/${item.id}/`, payload),
+        "Error updating task status"
+      );
+      
+      await refreshList();
+    } catch (error) {
+      console.error("Status update failed:", {
+        request: error.config?.data,
+        response: error.response?.data
+      });
+      setError(error.response?.data?.detail || "Failed to update task status. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!itemToDelete) return;
 
@@ -227,29 +253,10 @@ const TaskManager = () => {
         () => axiosInstance.delete(`/tasks/${itemToDelete.id}/`),
         "Error deleting task"
       );
+      await refreshList();
+    } finally {
       setShowConfirmationDialog(false);
       setItemToDelete(null);
-      await refreshList();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const cancelDelete = () => {
-    setShowConfirmationDialog(false);
-    setItemToDelete(null);
-  };
-
-  const updateTaskStatus = async (item, newStatus) => {
-    const payload = { ...item, status: newStatus };
-    try {
-      setLoading(true);
-      await safeApiCall(
-        () => axiosInstance.put(`/tasks/${item.id}/`, payload),
-        "Error updating task status"
-      );
-      await refreshList();
-    } finally {
       setLoading(false);
     }
   };
@@ -276,55 +283,79 @@ const TaskManager = () => {
       (item) => statusDisplayMap[item.status] === viewStatus
     );
 
-    return filteredItems.map((item) => (
-      <div
-        key={item.id}
-        className={`task-card ${item.priority.toLowerCase()} ${item.overdue ? "overdue" : ""}`}
-        onClick={() => window.history.pushState({}, "", `/task/${item.id}`)}
-      >
-        <div className="task-card-header">
-          <h3 className="task-title">
-            {item.title}
-            {item.overdue && <span className="overdue-badge">OVERDUE</span>}
-          </h3>
-          <div className="task-actions">
-            <button onClick={(e) => { e.stopPropagation(); editItem(item); }} className="btn-edit">
-              ✏️
-            </button>
-            <button onClick={(e) => { e.stopPropagation(); handleDelete(item); }} className="btn-delete">
-              🗑️
-            </button>
-            {viewStatus === "Open" && (
-              <button onClick={(e) => { e.stopPropagation(); updateTaskStatus(item, "In Progress"); }} className="btn-status">
-                In Progress
+    if (filteredItems.length === 0) {
+      return <div className="no-tasks">No {viewStatus.toLowerCase()} tasks found</div>;
+    }
+
+    return filteredItems.map((item) => {
+      const displayStatus = statusDisplayMap[item.status] || item.status;
+      
+      return (
+        <div
+          key={item.id}
+          className={`task-card ${item.priority.toLowerCase()} ${item.overdue ? "overdue" : ""}`}
+          onClick={() => window.location.href = `/task/${item.id}`}
+        >
+          <div className="task-card-header">
+            <h3 className="task-title">
+              {item.title}
+              {item.overdue && <span className="overdue-badge">OVERDUE</span>}
+            </h3>
+            <div className="task-actions">
+              <button 
+                onClick={(e) => { e.stopPropagation(); editItem(item); }} 
+                className="btn-edit"
+                disabled={loading}
+              >
+                ✏️
               </button>
-            )}
-            {viewStatus === "In Progress" && (
-              <button onClick={(e) => { e.stopPropagation(); updateTaskStatus(item, "Done"); }} className="btn-status">
-                Done
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleDelete(item); }} 
+                className="btn-delete"
+                disabled={loading}
+              >
+                🗑️
               </button>
+              {displayStatus === "Open" && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); updateTaskStatus(item, "In Progress"); }} 
+                  className="btn-status"
+                  disabled={loading}
+                >
+                  {loading ? 'Updating...' : 'In Progress'}
+                </button>
+              )}
+              {displayStatus === "In Progress" && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); updateTaskStatus(item, "Done"); }} 
+                  className="btn-status"
+                  disabled={loading}
+                >
+                  {loading ? 'Updating...' : 'Done'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="task-meta">
+            <span className={`priority-badge ${item.priority.toLowerCase()}`}>
+              {item.priority}
+            </span>
+            <span className={`status-badge ${displayStatus.toLowerCase().replace(" ", "-")}`}>
+              {displayStatus}
+            </span>
+            <span className="task-category">{item.category}</span>
+            {item.due_date && (
+              <span className="task-due">
+                📅 {new Date(item.due_date).toLocaleDateString()}
+              </span>
             )}
           </div>
-        </div>
 
-        <div className="task-meta">
-          <span className={`priority-badge ${item.priority.toLowerCase()}`}>
-            {item.priority}
-          </span>
-          <span className={`status-badge ${item.status.toLowerCase().replace(" ", "-")}`}>
-            {statusDisplayMap[item.status] || item.status}
-          </span>
-          <span className="task-category">{item.category}</span>
-          {item.due_date && (
-            <span className="task-due">
-              📅 {new Date(item.due_date).toLocaleDateString()}
-            </span>
-          )}
+          {item.description && <p className="task-description">{item.description}</p>}
         </div>
-
-        {item.description && <p className="task-description">{item.description}</p>}
-      </div>
-    ));
+      );
+    });
   };
 
   useEffect(() => {
@@ -339,27 +370,15 @@ const TaskManager = () => {
           }
         }
       };
-
       fetchData();
     }
   }, [initialized, refreshList]);
 
   useEffect(() => {
     if (isOnline && initialized) {
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current);
-      }
-
-      refreshTimeoutRef.current = setTimeout(() => {
-        refreshList();
-      }, 500);
+      const interval = setInterval(refreshList, 30000);
+      return () => clearInterval(interval);
     }
-
-    return () => {
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current);
-      }
-    };
   }, [isOnline, initialized, refreshList]);
 
   if (!isOnline) {
@@ -377,8 +396,8 @@ const TaskManager = () => {
     return <div className="error-message">Initialization error: {error}</div>;
   }
 
-  if (loading) {
-    return <div>Loading tasks...</div>;
+  if (loading && taskList.length === 0) {
+    return <div className="loading-spinner">Loading tasks...</div>;
   }
 
   return (
@@ -401,13 +420,21 @@ const TaskManager = () => {
       )}
 
       <div className="row">
-        <div className="col-md-6 col-sm-10 mx-auto p-0">
+        <div className="col-md-8 col-lg-6 mx-auto p-0">
           <div className="card p-3">
-            <button onClick={createItem} className="btn btn-primary">
-              Add task
-            </button>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <button 
+                onClick={createItem} 
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                + Add Task
+              </button>
+            </div>
             {renderTabList()}
-            <div className="task-list-container">{renderItems()}</div>
+            <div className="task-list-container">
+              {renderItems()}
+            </div>
           </div>
         </div>
       </div>
@@ -424,7 +451,7 @@ const TaskManager = () => {
       <ConfirmationDialog
         show={showConfirmationDialog}
         onConfirm={confirmDelete}
-        onCancel={cancelDelete}
+        onCancel={() => setShowConfirmationDialog(false)}
         message="Are you sure you want to delete this task?"
       />
     </main>
