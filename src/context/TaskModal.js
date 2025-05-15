@@ -31,6 +31,7 @@ class TaskModal extends Component {
     const { formErrors } = this.state;
 
     // Check for errors in different formats:
+  
     const error = formErrors[fieldName] || formErrors[fieldName.toLowerCase()] || formErrors[`${fieldName}_detail`];
 
     // Format array errors into a string
