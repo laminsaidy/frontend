@@ -22,16 +22,19 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (email, password) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/`, {
-        method: "POST",
-        mode: 'cors', // Explicitly enable CORS mode
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        credentials: "include", // Required for cookies/sessions
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/token/`,
+        {
+          method: "POST",
+          mode: "cors", // Explicitly enable CORS mode
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include", // Required for cookies/sessions
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -39,15 +42,15 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      
+
       // Handle successful login
       setAuthTokens(data);
       setUser(jwtDecode(data.access));
       localStorage.setItem("authTokens", JSON.stringify(data));
-      
+
       // Redirect to home page
       history.push("/");
-      
+
       // Show success notification
       Swal.fire({
         title: "Login Successful",
@@ -58,7 +61,7 @@ export const AuthProvider = ({ children }) => {
         timerProgressBar: true,
         showConfirmButton: false,
       });
-      
+
       return data;
     } catch (error) {
       console.error("Login error:", error);
@@ -77,28 +80,33 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (email, username, password, password2) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/register/`, {
-        method: "POST",
-        mode: 'cors',
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ email, username, password, password2 }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/register/`,
+        {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ email, username, password, password2 }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.email) throw new Error(errorData.email[0]);
         if (errorData.username) throw new Error(errorData.username[0]);
         if (errorData.password) throw new Error(errorData.password[0]);
-        throw new Error(errorData.detail || `Registration failed (${response.status})`);
+        throw new Error(
+          errorData.detail || `Registration failed (${response.status})`
+        );
       }
 
       const data = await response.json();
       history.push("/login");
-      
+
       Swal.fire({
         title: "Registration Successful. Please login.",
         icon: "success",
@@ -108,7 +116,7 @@ export const AuthProvider = ({ children }) => {
         timerProgressBar: true,
         showConfirmButton: false,
       });
-      
+
       return data;
     } catch (error) {
       console.error("Registration error:", error);
@@ -130,17 +138,17 @@ export const AuthProvider = ({ children }) => {
     setAuthTokens(null);
     setUser(null);
     localStorage.removeItem("authTokens");
-    
+
     // Attempt to notify backend of logout
     fetch(`${process.env.REACT_APP_API_URL}/api/logout/`, {
       method: "POST",
-      mode: 'cors',
+      mode: "cors",
       credentials: "include",
     }).catch(console.error); // Silent fail if logout API fails
-    
+
     // Redirect to login page
     history.push("/login");
-    
+
     // Show logout notification
     Swal.fire({
       title: "You have been logged out",
@@ -153,23 +161,26 @@ export const AuthProvider = ({ children }) => {
     });
   }, [history]);
 
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     if (!authTokens?.refresh) {
       logoutUser();
       return;
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/refresh/`, {
-        method: "POST",
-        mode: 'cors',
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ refresh: authTokens.refresh }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/token/refresh/`,
+        {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ refresh: authTokens.refresh }),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to refresh token");
 
@@ -183,7 +194,7 @@ export const AuthProvider = ({ children }) => {
       logoutUser();
       throw error;
     }
-  };
+  }, [authTokens?.refresh, logoutUser, setAuthTokens, setUser]);
 
   // Auto-refresh token logic
   useEffect(() => {
@@ -194,14 +205,13 @@ export const AuthProvider = ({ children }) => {
     }, 1000 * 60 * 14); // Refresh every 14 minutes
 
     return () => clearInterval(refreshInterval);
-  }, [authTokens]);
+  }, [authTokens, refreshToken]); 
 
-  // Check token expiration on mount
   useEffect(() => {
     if (authTokens) {
       const decodedToken = jwtDecode(authTokens.access);
       const isTokenExpired = decodedToken.exp * 1000 < Date.now();
-      
+
       if (isTokenExpired) {
         if (authTokens.refresh) {
           refreshToken().catch(() => logoutUser());
@@ -213,7 +223,7 @@ export const AuthProvider = ({ children }) => {
       }
     }
     setLoading(false);
-  }, [authTokens, logoutUser]);
+  }, [authTokens, logoutUser, refreshToken]); // 
 
   const contextData = {
     user,
