@@ -1,5 +1,17 @@
 import React, { Component } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, FormFeedback } from "reactstrap";
+import { 
+  Button, 
+  Modal, 
+  ModalHeader, 
+  ModalBody, 
+  ModalFooter, 
+  Form, 
+  FormGroup, 
+  Label, 
+  Input, 
+  FormFeedback 
+} from "reactstrap";
+import { statusDisplayMap, statusCodeMap, priorityMap } from "../utils/taskMappings";
 
 class TaskModal extends Component {
   constructor(props) {
@@ -8,8 +20,8 @@ class TaskModal extends Component {
       currentItem: {
         title: props.activeItem.title || "",
         description: props.activeItem.description || "",
-        status: props.activeItem.status || "Open",
-        priority: props.activeItem.priority || "Medium",
+        status: props.activeItem.status || "O",
+        priority: props.activeItem.priority || "M",
         category: props.activeItem.category || "General",
         due_date: props.activeItem.due_date || "",
         ...(props.activeItem.id && { id: props.activeItem.id })
@@ -20,48 +32,41 @@ class TaskModal extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // Update errors when props change
     if (prevProps.errors !== this.props.errors) {
       this.setState({ formErrors: this.props.errors || {} });
     }
   }
 
-  // NEW: Enhanced error handling method
   getFieldError = (fieldName) => {
     const { formErrors } = this.state;
-
-    // Check for errors in different formats:
-  
-    const error = formErrors[fieldName] || formErrors[fieldName.toLowerCase()] || formErrors[`${fieldName}_detail`];
-
-    // Format array errors into a string
+    const error = formErrors[fieldName] || 
+                 formErrors[fieldName.toLowerCase()] || 
+                 formErrors[`${fieldName}_detail`];
     return error ? (Array.isArray(error) ? error.join(", ") : error) : null;
   };
 
   handleInputChange = (event) => {
     const { name, value } = event.target;
-    this.setState({
+    this.setState(prevState => ({
       currentItem: {
-        ...this.state.currentItem,
+        ...prevState.currentItem,
         [name]: value
       },
       touched: {
-        ...this.state.touched,
+        ...prevState.touched,
         [name]: true
       },
       formErrors: {
-        ...this.state.formErrors,
-        [name]: null // Clear error when user types
+        ...prevState.formErrors,
+        [name]: null
       }
-    });
+    }));
   };
 
   handleSubmit = () => {
     const { currentItem } = this.state;
-    const { onSave } = this.props;
-
-    // Validate required fields
     const errors = {};
+
     if (!currentItem.title.trim()) {
       errors.title = "Title is required";
     }
@@ -69,15 +74,19 @@ class TaskModal extends Component {
     if (Object.keys(errors).length > 0) {
       this.setState({
         formErrors: errors,
-        touched: {
-          title: true,
-          ...this.state.touched
-        }
+        touched: { ...this.state.touched, title: true }
       });
       return;
     }
 
-    onSave(currentItem);
+    // Format data for backend
+    const formattedItem = {
+      ...currentItem,
+      status: statusCodeMap[currentItem.status] || currentItem.status,
+      priority: priorityMap[currentItem.priority] || currentItem.priority
+    };
+
+    this.props.onSave(formattedItem);
   };
 
   render() {
@@ -98,14 +107,12 @@ class TaskModal extends Component {
                 name="title"
                 value={currentItem.title}
                 onChange={this.handleInputChange}
-                placeholder="Enter Task Title"
                 invalid={!!this.getFieldError("title")}
                 required
               />
               <FormFeedback>{this.getFieldError("title")}</FormFeedback>
             </FormGroup>
 
-            {/* Other form fields with consistent error handling */}
             <FormGroup>
               <Label for="description">Description</Label>
               <Input
@@ -113,13 +120,11 @@ class TaskModal extends Component {
                 name="description"
                 value={currentItem.description}
                 onChange={this.handleInputChange}
-                placeholder="Enter Task Description"
                 invalid={!!this.getFieldError("description")}
               />
               <FormFeedback>{this.getFieldError("description")}</FormFeedback>
             </FormGroup>
 
-            {/*status field */}
             <FormGroup>
               <Label for="status">Status</Label>
               <Input
@@ -129,14 +134,13 @@ class TaskModal extends Component {
                 onChange={this.handleInputChange}
                 invalid={!!this.getFieldError("status")}
               >
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Done">Done</option>
+                {Object.entries(statusDisplayMap).map(([code, display]) => (
+                  <option key={code} value={code}>{display}</option>
+                ))}
               </Input>
               <FormFeedback>{this.getFieldError("status")}</FormFeedback>
             </FormGroup>
 
-            {/* Add similar error handling for all other fields */}
             <FormGroup>
               <Label for="priority">Priority</Label>
               <Input
@@ -146,9 +150,9 @@ class TaskModal extends Component {
                 onChange={this.handleInputChange}
                 invalid={!!this.getFieldError("priority")}
               >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option value="L">Low</option>
+                <option value="M">Medium</option>
+                <option value="H">High</option>
               </Input>
               <FormFeedback>{this.getFieldError("priority")}</FormFeedback>
             </FormGroup>
@@ -156,18 +160,12 @@ class TaskModal extends Component {
             <FormGroup>
               <Label for="category">Category</Label>
               <Input
-                type="select"
+                type="text"
                 name="category"
                 value={currentItem.category}
                 onChange={this.handleInputChange}
                 invalid={!!this.getFieldError("category")}
-              >
-                <option value="General">General</option>
-                <option value="Work">Work</option>
-                <option value="Personal">Personal</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Other">Other</option>
-              </Input>
+              />
               <FormFeedback>{this.getFieldError("category")}</FormFeedback>
             </FormGroup>
 

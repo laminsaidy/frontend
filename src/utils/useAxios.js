@@ -3,17 +3,21 @@ import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import { getCSRFToken } from "../utils/csrf";
 
-const baseURL = "https://calendar-backend-gpkd.onrender.com/api";
+const baseURL = process.env.REACT_APP_API_URL + "/api";
 
 const useAxios = () => {
-  const { authTokens, setUser, setAuthTokens } = useContext(AuthContext);
+  const { authTokens, logoutUser } = useContext(AuthContext);
 
   const axiosInstance = axios.create({
     baseURL,
+    withCredentials: true,
     headers: {
       "Content-Type": "application/json",
+      "X-CSRFToken": getCSRFToken(),
     },
+    timeout: 15000,
   });
 
   axiosInstance.interceptors.request.use(async (config) => {
@@ -22,28 +26,27 @@ const useAxios = () => {
     const user = jwtDecode(authTokens.access);
     const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
 
-    if (isExpired) {
-      try {
-        const response = await axios.post(`${baseURL}/token/refresh/`, {
-          refresh: authTokens.refresh,
-        });
-
-        localStorage.setItem("authTokens", JSON.stringify(response.data));
-        setAuthTokens(response.data);
-        setUser(jwtDecode(response.data.access));
-
-        config.headers.Authorization = `Bearer ${response.data.access}`;
-      } catch (error) {
-        setAuthTokens(null);
-        setUser(null);
-        localStorage.removeItem("authTokens");
-        return Promise.reject(error);
-      }
-    } else {
+    if (!isExpired) {
       config.headers.Authorization = `Bearer ${authTokens.access}`;
+      return config;
     }
 
-    return config;
+    try {
+      const response = await axios.post(`${baseURL}/auth/token/refresh/`, {
+        refresh: authTokens.refresh,
+      }, {
+        withCredentials: true,
+        headers: {
+          "X-CSRFToken": getCSRFToken(),
+        }
+      });
+
+      config.headers.Authorization = `Bearer ${response.data.access}`;
+      return config;
+    } catch (error) {
+      logoutUser();
+      return Promise.reject(error);
+    }
   });
 
   return axiosInstance;
