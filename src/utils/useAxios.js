@@ -1,32 +1,61 @@
 import axios from 'axios';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import AuthContext from '../context/AuthContext';
-import { getCSRFToken } from '../utils/csrf';
 
 const baseURL = process.env.REACT_APP_API_URL + '/api';
 
 const useAxios = () => {
-  const { logoutUser } = useContext(AuthContext);
+  const { logoutUser, getAccessToken, refreshAccessToken } = useContext(AuthContext);
 
-  const axiosInstance = axios.create({
-    baseURL,
-    withCredentials: true, // Essential for cookies
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken(),
-    },
-    timeout: 15000,
-  });
+  const axiosInstance = useMemo(() => {
+    const instance = axios.create({
+      baseURL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 15000,
+    });
 
-  axiosInstance.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response?.status === 401) {
-        logoutUser();
+    // Attach Authorization header with access token
+    instance.interceptors.request.use(
+      (config) => {
+        const token = getAccessToken();
+        if (token) {
+          config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Response interceptor to handle 401 errors (token expiry)
+    instance.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        // Prevent infinite loops
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            // Try refreshing token
+            const newAccessToken = await refreshAccessToken();
+            // Update Authorization header and retry original request
+            originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+            return instance(originalRequest);
+          } catch (refreshError) {
+            // Refresh failed, logout user
+            logoutUser();
+            return Promise.reject(refreshError);
+          }
+        }
+
+        return Promise.reject(error);
       }
-      return Promise.reject(error);
-    }
-  );
+    );
+
+    return instance;
+  }, [logoutUser, getAccessToken, refreshAccessToken]);
 
   return axiosInstance;
 };

@@ -9,7 +9,6 @@ function Loginpage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -18,7 +17,6 @@ function Loginpage() {
     const email = e.target.email.value.trim();
     const password = e.target.password.value;
 
-    // Basic validation
     if (!email || !password) {
       setError('Email and password are required');
       setIsLoading(false);
@@ -29,7 +27,6 @@ function Loginpage() {
       await loginUser(email, password);
     } catch (err) {
       setError('Invalid credentials. Please try again.');
-      // For debugging only (remove in production)
       console.error('Login error:', err.message);
     } finally {
       setIsLoading(false);
