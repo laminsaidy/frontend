@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import useAxios from "../utils/useAxios";
-import ConfirmationDialog from "../context/ConfirmationDialog";
-import TaskModal from "../context/TaskModal";
-import "../styles/components/TaskManager.css";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import useAxios from '../utils/useAxios';
+import ConfirmationDialog from '../context/ConfirmationDialog';
+import TaskModal from '../context/TaskModal';
+import '../styles/components/TaskManager.css';
 
 const TaskManager = () => {
   const axiosInstance = useAxios();
   const [initialized, setInitialized] = useState(false);
-  const [viewStatus, setViewStatus] = useState("Open");
+  const [viewStatus, setViewStatus] = useState('Open');
   const [activeItem, setActiveItem] = useState({
-    title: "",
-    description: "",
-    status: "Open",
-    priority: "Medium",
-    category: "General",
-    due_date: "",
+    title: '',
+    description: '',
+    status: 'Open',
+    priority: 'Medium',
+    category: 'General',
+    due_date: '',
   });
   const [taskList, setTaskList] = useState([]);
   const [modal, setModal] = useState(false);
@@ -31,38 +31,41 @@ const TaskManager = () => {
 
   // Status mappings
   const statusDisplayMap = {
-    O: "Open",
-    P: "In Progress",
-    D: "Done",
-    C: "Cancelled",
+    O: 'Open',
+    P: 'In Progress',
+    D: 'Done',
+    C: 'Cancelled',
   };
 
   const statusCodeMap = {
-    Open: "O",
-    "In Progress": "P",
-    Done: "D",
-    Cancelled: "C",
+    Open: 'O',
+    'In Progress': 'P',
+    Done: 'D',
+    Cancelled: 'C',
   };
 
   const priorityMap = {
-    Low: "L",
-    Medium: "M",
-    High: "H",
+    Low: 'L',
+    Medium: 'M',
+    High: 'H',
   };
 
   // Custom hook for debouncing
   const useDebounce = (callback, delay) => {
     const timeoutRef = useRef();
-    
-    return useCallback((...args) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      
-      timeoutRef.current = setTimeout(() => {
-        callback(...args);
-      }, delay);
-    }, [callback, delay]);
+
+    return useCallback(
+      (...args) => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = setTimeout(() => {
+          callback(...args);
+        }, delay);
+      },
+      [callback, delay]
+    );
   };
 
   const toggle = () => {
@@ -72,12 +75,12 @@ const TaskManager = () => {
 
   const createItem = () => {
     setActiveItem({
-      title: "",
-      description: "",
-      status: "Open",
-      priority: "Medium",
-      category: "General",
-      due_date: "",
+      title: '',
+      description: '',
+      status: 'Open',
+      priority: 'Medium',
+      category: 'General',
+      due_date: '',
     });
     setModal(true);
   };
@@ -85,7 +88,7 @@ const TaskManager = () => {
   const editItem = (item) => {
     setActiveItem({
       ...item,
-      due_date: item.due_date ? item.due_date.split("T")[0] : "",
+      due_date: item.due_date ? item.due_date.split('T')[0] : '',
     });
     setModal(true);
   };
@@ -101,29 +104,31 @@ const TaskManager = () => {
       setValidationErrors({});
       return await fn();
     } catch (err) {
-      if (err.name === "AbortError") {
+      if (err.name === 'AbortError') {
         throw err;
       }
 
-      if (err.code === "ERR_NETWORK" || !err.response) {
+      if (err.code === 'ERR_NETWORK' || !err.response) {
         if (retries > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 2000 * (3 - retries))); // Exponential backoff
+          await new Promise((resolve) =>
+            setTimeout(resolve, 2000 * (3 - retries))
+          ); // Exponential backoff
           return safeApiCall(fn, errorMessage, retries - 1);
         }
         setError(
-          "Network Error: Unable to connect to server. Please check your connection."
+          'Network Error: Unable to connect to server. Please check your connection.'
         );
-        throw new Error("Network Error");
+        throw new Error('Network Error');
       } else if (err.response?.status === 400) {
         setValidationErrors(err.response.data || {});
-        setError("Validation error: Please check your inputs");
-        throw new Error("Validation Error");
+        setError('Validation error: Please check your inputs');
+        throw new Error('Validation Error');
       } else if (err.response?.status >= 500) {
-        setError("Server Error: Please try again later");
-        throw new Error("Server Error");
+        setError('Server Error: Please try again later');
+        throw new Error('Server Error');
       } else {
-        setError(errorMessage || "An unexpected error occurred");
-        throw new Error(errorMessage || "Unexpected Error");
+        setError(errorMessage || 'An unexpected error occurred');
+        throw new Error(errorMessage || 'Unexpected Error');
       }
     }
   }, []);
@@ -134,13 +139,13 @@ const TaskManager = () => {
     lastRefreshTime.current = now;
 
     if (!axiosInstance) {
-      setError("API connection not configured");
+      setError('API connection not configured');
       setLoading(false);
       return;
     }
 
     if (!isOnline) {
-      setError("You are currently offline. Please check your connection.");
+      setError('You are currently offline. Please check your connection.');
       setLoading(false);
       return;
     }
@@ -151,50 +156,55 @@ const TaskManager = () => {
       setLoading(true);
       // Cancel any pending request
       if (abortControllerRef.current) {
-        abortControllerRef.current.abort("New request initiated");
+        abortControllerRef.current.abort('New request initiated');
       }
-      
+
       // Create new abort controller with timeout
       abortControllerRef.current = new AbortController();
       const timeoutId = setTimeout(() => {
-        abortControllerRef.current.abort("Request timeout");
+        abortControllerRef.current.abort('Request timeout');
       }, 10000);
 
       const response = await safeApiCall(async () => {
         try {
-          const res = await axiosInstance.get("/tasks/", {
+          const res = await axiosInstance.get('/tasks/', {
             signal: abortControllerRef.current.signal,
             timeout: 15000, // Increased timeout
           });
           clearTimeout(timeoutId);
-          
+
           const now = new Date();
           return res.data.map((task) => ({
             ...task,
             overdue:
               task.due_date &&
               new Date(task.due_date) < now &&
-              task.status !== "D",
+              task.status !== 'D',
           }));
         } catch (err) {
           clearTimeout(timeoutId);
           throw err;
         }
-      }, "Failed to load tasks. Please try again.");
+      }, 'Failed to load tasks. Please try again.');
 
       if (isMountedRef.current) {
         setTaskList(response);
         setError(null);
       }
     } catch (error) {
-      if (error.name === "AbortError") {
-        console.log("Request was aborted:", error.message);
+      if (error.name === 'AbortError') {
+        console.log('Request was aborted:', error.message);
         return;
       }
-      if (error.code === "ERR_NETWORK" || error.message.includes("Network Error")) {
-        setError("Network Error: Unable to connect to server. Please check your connection.");
+      if (
+        error.code === 'ERR_NETWORK' ||
+        error.message.includes('Network Error')
+      ) {
+        setError(
+          'Network Error: Unable to connect to server. Please check your connection.'
+        );
       } else if (isMountedRef.current) {
-        setError("Failed to load tasks. Please try again later.");
+        setError('Failed to load tasks. Please try again later.');
       }
     } finally {
       if (isMountedRef.current) {
@@ -208,10 +218,10 @@ const TaskManager = () => {
   const formatPayload = (item) => {
     return {
       title: item.title.trim(),
-      description: item.description?.trim() || "",
-      status: statusCodeMap[item.status] || "O",
-      priority: priorityMap[item.priority] || "M",
-      category: item.category || "General",
+      description: item.description?.trim() || '',
+      status: statusCodeMap[item.status] || 'O',
+      priority: priorityMap[item.priority] || 'M',
+      category: item.category || 'General',
       due_date: item.due_date || null,
     };
   };
@@ -225,12 +235,12 @@ const TaskManager = () => {
       if (item.id) {
         await safeApiCall(
           () => axiosInstance.put(`/tasks/${item.id}/`, payload),
-          "Error updating task"
+          'Error updating task'
         );
       } else {
         await safeApiCall(
-          () => axiosInstance.post("/tasks/", payload),
-          "Error creating task"
+          () => axiosInstance.post('/tasks/', payload),
+          'Error creating task'
         );
       }
       await debouncedRefreshList();
@@ -238,10 +248,10 @@ const TaskManager = () => {
       if (error.response?.data) {
         const firstError = Object.values(error.response.data)[0];
         setError(
-          firstError || "Failed to save task. Please check your inputs."
+          firstError || 'Failed to save task. Please check your inputs.'
         );
       } else {
-        setError("Failed to save task. Please try again.");
+        setError('Failed to save task. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -259,18 +269,18 @@ const TaskManager = () => {
 
       await safeApiCall(
         () => axiosInstance.put(`/tasks/${item.id}/`, payload),
-        "Error updating task status"
+        'Error updating task status'
       );
 
       await debouncedRefreshList();
     } catch (error) {
-      console.error("Status update failed:", {
+      console.error('Status update failed:', {
         request: error.config?.data,
         response: error.response?.data,
       });
       setError(
         error.response?.data?.detail ||
-          "Failed to update task status. Please try again."
+          'Failed to update task status. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -284,7 +294,7 @@ const TaskManager = () => {
       setLoading(true);
       await safeApiCall(
         () => axiosInstance.delete(`/tasks/${itemToDelete.id}/`),
-        "Error deleting task"
+        'Error deleting task'
       );
       await debouncedRefreshList();
     } finally {
@@ -295,7 +305,7 @@ const TaskManager = () => {
   };
 
   const renderTabList = () => {
-    const statuses = ["Open", "In Progress", "Done"];
+    const statuses = ['Open', 'In Progress', 'Done'];
     return (
       <div className="my-5 tab-list">
         {statuses.map((status) => (
@@ -304,8 +314,8 @@ const TaskManager = () => {
             onClick={() => setViewStatus(status)}
             className={
               viewStatus === status
-                ? `active ${status.toLowerCase().replace(" ", "-")}`
-                : ""
+                ? `active ${status.toLowerCase().replace(' ', '-')}`
+                : ''
             }
           >
             {status}
@@ -335,7 +345,7 @@ const TaskManager = () => {
         <div
           key={item.id}
           className={`task-card ${item.priority.toLowerCase()} ${
-            item.overdue ? "overdue" : ""
+            item.overdue ? 'overdue' : ''
           }`}
           onClick={() => (window.location.href = `/task/${item.id}`)}
         >
@@ -365,28 +375,28 @@ const TaskManager = () => {
               >
                 🗑️
               </button>
-              {displayStatus === "Open" && (
+              {displayStatus === 'Open' && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    updateTaskStatus(item, "In Progress");
+                    updateTaskStatus(item, 'In Progress');
                   }}
                   className="btn-status"
                   disabled={loading}
                 >
-                  {loading ? "Updating..." : "In Progress"}
+                  {loading ? 'Updating...' : 'In Progress'}
                 </button>
               )}
-              {displayStatus === "In Progress" && (
+              {displayStatus === 'In Progress' && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    updateTaskStatus(item, "Done");
+                    updateTaskStatus(item, 'Done');
                   }}
                   className="btn-status"
                   disabled={loading}
                 >
-                  {loading ? "Updating..." : "Done"}
+                  {loading ? 'Updating...' : 'Done'}
                 </button>
               )}
             </div>
@@ -399,7 +409,7 @@ const TaskManager = () => {
             <span
               className={`status-badge ${displayStatus
                 .toLowerCase()
-                .replace(" ", "-")}`}
+                .replace(' ', '-')}`}
             >
               {displayStatus}
             </span>
@@ -436,20 +446,20 @@ const TaskManager = () => {
       setIsOnline(true);
       debouncedRefreshList();
     };
-    
+
     const handleOffline = () => {
       setIsOnline(false);
       if (abortControllerRef.current) {
-        abortControllerRef.current.abort("Network offline");
+        abortControllerRef.current.abort('Network offline');
       }
     };
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
     return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
     };
   }, [debouncedRefreshList]);
 
@@ -463,8 +473,8 @@ const TaskManager = () => {
             setInitialized(true);
           }
         } catch (error) {
-          if (error.name !== "AbortError" && isMountedRef.current) {
-            setError("Failed to initialize");
+          if (error.name !== 'AbortError' && isMountedRef.current) {
+            setError('Failed to initialize');
           }
         }
       };
@@ -480,19 +490,22 @@ const TaskManager = () => {
           debouncedRefreshList();
         }
       }, 60000); // Increased interval to 60 seconds
-      
+
       // Refresh when tab becomes visible
       const handleVisibilityChange = () => {
         if (document.visibilityState === 'visible') {
           debouncedRefreshList();
         }
       };
-      
+
       document.addEventListener('visibilitychange', handleVisibilityChange);
-      
+
       return () => {
         clearInterval(intervalId);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        document.removeEventListener(
+          'visibilitychange',
+          handleVisibilityChange
+        );
       };
     }
   }, [isOnline, initialized, debouncedRefreshList]);
@@ -501,7 +514,10 @@ const TaskManager = () => {
     return (
       <div className="alert alert-warning">
         You're currently offline. Some features may not be available.
-        <button className="btn btn-sm btn-primary ms-3" onClick={debouncedRefreshList}>
+        <button
+          className="btn btn-sm btn-primary ms-3"
+          onClick={debouncedRefreshList}
+        >
           Retry Connection
         </button>
       </div>
@@ -522,11 +538,11 @@ const TaskManager = () => {
       {error && (
         <div
           className={`alert ${
-            error.includes("Network Error") ? "alert-warning" : "alert-danger"
+            error.includes('Network Error') ? 'alert-warning' : 'alert-danger'
           }`}
         >
           {error}
-          {error.includes("Network Error") && (
+          {error.includes('Network Error') && (
             <button
               className="btn btn-sm btn-primary ms-3"
               onClick={debouncedRefreshList}
@@ -536,8 +552,8 @@ const TaskManager = () => {
           )}
           {Object.entries(validationErrors).map(([field, errors]) => (
             <div key={field}>
-              <strong>{field}:</strong>{" "}
-              {Array.isArray(errors) ? errors.join(", ") : errors}
+              <strong>{field}:</strong>{' '}
+              {Array.isArray(errors) ? errors.join(', ') : errors}
             </div>
           ))}
         </div>

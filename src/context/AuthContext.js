@@ -1,41 +1,31 @@
-import { createContext, useState, useEffect, useCallback } from "react";
-import { useHistory } from "react-router-dom";
-import Swal from "sweetalert2";
-import { getCSRFToken } from "../utils/csrf";
+import { createContext, useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { getCSRFToken } from '../utils/csrf';
 
 const AuthContext = createContext();
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
-  const [authTokens, setAuthTokens] = useState(() => {
-    try {
-      const tokens = localStorage.getItem("authTokens");
-      return tokens ? JSON.parse(tokens) : null;
-    } catch (error) {
-      console.error("Error parsing auth tokens:", error);
-      return null;
-    }
-  });
-  
   const [user, setUser] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const history = useHistory();
 
-  const handleApiError = (error, defaultMessage = "An error occurred") => {
-    console.error("API Error:", error);
-    const message = error.message.includes("<!doctype") 
-      ? "Server returned an unexpected response" 
+  const handleApiError = (error, defaultMessage = 'An error occurred') => {
+    console.error('API Error:', error);
+    const message = error.message.includes('<!doctype')
+      ? 'Server returned an unexpected response'
       : error.message || defaultMessage;
-      
+
     Swal.fire({
-      title: "Error",
+      title: 'Error',
       text: message,
-      icon: "error",
-      position: "top-end",
+      icon: 'error',
+      position: 'top-end',
       showConfirmButton: false,
       timer: 3000,
     });
-    
+
     return message;
   };
 
@@ -44,179 +34,137 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/token/`,
         {
-          method: "POST",
-          credentials: "include",
+          method: 'POST',
+          credentials: 'include', // Essential for cookies
           headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
           },
           body: JSON.stringify({ email, password }),
         }
       );
 
-      const contentType = response.headers.get("content-type");
-      if (!contentType?.includes("application/json")) {
-        const text = await response.text();
-        throw new Error(text || "Invalid server response");
-      }
-
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.detail || data.message || "Login failed");
+        const errorMsg =
+          data.detail ||
+          data.message ||
+          (data.non_field_errors && data.non_field_errors.join(', ')) ||
+          'Authentication failed';
+        throw new Error(errorMsg);
       }
 
-      const tokens = {
-        access: data.access,
-        refresh: data.refresh,
-      };
-      
-      setUser(data.user || { email }); // Fallback to email if user data not provided
-      setAuthTokens(tokens);
-      
-      try {
-        localStorage.setItem("authTokens", JSON.stringify(tokens));
-      } catch (storageError) {
-        console.error("LocalStorage error:", storageError);
-      }
+      // Backend sets tokens in cookies - we only need to store user data
+      setUser(data.user || { email });
 
-      history.push("/tasks");
+      history.push('/tasks');
       Swal.fire({
-        title: "Login Successful",
-        icon: "success",
+        title: 'Login Successful',
+        icon: 'success',
         timer: 2000,
-        position: "top-end",
+        position: 'top-end',
         showConfirmButton: false,
       });
-      
+
       return data;
     } catch (error) {
-      throw new Error(handleApiError(error, "Login failed"));
+      Swal.fire({
+        title: 'Login Failed',
+        text: error.message.includes('Invalid credentials')
+          ? 'Incorrect email or password'
+          : error.message,
+        icon: 'error',
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+      });
+      throw error;
+    }
+  };
+
+  const registerUser = async (email, username, password) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/register/`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+          },
+          body: JSON.stringify({
+            email,
+            username,
+            password,
+            password2: password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'Registration failed');
+
+      return data; // { user: { email, username } }
+    } catch (error) {
+      throw error;
     }
   };
 
   const logoutUser = useCallback(async () => {
     try {
       await fetch(`${process.env.REACT_APP_API_URL}/api/logout/`, {
-        method: "POST",
-        credentials: "include",
+        method: 'POST',
+        credentials: 'include',
         headers: {
-          "X-CSRFToken": getCSRFToken(),
+          'X-CSRFToken': getCSRFToken(),
         },
       });
     } catch (error) {
-      console.error("Logout API error:", error);
+      console.error('Logout API error:', error);
     } finally {
-      setAuthTokens(null);
       setUser(null);
-      try {
-        localStorage.removeItem("authTokens");
-      } catch (error) {
-        console.error("LocalStorage error:", error);
-      }
-      history.push("/login");
+      history.push('/login');
       Swal.fire({
-        title: "Logged Out",
-        icon: "success",
+        title: 'Logged Out',
+        icon: 'success',
         timer: 2000,
-        position: "top-end",
+        position: 'top-end',
         showConfirmButton: false,
       });
     }
   }, [history]);
 
-  const refreshToken = useCallback(async () => {
-    if (!authTokens?.refresh) {
-      logoutUser();
-      return null;
-    }
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/token/refresh/`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
-          },
-          body: JSON.stringify({ refresh: authTokens.refresh }),
-        }
-      );
-
-      const contentType = response.headers.get("content-type");
-      if (!contentType?.includes("application/json")) {
-        const text = await response.text();
-        throw new Error(text || "Invalid refresh response");
-      }
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.detail || "Token refresh failed");
-      }
-
-      const newTokens = {
-        access: data.access,
-        refresh: authTokens.refresh, // Keep original refresh token
-      };
-      
-      setAuthTokens(newTokens);
-      
-      try {
-        localStorage.setItem("authTokens", JSON.stringify(newTokens));
-      } catch (error) {
-        console.error("LocalStorage error:", error);
-      }
-      
-      return data.access;
-    } catch (error) {
-      handleApiError(error, "Session expired. Please login again.");
-      logoutUser();
-      throw error;
-    }
-  }, [authTokens?.refresh, logoutUser]);
-
-  // Initialize auth state on mount
   useEffect(() => {
-    const initializeAuth = async () => {
-      if (authTokens?.access) {
-        try {
-          // Optionally: Fetch user profile here if not included in login response
-          // const profile = await fetchUserProfile();
-          // setUser(profile);
-        } catch (error) {
-          handleApiError(error, "Failed to initialize session");
+    const checkAuth = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/profile/`,
+          {
+            credentials: 'include',
+          }
+        );
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
         }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setIsInitializing(false);
       }
-      setIsInitializing(false);
     };
 
-    initializeAuth();
-  }, [authTokens]);
+    checkAuth();
+  }, []);
 
-  // Setup token refresh interval
-  useEffect(() => {
-    if (!authTokens) return;
-
-    const refreshInterval = setInterval(() => {
-      refreshToken().catch(error => {
-        console.error("Auto-refresh failed:", error);
-      });
-    }, 1000 * 60 * 14); // 14 minutes
-
-    return () => clearInterval(refreshInterval);
-  }, [authTokens, refreshToken]);
-
-  // Provide auth context
   const contextData = {
     user,
-    authTokens,
     isInitializing,
     loginUser,
     logoutUser,
-    refreshToken,
+    registerUser, // Add this line
   };
 
   return (

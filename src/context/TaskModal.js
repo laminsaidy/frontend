@@ -1,33 +1,37 @@
-import React, { Component } from "react";
-import { 
-  Button, 
-  Modal, 
-  ModalHeader, 
-  ModalBody, 
-  ModalFooter, 
-  Form, 
-  FormGroup, 
-  Label, 
-  Input, 
-  FormFeedback 
-} from "reactstrap";
-import { statusDisplayMap, statusCodeMap, priorityMap } from "../utils/taskMappings";
+import React, { Component } from 'react';
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  FormFeedback,
+} from 'reactstrap';
+import {
+  statusDisplayMap,
+  statusCodeMap,
+  priorityMap,
+} from '../utils/taskMappings';
 
 class TaskModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
       currentItem: {
-        title: props.activeItem.title || "",
-        description: props.activeItem.description || "",
-        status: props.activeItem.status || "O",
-        priority: props.activeItem.priority || "M",
-        category: props.activeItem.category || "General",
-        due_date: props.activeItem.due_date || "",
-        ...(props.activeItem.id && { id: props.activeItem.id })
+        title: props.activeItem.title || '',
+        description: props.activeItem.description || '',
+        status: props.activeItem.status || 'O',
+        priority: props.activeItem.priority || 'M',
+        category: props.activeItem.category || 'General',
+        due_date: props.activeItem.due_date || '',
+        ...(props.activeItem.id && { id: props.activeItem.id }),
       },
       touched: {},
-      formErrors: {}
+      formErrors: {},
     };
   }
 
@@ -39,27 +43,28 @@ class TaskModal extends Component {
 
   getFieldError = (fieldName) => {
     const { formErrors } = this.state;
-    const error = formErrors[fieldName] || 
-                 formErrors[fieldName.toLowerCase()] || 
-                 formErrors[`${fieldName}_detail`];
-    return error ? (Array.isArray(error) ? error.join(", ") : error) : null;
+    const error =
+      formErrors[fieldName] ||
+      formErrors[fieldName.toLowerCase()] ||
+      formErrors[`${fieldName}_detail`];
+    return error ? (Array.isArray(error) ? error.join(', ') : error) : null;
   };
 
   handleInputChange = (event) => {
     const { name, value } = event.target;
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       currentItem: {
         ...prevState.currentItem,
-        [name]: value
+        [name]: value,
       },
       touched: {
         ...prevState.touched,
-        [name]: true
+        [name]: true,
       },
       formErrors: {
         ...prevState.formErrors,
-        [name]: null
-      }
+        [name]: null,
+      },
     }));
   };
 
@@ -68,13 +73,13 @@ class TaskModal extends Component {
     const errors = {};
 
     if (!currentItem.title.trim()) {
-      errors.title = "Title is required";
+      errors.title = 'Title is required';
     }
 
     if (Object.keys(errors).length > 0) {
       this.setState({
         formErrors: errors,
-        touched: { ...this.state.touched, title: true }
+        touched: { ...this.state.touched, title: true },
       });
       return;
     }
@@ -83,7 +88,7 @@ class TaskModal extends Component {
     const formattedItem = {
       ...currentItem,
       status: statusCodeMap[currentItem.status] || currentItem.status,
-      priority: priorityMap[currentItem.priority] || currentItem.priority
+      priority: priorityMap[currentItem.priority] || currentItem.priority,
     };
 
     this.props.onSave(formattedItem);
@@ -96,10 +101,15 @@ class TaskModal extends Component {
     return (
       <Modal isOpen={true} toggle={toggle}>
         <ModalHeader toggle={toggle}>
-          {currentItem.id ? "Edit Task" : "Add New Task"}
+          {currentItem.id ? 'Edit Task' : 'Add New Task'}
         </ModalHeader>
         <ModalBody>
-          <Form onSubmit={(e) => { e.preventDefault(); this.handleSubmit(); }}>
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault();
+              this.handleSubmit();
+            }}
+          >
             <FormGroup>
               <Label for="title">Title *</Label>
               <Input
@@ -107,10 +117,10 @@ class TaskModal extends Component {
                 name="title"
                 value={currentItem.title}
                 onChange={this.handleInputChange}
-                invalid={!!this.getFieldError("title")}
+                invalid={!!this.getFieldError('title')}
                 required
               />
-              <FormFeedback>{this.getFieldError("title")}</FormFeedback>
+              <FormFeedback>{this.getFieldError('title')}</FormFeedback>
             </FormGroup>
 
             <FormGroup>
@@ -120,9 +130,9 @@ class TaskModal extends Component {
                 name="description"
                 value={currentItem.description}
                 onChange={this.handleInputChange}
-                invalid={!!this.getFieldError("description")}
+                invalid={!!this.getFieldError('description')}
               />
-              <FormFeedback>{this.getFieldError("description")}</FormFeedback>
+              <FormFeedback>{this.getFieldError('description')}</FormFeedback>
             </FormGroup>
 
             <FormGroup>
@@ -132,13 +142,15 @@ class TaskModal extends Component {
                 name="status"
                 value={currentItem.status}
                 onChange={this.handleInputChange}
-                invalid={!!this.getFieldError("status")}
+                invalid={!!this.getFieldError('status')}
               >
                 {Object.entries(statusDisplayMap).map(([code, display]) => (
-                  <option key={code} value={code}>{display}</option>
+                  <option key={code} value={code}>
+                    {display}
+                  </option>
                 ))}
               </Input>
-              <FormFeedback>{this.getFieldError("status")}</FormFeedback>
+              <FormFeedback>{this.getFieldError('status')}</FormFeedback>
             </FormGroup>
 
             <FormGroup>
@@ -148,13 +160,13 @@ class TaskModal extends Component {
                 name="priority"
                 value={currentItem.priority}
                 onChange={this.handleInputChange}
-                invalid={!!this.getFieldError("priority")}
+                invalid={!!this.getFieldError('priority')}
               >
                 <option value="L">Low</option>
                 <option value="M">Medium</option>
                 <option value="H">High</option>
               </Input>
-              <FormFeedback>{this.getFieldError("priority")}</FormFeedback>
+              <FormFeedback>{this.getFieldError('priority')}</FormFeedback>
             </FormGroup>
 
             <FormGroup>
@@ -164,9 +176,9 @@ class TaskModal extends Component {
                 name="category"
                 value={currentItem.category}
                 onChange={this.handleInputChange}
-                invalid={!!this.getFieldError("category")}
+                invalid={!!this.getFieldError('category')}
               />
-              <FormFeedback>{this.getFieldError("category")}</FormFeedback>
+              <FormFeedback>{this.getFieldError('category')}</FormFeedback>
             </FormGroup>
 
             <FormGroup>
@@ -176,9 +188,9 @@ class TaskModal extends Component {
                 name="due_date"
                 value={currentItem.due_date}
                 onChange={this.handleInputChange}
-                invalid={!!this.getFieldError("due_date")}
+                invalid={!!this.getFieldError('due_date')}
               />
-              <FormFeedback>{this.getFieldError("due_date")}</FormFeedback>
+              <FormFeedback>{this.getFieldError('due_date')}</FormFeedback>
             </FormGroup>
           </Form>
         </ModalBody>

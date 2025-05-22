@@ -1,26 +1,26 @@
-import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
-import "../styles/components/Loginpage.css";
-import SmileyImage from "../assets/images/Smiley.jpg";
+import React, { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
+import '../styles/components/Loginpage.css';
+import SmileyImage from '../assets/images/Smiley.jpg';
 
 function Loginpage() {
   const { loginUser } = useContext(AuthContext);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
+    setError('');
 
     const email = e.target.email.value.trim();
     const password = e.target.password.value;
 
     // Basic validation
     if (!email || !password) {
-      setError("Email and password are required");
+      setError('Email and password are required');
       setIsLoading(false);
       return;
     }
@@ -28,9 +28,9 @@ function Loginpage() {
     try {
       await loginUser(email, password);
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      setError('Invalid credentials. Please try again.');
       // For debugging only (remove in production)
-      console.error("Login error:", err.message);
+      console.error('Login error:', err.message);
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +106,7 @@ function Loginpage() {
                             type="submit"
                             disabled={isLoading}
                           >
-                            {isLoading ? "Logging in..." : "Login"}
+                            {isLoading ? 'Logging in...' : 'Login'}
                           </button>
                         </div>
 
@@ -115,7 +115,7 @@ function Loginpage() {
                         </a>
 
                         <p className="mb-5 pb-lg-2 register-link">
-                          Don't have an account?{" "}
+                          Don't have an account?{' '}
                           <Link to="/register" className="register-link">
                             Register Now
                           </Link>
@@ -140,7 +140,7 @@ function Loginpage() {
       <footer className="bg-light text-center text-lg-start footer">
         <div className="footer">
           <p>
-            Copyright &copy; 2025; Designed by{" "}
+            Copyright &copy; 2025; Designed by{' '}
             <span className="creator">
               <a
                 href="https://github.com/laminsaidy"

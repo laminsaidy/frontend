@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
-import api from "../utils/api"; 
+import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+import api from '../utils/api';
 import '../styles/components/Task.css';
 
 const AddTask = () => {
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    status: "Open",
-    priority: "Medium",
-    category: "General", // Default category
-    due_date: ""
+    title: '',
+    description: '',
+    status: 'Open',
+    priority: 'Medium',
+    category: 'General', // Default category
+    due_date: '',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,9 +22,9 @@ const AddTask = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -32,15 +32,15 @@ const AddTask = () => {
     const newErrors = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = "Title is required";
+      newErrors.title = 'Title is required';
     }
 
     if (formData.title.length > 100) {
-      newErrors.title = "Title must be less than 100 characters";
+      newErrors.title = 'Title must be less than 100 characters';
     }
 
     if (formData.due_date && new Date(formData.due_date) < new Date()) {
-      newErrors.due_date = "Due date cannot be in the past";
+      newErrors.due_date = 'Due date cannot be in the past';
     }
 
     setErrors(newErrors);
@@ -59,23 +59,28 @@ const AddTask = () => {
     try {
       const payload = {
         ...formData,
-        due_date: formData.due_date ? new Date(formData.due_date).toISOString() : null
+        due_date: formData.due_date
+          ? new Date(formData.due_date).toISOString()
+          : null,
       };
 
-      console.log("Submitting task:", payload); // Log the payload being sent
+      console.log('Submitting task:', payload); // Log the payload being sent
 
-      await api.post("/tasks/", payload);
+      await api.post('/tasks/', payload);
 
-      console.log("Task added successfully"); // Log success
+      console.log('Task added successfully'); // Log success
 
-      history.push("/tasks");
+      history.push('/tasks');
     } catch (error) {
-      console.error("Error adding task:", error.response?.data || error.message);
+      console.error(
+        'Error adding task:',
+        error.response?.data || error.message
+      );
 
       if (error.response?.data) {
         setErrors(error.response.data);
       } else {
-        setErrors({ general: "Failed to add task. Please try again." });
+        setErrors({ general: 'Failed to add task. Please try again.' });
       }
     } finally {
       setIsSubmitting(false);

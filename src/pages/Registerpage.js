@@ -1,14 +1,14 @@
-import React, { useState, useContext } from "react";
-import { Link } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import React, { useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
 import '../styles/components/Registerpage.css';
-import registerImage from '../assets/images/register.jpg'; 
+import registerImage from '../assets/images/register.jpg';
 
 function Registerpage() {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
   const { registerUser } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
@@ -72,7 +72,10 @@ function Registerpage() {
                             onChange={(e) => setUsername(e.target.value)}
                             required
                           />
-                          <label className="form-label" htmlFor="registerUsername">
+                          <label
+                            className="form-label"
+                            htmlFor="registerUsername"
+                          >
                             Username
                           </label>
                         </div>
@@ -89,7 +92,10 @@ function Registerpage() {
                             required
                             minLength="8"
                           />
-                          <label className="form-label" htmlFor="registerPassword">
+                          <label
+                            className="form-label"
+                            htmlFor="registerPassword"
+                          >
                             Password
                           </label>
                         </div>
@@ -105,7 +111,10 @@ function Registerpage() {
                             onChange={(e) => setPassword2(e.target.value)}
                             required
                           />
-                          <label className="form-label" htmlFor="registerConfirmPassword">
+                          <label
+                            className="form-label"
+                            htmlFor="registerConfirmPassword"
+                          >
                             Confirm Password
                           </label>
                         </div>
@@ -120,7 +129,7 @@ function Registerpage() {
                         </div>
 
                         <p className="mb-5 pb-lg-2 login-link">
-                          Already have an account?{" "}
+                          Already have an account?{' '}
                           <Link to="/login" className="login-link">
                             Login Now
                           </Link>
@@ -145,7 +154,7 @@ function Registerpage() {
       <footer className="bg-light text-center text-lg-start footer">
         <div className="footer">
           <p>
-            Copyright &copy; 2025; Designed by{" "}
+            Copyright &copy; 2025; Designed by{' '}
             <span className="creator">
               <a
                 href="https://github.com/laminsaidy"

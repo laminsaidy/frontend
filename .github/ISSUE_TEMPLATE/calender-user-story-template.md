@@ -4,7 +4,6 @@ about: Custom template for my Calender user story app
 title: ''
 labels: ''
 assignees: ''
-
 ---
 
 As a **role** I can **capability** so that **received benefit**

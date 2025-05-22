@@ -1,94 +1,124 @@
 .task-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border-left: 4px solid #ddd;
-  }
-  
-  .task-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  }
-  
-  .task-card.high { border-left-color: #ff4444; }
-  .task-card.medium { border-left-color: #ffbb33; }
-  .task-card.low { border-left-color: #00C851; }
-  
-  .task-card.overdue {
-    background-color: #fff0f0;
-  }
-  
-  .task-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.75rem;
-  }
-  
-  .task-title {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .overdue-badge {
-    background: #ff4444;
-    color: white;
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 10px;
-    margin-left: 0.5rem;
-  }
-  
-  .task-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  .btn-edit, .btn-delete {
-    background: none;
-    border: none;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 0.25rem;
-  }
-  
-  .btn-edit:hover { color: #007bff; }
-  .btn-delete:hover { color: #ff4444; }
-  
-  .task-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.85rem;
-  }
-  
-  .priority-badge, .status-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-weight: 500;
-  }
-  
-  .priority-badge.high { background: #ffebee; color: #ff4444; }
-  .priority-badge.medium { background: #fff8e1; color: #ff8f00; }
-  .priority-badge.low { background: #e8f5e9; color: #00C851; }
-  
-  .status-badge.open { background: #ffebee; color: #ff4444; }
-  .status-badge.in-progress { background: #fff3e0; color: #fb8c00; }
-  .status-badge.done { background: #e8f5e9; color: #00C851; }
-  
-  .task-description {
-    color: #666;
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.4;
-  }
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-left: 4px solid #ddd;
+}
+
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.task-card.high {
+  border-left-color: #ff4444;
+}
+.task-card.medium {
+  border-left-color: #ffbb33;
+}
+.task-card.low {
+  border-left-color: #00c851;
+}
+
+.task-card.overdue {
+  background-color: #fff0f0;
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.task-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.overdue-badge {
+  background: #ff4444;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  margin-left: 0.5rem;
+}
+
+.task-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit,
+.btn-delete {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.btn-edit:hover {
+  color: #007bff;
+}
+.btn-delete:hover {
+  color: #ff4444;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.priority-badge,
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.priority-badge.high {
+  background: #ffebee;
+  color: #ff4444;
+}
+.priority-badge.medium {
+  background: #fff8e1;
+  color: #ff8f00;
+}
+.priority-badge.low {
+  background: #e8f5e9;
+  color: #00c851;
+}
+
+.status-badge.open {
+  background: #ffebee;
+  color: #ff4444;
+}
+.status-badge.in-progress {
+  background: #fff3e0;
+  color: #fb8c00;
+}
+.status-badge.done {
+  background: #e8f5e9;
+  color: #00c851;
+}
+
+.task-description {
+  color: #666;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
 
 /* Sorting Controls */
 .sort-controls {
