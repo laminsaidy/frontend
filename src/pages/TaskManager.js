@@ -158,6 +158,7 @@ class TaskManager extends Component {
                 this.editItem(item);
               }}
               className="btn-edit"
+              aria-label="Edit task"
             >
               ✏️
             </button>
@@ -167,6 +168,7 @@ class TaskManager extends Component {
                 this.handleDelete(item);
               }}
               className="btn-delete"
+              aria-label="Delete task"
             >
               🗑️
             </button>
@@ -176,9 +178,10 @@ class TaskManager extends Component {
                   e.stopPropagation();
                   this.updateTaskStatus(item, "In Progress");
                 }}
-                className="btn-status"
+                className="status-action-btn"
+                aria-label="Mark as in progress"
               >
-                In Progress
+                Start Progress
               </button>
             )}
             {viewStatus === "In Progress" && (
@@ -187,9 +190,10 @@ class TaskManager extends Component {
                   e.stopPropagation();
                   this.updateTaskStatus(item, "Done");
                 }}
-                className="btn-status"
+                className="status-action-btn"
+                aria-label="Mark as done"
               >
-                Done
+                Mark Complete
               </button>
             )}
           </div>
@@ -230,7 +234,7 @@ class TaskManager extends Component {
           <span
             key={status}
             onClick={() => this.setState({ viewStatus: status })}
-            className={this.state.viewStatus === status ? `active ${status.toLowerCase().replace(' ', '-')}` : ''}
+            className={this.state.viewStatus === status ? "active" : ""}
           >
             {status}
           </span>
@@ -243,7 +247,7 @@ class TaskManager extends Component {
     const { loading, showConfirmationDialog } = this.state;
 
     if (loading) {
-      return <div>Loading tasks...</div>;
+      return <div className="loading-message">Loading tasks...</div>;
     }
 
     return (
@@ -254,8 +258,11 @@ class TaskManager extends Component {
         <div className="row">
           <div className="col-md-6 col-sm-10 mx-auto p-0">
             <div className="card p-3">
-              <button onClick={this.createItem} className="btn btn-primary">
-                Add task
+              <button 
+                onClick={this.createItem} 
+                className="add-task-btn"
+              >
+                ＋ Add Task
               </button>
               {this.renderTabList()}
               <div className="task-list-container">
