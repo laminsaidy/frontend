@@ -13,12 +13,6 @@ function Registerpage() {
   // Destructure registerUser from AuthContext
   const { registerUser } = useContext(AuthContext);
 
-  // Log form input values to the console for debugging purposes
-  console.log(email);
-  console.log(username);
-  console.log(password);
-  console.log(password2);
-
   // Handle form submission and call registerUser with the form data
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,45 +55,55 @@ function Registerpage() {
 
                         {/* Email input field */}
                         <div className="form-outline mb-4">
+                          <label htmlFor="register-email" className="form-label visually-hidden">Email Address</label>
                           <input
                             type="email"
-                            id="form2Example17"
+                            id="register-email"
                             className="form-control form-control-lg"
                             placeholder="Email Address"
                             onChange={(e) => setEmail(e.target.value)}
+                            required
                           />
                         </div>
 
                         {/* Username input field */}
                         <div className="form-outline mb-4">
+                          <label htmlFor="register-username" className="form-label visually-hidden">Username</label>
                           <input
                             type="text"
-                            id="form2Example17"
+                            id="register-username"
                             className="form-control form-control-lg"
                             placeholder="Username"
                             onChange={(e) => setUsername(e.target.value)}
+                            required
                           />
                         </div>
 
                         {/* Password input field */}
                         <div className="form-outline mb-4">
+                          <label htmlFor="register-password" className="form-label visually-hidden">Password</label>
                           <input
                             type="password"
-                            id="form2Example17"
+                            id="register-password"
                             className="form-control form-control-lg"
                             placeholder="Password"
                             onChange={(e) => setPassword(e.target.value)}
+                            required
+                            minLength="6"
                           />
                         </div>
 
                         {/* Confirm password input field */}
                         <div className="form-outline mb-4">
+                          <label htmlFor="register-confirm-password" className="form-label visually-hidden">Confirm Password</label>
                           <input
                             type="password"
-                            id="form2Example27"
+                            id="register-confirm-password"
                             className="form-control form-control-lg"
                             placeholder="Confirm Password"
                             onChange={(e) => setPassword2(e.target.value)}
+                            required
+                            minLength="6"
                           />
                         </div>
 

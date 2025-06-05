@@ -5,22 +5,21 @@ import Swal from "sweetalert2";
 
 const AuthContext = createContext();
 
-export default AuthContext;
-
 export const AuthProvider = ({ children }) => {
-  const [authTokens, setAuthTokens] = useState(() => {
-    const tokens = localStorage.getItem("authTokens");
-    return tokens ? JSON.parse(tokens) : null;
-  });
+  const [authTokens, setAuthTokens] = useState(() =>
+    localStorage.getItem("authTokens")
+      ? JSON.parse(localStorage.getItem("authTokens"))
+      : null
+  );
 
-  const [user, setUser] = useState(() => {
-    const tokens = localStorage.getItem("authTokens");
-    return tokens ? jwtDecode(JSON.parse(tokens).access) : null;
-  });
+  const [user, setUser] = useState(() =>
+    localStorage.getItem("authTokens")
+      ? jwtDecode(JSON.parse(localStorage.getItem("authTokens")).access)
+      : null
+  );
 
   const [loading, setLoading] = useState(true);
-
-  const history = useHistory(); 
+  const history = useHistory();
 
   const loginUser = async (email, password) => {
     try {
@@ -38,7 +37,7 @@ export const AuthProvider = ({ children }) => {
         setAuthTokens(data);
         setUser(jwtDecode(data.access));
         localStorage.setItem("authTokens", JSON.stringify(data));
-        history.push("/"); 
+        history.push("/");
         Swal.fire({
           title: "Login Successful",
           icon: "success",
@@ -75,29 +74,32 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, username, password, password2 }),
       });
 
-      if (response.status === 201) {
-        history.push("/login"); 
-        Swal.fire({
-          title: "Registration Successful. Please login.",
-          icon: "success",
-          toast: true,
-          timer: 6000,
-          position: "top",
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
+      const contentType = response.headers.get("content-type");
+      let data;
+
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
       } else {
-        const errorData = await response.json();
-        if (errorData.email) {
-          throw new Error(errorData.email[0]);
-        } else if (errorData.username) {
-          throw new Error(errorData.username[0]);
-        } else if (errorData.password) {
-          throw new Error(errorData.password[0]);
-        } else {
-          throw new Error(errorData.detail || `Error: ${response.status}`);
-        }
+        const text = await response.text();
+        throw new Error(`Unexpected response: ${text}`);
       }
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      history.push("/login");
+      Swal.fire({
+        title: "Registration Successful. Please login.",
+        icon: "success",
+        toast: true,
+        timer: 6000,
+        position: "top",
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+
+      return data;
     } catch (error) {
       console.error("Registration error:", error);
       Swal.fire({
@@ -109,6 +111,7 @@ export const AuthProvider = ({ children }) => {
         timerProgressBar: true,
         showConfirmButton: false,
       });
+      throw error;
     }
   };
 
@@ -116,7 +119,7 @@ export const AuthProvider = ({ children }) => {
     setAuthTokens(null);
     setUser(null);
     localStorage.removeItem("authTokens");
-    history.push("/login"); 
+    history.push("/login");
     Swal.fire({
       title: "You have been logged out",
       icon: "success",
@@ -149,7 +152,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Token refresh error:", error);
-      logoutUser(); 
+      logoutUser();
     }
   };
 
@@ -174,8 +177,8 @@ export const AuthProvider = ({ children }) => {
         setUser(decodedToken);
       }
     }
-    setLoading(false); 
-  }, [authTokens, logoutUser]); 
+    setLoading(false);
+  }, [authTokens, logoutUser]);
 
   return (
     <AuthContext.Provider value={contextData}>
@@ -183,3 +186,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthContext;
