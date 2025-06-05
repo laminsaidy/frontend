@@ -1,31 +1,31 @@
 :root {
-    /* Primary Colors */
-    --primary: #4361ee;
-    --primary-light: #4895ef;
-    --primary-dark: #3f37c9;
-    
-    /* Secondary Colors */
-    --secondary: #3a0ca3;
-    --success: #4cc9f0;
-    --danger: #f72585;
-    --warning: #f8961e;
-    --info: #7209b7;
-    
-    /* Grayscale */
-    --gray-100: #f8f9fa;
-    --gray-200: #e9ecef;
-    --gray-500: #adb5bd;
-    --gray-800: #343a40;
-    
-    /* Typography */
-    --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    --font-size-base: 1rem;
-    --line-height: 1.5;
-  }
-  
-  body {
-    font-family: var(--font-main);
-    line-height: var(--line-height);
-    color: var(--gray-800);
-    background-color: var(--gray-100);
-  }
+  /* Primary Colors */
+  --primary: #4361ee;
+  --primary-light: #4895ef;
+  --primary-dark: #3f37c9;
+
+  /* Secondary Colors */
+  --secondary: #3a0ca3;
+  --success: #4cc9f0;
+  --danger: #f72585;
+  --warning: #f8961e;
+  --info: #7209b7;
+
+  /* Grayscale */
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-500: #adb5bd;
+  --gray-800: #343a40;
+
+  /* Typography */
+  --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-size-base: 1rem;
+  --line-height: 1.5;
+}
+
+body {
+  font-family: var(--font-main);
+  line-height: var(--line-height);
+  color: var(--gray-800);
+  background-color: var(--gray-100);
+}

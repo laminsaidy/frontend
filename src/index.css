@@ -6,11 +6,11 @@
 
 /* Prevent anchor scrolling */
 html {
-    scroll-behavior: auto !important;
-    overflow-anchor: none;
-  }
-  
-  /* for a fixed header/navbar */
-  body {
-    padding-top: 60px; 
-  }
+  scroll-behavior: auto !important;
+  overflow-anchor: none;
+}
+
+/* for a fixed header/navbar */
+body {
+  padding-top: 60px;
+}

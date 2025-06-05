@@ -9,7 +9,7 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   margin: 6rem auto 0;
   text-align: center;
-  background-image: url('/static/images/homepage.jpg'); 
+  background-image: url('/static/images/homepage.jpg');
   background-size: cover;
   background-position: center;
 }
@@ -19,18 +19,16 @@
   font-size: 2.2rem;
   margin-bottom: 1.2rem;
   font-weight: 600;
-  animation: fadeIn 1s ease-in-out; 
+  animation: fadeIn 1s ease-in-out; /* Add fade-in animation */
 }
 
 .homepage-container p {
   font-size: 1.1rem;
   line-height: 1.7;
   margin-bottom: 2.5rem;
-  color: #333; 
-  animation: fadeIn 1.5s ease-in-out; 
+  color: #333; /* Darker color for better visibility */
+  animation: fadeIn 1.5s ease-in-out; /* Add fade-in animation */
 }
-
-
 
 .btn {
   display: inline-block;
@@ -40,8 +38,11 @@
   border-radius: 30px;
   text-decoration: none;
   font-weight: 500;
-  transition: background-color 0.3s, transform 0.3s;
-  animation: bounce 1s ease-in-out;
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
+  animation: bounce 1s ease-in-out; /* Add bounce animation */
+  margin-bottom: 1rem; /* Add margin to separate from footer links */
 }
 
 .btn:hover {
@@ -52,14 +53,17 @@
 .illustration {
   width: 160px;
   margin-bottom: 2rem;
-  animation: fadeIn 1s ease-in-out; 
+  animation: fadeIn 1s ease-in-out; /* Add fade-in animation */
 }
 
 .footer {
-  margin-top: auto;
-  padding-top: 2rem;
   font-size: 0.9rem;
   color: #999;
+  text-align: center; /* Ensure the footer text is centered */
+}
+
+.footer p {
+  margin: 0;
 }
 
 @keyframes fadeIn {
@@ -72,7 +76,11 @@
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {

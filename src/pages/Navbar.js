@@ -1,6 +1,6 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
-import AuthContext from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import AuthContext from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 function Navbar() {
   const { user, logoutUser } = useContext(AuthContext);
@@ -23,9 +23,9 @@ function Navbar() {
   };
 
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -33,15 +33,15 @@ function Navbar() {
     <div ref={navbarRef}>
       <nav
         className="navbar navbar-expand-lg navbar-dark fixed-top bg-dark"
-        style={{ paddingTop: "10px", paddingBottom: "10px", zIndex: "10" }}
+        style={{ paddingTop: '10px', paddingBottom: '10px', zIndex: '10' }}
       >
         <div className="container-fluid">
           <Link className="navbar-brand" to="/" onClick={handleNavLinkClick}>
             <img
               style={{
-                width: "120px",
-                padding: "6px",
-                backgroundColor: "none",
+                width: '120px',
+                padding: '6px',
+                backgroundColor: 'none',
               }}
               src="https://i.imgur.com/OyJ8xmm.png"
               alt="Logo"
@@ -58,20 +58,23 @@ function Navbar() {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div
-            className={`collapse navbar-collapse justify-content-end ${!isCollapsed ? "show" : ""}`}
+            className={`collapse navbar-collapse justify-content-end ${!isCollapsed ? 'show' : ''}`}
             id="navbarNav"
           >
-            <ul className="navbar-nav" style={{ display: "flex", alignItems: "center" }}>
-              <li className="nav-item" style={{ marginRight: "10px" }}>
+            <ul
+              className="navbar-nav"
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              <li className="nav-item" style={{ marginRight: '10px' }}>
                 <Link
                   className="nav-link"
                   to="/"
                   onClick={handleNavLinkClick}
                   style={{
-                    color: "white",
-                    padding: "0.5rem 1rem",
-                    textDecoration: "none",
-                    fontSize: "1rem",
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    textDecoration: 'none',
+                    fontSize: '1rem',
                   }}
                 >
                   Home
@@ -79,31 +82,31 @@ function Navbar() {
               </li>
               {!isAuthenticated && (
                 <>
-                  <li className="nav-item" style={{ marginRight: "10px" }}>
+                  <li className="nav-item" style={{ marginRight: '10px' }}>
                     <Link
                       className="nav-link"
                       to="/login"
                       onClick={handleNavLinkClick}
                       style={{
-                        color: "white",
-                        padding: "0.5rem 1rem",
-                        textDecoration: "none",
-                        fontSize: "1rem",
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        textDecoration: 'none',
+                        fontSize: '1rem',
                       }}
                     >
                       Login
                     </Link>
                   </li>
-                  <li className="nav-item" style={{ marginRight: "10px" }}>
+                  <li className="nav-item" style={{ marginRight: '10px' }}>
                     <Link
                       className="nav-link"
                       to="/register"
                       onClick={handleNavLinkClick}
                       style={{
-                        color: "white",
-                        padding: "0.5rem 1rem",
-                        textDecoration: "none",
-                        fontSize: "1rem",
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        textDecoration: 'none',
+                        fontSize: '1rem',
                       }}
                     >
                       Register
@@ -113,16 +116,16 @@ function Navbar() {
               )}
               {isAuthenticated && (
                 <>
-                  <li className="nav-item" style={{ marginRight: "10px" }}>
+                  <li className="nav-item" style={{ marginRight: '10px' }}>
                     <Link
                       className="nav-link"
                       to="/tasks"
                       onClick={handleNavLinkClick}
                       style={{
-                        color: "white",
-                        padding: "0.5rem 1rem",
-                        textDecoration: "none",
-                        fontSize: "1rem",
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        textDecoration: 'none',
+                        fontSize: '1rem',
                       }}
                     >
                       Task Manager
@@ -136,13 +139,13 @@ function Navbar() {
                         handleNavLinkClick();
                       }}
                       style={{
-                        cursor: "pointer",
-                        background: "none",
-                        border: "none",
-                        color: "white",
-                        padding: "0.5rem 1rem",
-                        textDecoration: "none",
-                        fontSize: "1rem",
+                        cursor: 'pointer',
+                        background: 'none',
+                        border: 'none',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        textDecoration: 'none',
+                        fontSize: '1rem',
                       }}
                       aria-label="Logout"
                     >

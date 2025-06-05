@@ -1,50 +1,61 @@
-import axios from "axios";
-import { jwtDecode } from "jwt-decode"; 
-import dayjs from "dayjs";
-import { useContext } from "react";
-import AuthContext from "../context/AuthContext";
+import axios from 'axios';
+import { useContext, useMemo } from 'react';
+import AuthContext from '../context/AuthContext';
 
-const baseURL = "http://127.0.0.1:8000/api";
+const baseURL = process.env.REACT_APP_API_URL + '/api';
 
 const useAxios = () => {
-  const { authTokens, setUser, setAuthTokens } = useContext(AuthContext);
+  const { logoutUser, getAccessToken, refreshAccessToken } = useContext(AuthContext);
 
-  const axiosInstance = axios.create({
-    baseURL,
-    headers: { Authorization: `Bearer ${authTokens?.access}` },
-  });
+  const axiosInstance = useMemo(() => {
+    const instance = axios.create({
+      baseURL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 15000,
+    });
 
-  axiosInstance.interceptors.request.use(async (req) => {
-    if (!authTokens?.access) {
-      // Handle the case where authTokens is missing
-      return req;
-    }
+    // Attach Authorization header with access token
+    instance.interceptors.request.use(
+      (config) => {
+        const token = getAccessToken();
+        if (token) {
+          config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
 
-    const user = jwtDecode(authTokens.access); // Use jwtDecode
-    const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
+    // Response interceptor to handle 401 errors (token expiry)
+    instance.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
 
-    if (!isExpired) return req;
+        // Prevent infinite loops
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            // Try refreshing token
+            const newAccessToken = await refreshAccessToken();
+            // Update Authorization header and retry original request
+            originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+            return instance(originalRequest);
+          } catch (refreshError) {
+            // Refresh failed, logout user
+            logoutUser();
+            return Promise.reject(refreshError);
+          }
+        }
 
-    try {
-      const response = await axios.post(`${baseURL}/token/refresh/`, {
-        refresh: authTokens.refresh,
-      });
+        return Promise.reject(error);
+      }
+    );
 
-      localStorage.setItem("authTokens", JSON.stringify(response.data));
-      setAuthTokens(response.data);
-      setUser(jwtDecode(response.data.access)); 
-
-      req.headers.Authorization = `Bearer ${response.data.access}`;
-    } catch (error) {
-      console.error("Token refresh failed:", error);
-      // Handle the error (e.g., log out the user)
-      setAuthTokens(null);
-      setUser(null);
-      localStorage.removeItem("authTokens");
-    }
-
-    return req;
-  });
+    return instance;
+  }, [logoutUser, getAccessToken, refreshAccessToken]);
 
   return axiosInstance;
 };

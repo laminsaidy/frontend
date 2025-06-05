@@ -1,47 +1,46 @@
 /* Registerpage.css */
 
 .register-section {
-    background-color: #7D5A75;
-    margin-top: 80px;
-    padding-bottom: 20px;
-  }
-  
-  .register-container {
-    border-radius: 1rem;
-  }
-  
-  .register-image {
-    border-radius: 1rem 0 0 1rem;
-  }
-  
-  .register-icon {
-    color: #ff6219;
-  }
-  
-  .register-heading {
-    letter-spacing: 1px;
-  }
-  
-  .login-link {
-    color: #393f81;
-  }
-  
-  .footer {
-    background-color: #f8f9fa;
-    padding: 1rem 0;
-    text-align: center;
-  }
-  
-  .footer p {
-    margin: 0;
-  }
-  
-  .footer .creator a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .footer .creator a:hover {
-    text-decoration: underline;
-  }
-  
+  background-color: #7d5a75;
+  margin-top: 80px;
+  padding-bottom: 20px;
+}
+
+.register-container {
+  border-radius: 1rem;
+}
+
+.register-image {
+  border-radius: 1rem 0 0 1rem;
+}
+
+.register-icon {
+  color: #ff6219;
+}
+
+.register-heading {
+  letter-spacing: 1px;
+}
+
+.login-link {
+  color: #393f81;
+}
+
+.footer {
+  background-color: #f8f9fa;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer .creator a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer .creator a:hover {
+  text-decoration: underline;
+}
