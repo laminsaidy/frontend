@@ -9,7 +9,6 @@ function Loginpage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -18,7 +17,6 @@ function Loginpage() {
     const email = e.target.email.value.trim();
     const password = e.target.password.value;
 
-    // Basic validation
     if (!email || !password) {
       setError("Email and password are required");
       setIsLoading(false);
@@ -29,7 +27,6 @@ function Loginpage() {
       await loginUser(email, password);
     } catch (err) {
       setError("Invalid credentials. Please try again.");
-      // For debugging only (remove in production)
       console.error("Login error:", err.message);
     } finally {
       setIsLoading(false);
@@ -110,10 +107,6 @@ function Loginpage() {
                           </button>
                         </div>
 
-                        <a className="small text-muted" href="#!">
-                          Forgot password?
-                        </a>
-
                         <p className="mb-5 pb-lg-2 register-link">
                           Don't have an account?{" "}
                           <Link to="/register" className="register-link">
@@ -121,12 +114,14 @@ function Loginpage() {
                           </Link>
                         </p>
 
-                        <Link to="/terms" className="small text-muted me-2">
-                          Terms of use.
-                        </Link>
-                        <Link to="/privacy" className="small text-muted">
-                          Privacy policy
-                        </Link>
+                        <div className="policy-links">
+                          <Link to="/terms" className="small text-muted me-2">
+                            Terms of use
+                          </Link>
+                          <Link to="/privacy" className="small text-muted">
+                            Privacy policy
+                          </Link>
+                        </div>
                       </form>
                     </div>
                   </div>
