@@ -4,6 +4,25 @@ import TaskModal from "../context/TaskModal";
 import ConfirmationDialog from "../context/ConfirmationDialog";
 import '../styles/components/TaskManager.css';
 
+// Configure axios instance
+const api = axios.create({
+  baseURL: "https://backend-api-calender.onrender.com",
+  withCredentials: true,
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  }
+});
+
+// Add request interceptor
+api.interceptors.request.use(config => {
+  const tokens = JSON.parse(localStorage.getItem('authTokens'));
+  if (tokens?.access) {
+    config.headers.Authorization = `Bearer ${tokens.access}`;
+  }
+  return config;
+});
+
 class TaskManager extends Component {
   constructor(props) {
     super(props);
@@ -30,8 +49,7 @@ class TaskManager extends Component {
   }
 
   refreshList = () => {
-    axios
-      .get("http://localhost:8000/api/tasks/")
+    api.get("/api/tasks/")
       .then((res) => {
         const tasksWithOverdue = res.data.map((task) => ({
           ...task,
@@ -61,8 +79,7 @@ class TaskManager extends Component {
     };
 
     if (item.id) {
-      axios
-        .put(`http://localhost:8000/api/tasks/${item.id}/`, payload)
+      api.put(`/api/tasks/${item.id}/`, payload)
         .then(this.refreshList)
         .catch((error) => {
           console.error(
@@ -72,8 +89,7 @@ class TaskManager extends Component {
         });
       return;
     }
-    axios
-      .post("http://localhost:8000/api/tasks/", payload)
+    api.post("/api/tasks/", payload)
       .then(this.refreshList)
       .catch((error) => {
         console.error(
@@ -89,8 +105,7 @@ class TaskManager extends Component {
 
   confirmDelete = () => {
     const { itemToDelete } = this.state;
-    axios
-      .delete(`http://localhost:8000/api/tasks/${itemToDelete.id}/`)
+    api.delete(`/api/tasks/${itemToDelete.id}/`)
       .then(this.refreshList)
       .catch((error) => {
         console.error(
@@ -123,8 +138,7 @@ class TaskManager extends Component {
 
   updateTaskStatus = (item, newStatus) => {
     const payload = { ...item, status: newStatus };
-    axios
-      .put(`http://localhost:8000/api/tasks/${item.id}/`, payload)
+    api.put(`/api/tasks/${item.id}/`, payload)
       .then(this.refreshList)
       .catch((error) => {
         console.error(
