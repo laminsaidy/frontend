@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom"; // Use useHistory instead of useNavigate
 import Swal from "sweetalert2";
 import axios from "axios";
 
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const history = useHistory(); // Use history instead of navigate
 
   const loginUser = async (email, password) => {
     try {
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
         setAuthTokens(authData);
         setUser(authData.user);
 
-        navigate("/");
+        history.push("/"); // Use history.push instead of navigate
         Swal.fire({
           title: "Login Successful",
           icon: "success",
@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.status >= 200 && response.status < 300) {
-        navigate("/login");
+        history.push("/login"); // Use history.push instead of navigate
         Swal.fire({
           title: "Registration Successful! Please login.",
           icon: "success",
@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("authTokens");
     setAuthTokens(null);
     setUser(null);
-    navigate("/login");
+    history.push("/login"); // Use history.push instead of navigate
     Swal.fire({
       title: "Logged out successfully",
       icon: "success",
@@ -160,7 +160,7 @@ export const AuthProvider = ({ children }) => {
       position: "top-end",
       showConfirmButton: false,
     });
-  }, [navigate]);
+  }, [history]); // Depend on history instead of navigate
 
   const refreshToken = async () => {
     try {
