@@ -20,8 +20,8 @@ const api = axios.create({
 // Add request interceptor
 api.interceptors.request.use(config => {
   const tokens = JSON.parse(localStorage.getItem('authTokens'));
-  if (tokens?.access) {
-    config.headers.Authorization = `Bearer ${tokens.access}`;
+  if (tokens?.token) {  // Changed from tokens?.access
+    config.headers.Authorization = `Bearer ${tokens.token}`;
   }
   return config;
 });
@@ -30,7 +30,7 @@ const validateToken = (token) => {
   if (!token) return false;
   try {
     const parts = token.split('.');
-    return parts.length === 3; // Proper JWT format
+    return parts.length === 3;
   } catch {
     return false;
   }
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(() => {
     const tokens = JSON.parse(localStorage.getItem("authTokens"));
-    return tokens?.user || (tokens?.access ? safeDecode(tokens.access) : null);
+    return tokens?.user || (tokens?.token ? safeDecode(tokens.token) : null);
   });
 
   const [loading, setLoading] = useState(true);
@@ -66,28 +66,22 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (email, password) => {
     try {
-      const response = await api.post('/api/token/', { email, password }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log("Full login response:", response); // Debug log
+      const response = await api.post('/api/token/', { email, password });
+      const data = response.data;
 
       if (response.status === 200) {
-        const { token, refresh, user } = response.data;
-
-        if (!token) {
-          throw new Error("Authentication token missing in response");
+        const token = data.token || data.access;
+        if (!validateToken(token)) {
+          throw new Error("Invalid token format received");
         }
 
         const authData = {
-          token,
-          refresh,
-          user: {
-            id: user?.id,
-            email: user?.email,
-            username: user?.username
+          token: token,  // Using 'token' consistently
+          refresh: data.refresh,
+          user: data.user || {
+            id: data.user_id,
+            email: email,
+            username: data.username || email.split('@')[0]
           }
         };
 
@@ -104,18 +98,16 @@ export const AuthProvider = ({ children }) => {
           position: "top-end",
           showConfirmButton: false,
         });
-
         return true;
       }
-      throw new Error(response.data?.detail || "Login failed");
-
+      throw new Error(data.detail || "Login failed");
     } catch (error) {
-      console.error("Detailed login error:", {
+      console.error("Login Error:", {
         error: error.response?.data || error.message,
         request: { email }
       });
       Swal.fire({
-        title: error.message || "Login error",
+        title: error.response?.data?.detail || "Invalid credentials",
         icon: "error",
         toast: true,
         timer: 3000,
@@ -145,13 +137,16 @@ export const AuthProvider = ({ children }) => {
           position: "top-end",
           showConfirmButton: false,
         });
-      } else {
-        throw new Error(response.data.error || "Registration failed");
+        return true;
       }
+      throw new Error(response.data.error || "Registration failed");
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Registration Error:", {
+        error: error.response?.data || error.message,
+        request: { email, username }
+      });
       Swal.fire({
-        title: error.message || "Registration error",
+        title: error.response?.data?.error || "Registration failed",
         icon: "error",
         toast: true,
         timer: 3000,
@@ -193,19 +188,20 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200 && validateToken(data.access)) {
         const updatedTokens = {
           ...tokens,
-          access: data.access,
+          token: data.access,  // Using 'token' consistently
           user: data.user || tokens.user
         };
 
         localStorage.setItem("authTokens", JSON.stringify(updatedTokens));
         setAuthTokens(updatedTokens);
         setUser(updatedTokens.user);
-      } else {
-        throw new Error("Token refresh failed");
+        return true;
       }
+      throw new Error("Token refresh failed");
     } catch (error) {
-      console.error("Refresh token error:", error);
+      console.error("Refresh Token Error:", error);
       logoutUser();
+      return false;
     }
   };
 
@@ -221,8 +217,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const verifyToken = async () => {
-      if (authTokens?.access) {
-        const decoded = safeDecode(authTokens.access);
+      if (authTokens?.token) {  // Changed from authTokens?.access
+        const decoded = safeDecode(authTokens.token);
         if (!decoded || decoded.exp * 1000 < Date.now()) {
           await refreshToken();
         }
@@ -231,14 +227,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     verifyToken();
-    const interval = setInterval(() => {
-      if (authTokens?.access) {
-        verifyToken();
-      }
-    }, 5 * 60 * 1000); // Check every 5 minutes
-
+    const interval = setInterval(verifyToken, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [authTokens, refreshToken]);
+  }, [authTokens]);
 
   return (
     <AuthContext.Provider value={contextData}>
