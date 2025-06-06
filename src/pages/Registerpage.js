@@ -16,7 +16,17 @@ function Registerpage() {
   // Handle form submission and call registerUser with the form data
   const handleSubmit = async (e) => {
     e.preventDefault();
-    registerUser(email, username, password, password2);
+
+    if (password !== password2) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      await registerUser(email, username, password, password2);
+    } catch (error) {
+      console.error("Registration error:", error);
+    }
   };
 
   return (

@@ -7,7 +7,7 @@ import SmileyImage from "../assets/images/Smiley.jpg";
 const API_BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://127.0.0.1:8000"
-    : "https://calendar-backend.onrender.com";
+    : "https://backend-api-calender.onrender.com"; // Ensure this matches your deployed backend URL
 
 function Loginpage() {
   const { loginUser } = useContext(AuthContext);
@@ -29,7 +29,7 @@ function Loginpage() {
     }
 
     try {
-      await loginUser(email, password, API_BASE_URL);
+      await loginUser(email, password);
     } catch (err) {
       setError("Invalid credentials. Please try again.");
       console.error("Login error:", err.message);
@@ -49,7 +49,7 @@ function Loginpage() {
                   <div className="col-md-6 col-lg-5 d-none d-md-block">
                     <img
                       src={SmileyImage}
-                      alt="login form"
+                      alt="Login"
                       className="img-fluid login-image"
                     />
                   </div>
@@ -59,7 +59,7 @@ function Loginpage() {
                         <div className="d-flex align-items-center mb-3 pb-1">
                           <i className="fas fa-cubes fa-2x me-3 login-icon" />
                           <span className="h2 fw-bold mb-0">
-                            Hello! Welcome back👋
+                            Hello! Welcome back 👋
                           </span>
                         </div>
 

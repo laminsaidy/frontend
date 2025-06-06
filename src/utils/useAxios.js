@@ -1,10 +1,11 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode"; 
+import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
-const baseURL = "http://127.0.0.1:8000/api";
+// Update the baseURL to point to the live backend on Render
+const baseURL = "https://backend-api-calender.onrender.com/api";
 
 const useAxios = () => {
   const { authTokens, setUser, setAuthTokens } = useContext(AuthContext);
@@ -32,7 +33,7 @@ const useAxios = () => {
 
       localStorage.setItem("authTokens", JSON.stringify(response.data));
       setAuthTokens(response.data);
-      setUser(jwtDecode(response.data.access)); 
+      setUser(jwtDecode(response.data.access));
 
       req.headers.Authorization = `Bearer ${response.data.access}`;
     } catch (error) {
