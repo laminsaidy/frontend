@@ -66,19 +66,29 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (email, password) => {
     try {
-      const response = await api.post('/api/token/', { email, password });
-      const data = response.data;
+      const response = await api.post('/api/token/', { email, password }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log("Full login response:", response); // Debug log
 
       if (response.status === 200) {
-        const token = data.token || data.access;
-        if (!validateToken(token)) {
-          throw new Error("Invalid token format received");
+        const { token, refresh, user } = response.data;
+
+        if (!token) {
+          throw new Error("Authentication token missing in response");
         }
 
         const authData = {
-          access: token,
-          refresh: data.refresh,
-          user: data.user || safeDecode(token)
+          token,
+          refresh,
+          user: {
+            id: user?.id,
+            email: user?.email,
+            username: user?.username
+          }
         };
 
         localStorage.setItem("authTokens", JSON.stringify(authData));
@@ -94,11 +104,16 @@ export const AuthProvider = ({ children }) => {
           position: "top-end",
           showConfirmButton: false,
         });
-      } else {
-        throw new Error(data.detail || "Login failed");
+
+        return true;
       }
+      throw new Error(response.data?.detail || "Login failed");
+
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Detailed login error:", {
+        error: error.response?.data || error.message,
+        request: { email }
+      });
       Swal.fire({
         title: error.message || "Login error",
         icon: "error",
@@ -223,7 +238,7 @@ export const AuthProvider = ({ children }) => {
     }, 5 * 60 * 1000); // Check every 5 minutes
 
     return () => clearInterval(interval);
-  }, [authTokens, refreshToken]); // Include refreshToken here
+  }, [authTokens, refreshToken]);
 
   return (
     <AuthContext.Provider value={contextData}>

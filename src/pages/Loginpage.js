@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import "../styles/components/Loginpage.css";
 import SmileyImage from "../assets/images/Smiley.jpg";
@@ -8,6 +8,7 @@ function Loginpage() {
   const { loginUser } = useContext(AuthContext);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,9 +26,21 @@ function Loginpage() {
 
     try {
       await loginUser(email, password);
+      navigate("/"); // Redirect to home page or dashboard after successful login
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
-      console.error("Login error:", err.message);
+      let errorMessage = "Login failed. Please try again.";
+
+      // Handle specific error cases
+      if (err.message.includes("credentials")) {
+        errorMessage = "Invalid email or password";
+      } else if (err.response?.status === 400) {
+        errorMessage = "Validation error - check your input";
+      } else if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail;
+      }
+
+      setError(errorMessage);
+      console.error("Login error:", err);
     } finally {
       setIsLoading(false);
     }
