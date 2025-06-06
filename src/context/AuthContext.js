@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 
 const AuthContext = createContext();
 
-const backendUrl = "https://backend-calendar-xyz.onrender.com"; // Replace with your actual backend URL
+const backendUrl = "https://backend-api-calender.onrender.com";
 
 export const AuthProvider = ({ children }) => {
   const [authTokens, setAuthTokens] = useState(() =>
