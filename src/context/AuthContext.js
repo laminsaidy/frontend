@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useHistory } from "react-router-dom"; // Use useHistory instead of useNavigate
+import { useHistory } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
 
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [loading, setLoading] = useState(true);
-  const history = useHistory(); // Use history instead of navigate
+  const history = useHistory();
 
   const loginUser = async (email, password) => {
     try {
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
         setAuthTokens(authData);
         setUser(authData.user);
 
-        history.push("/"); // Use history.push instead of navigate
+        history.push("/");
         Swal.fire({
           title: "Login Successful",
           icon: "success",
@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.status >= 200 && response.status < 300) {
-        history.push("/login"); // Use history.push instead of navigate
+        history.push("/login");
         Swal.fire({
           title: "Registration Successful! Please login.",
           icon: "success",
@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("authTokens");
     setAuthTokens(null);
     setUser(null);
-    history.push("/login"); // Use history.push instead of navigate
+    history.push("/login");
     Swal.fire({
       title: "Logged out successfully",
       icon: "success",
@@ -160,7 +160,7 @@ export const AuthProvider = ({ children }) => {
       position: "top-end",
       showConfirmButton: false,
     });
-  }, [history]); // Depend on history instead of navigate
+  }, [history]);
 
   const refreshToken = async () => {
     try {
@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }) => {
     }, 5 * 60 * 1000); // Check every 5 minutes
 
     return () => clearInterval(interval);
-  }, [authTokens]);
+  }, [authTokens, refreshToken]); // Include refreshToken here
 
   return (
     <AuthContext.Provider value={contextData}>

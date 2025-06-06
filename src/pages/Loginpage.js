@@ -4,11 +4,6 @@ import AuthContext from "../context/AuthContext";
 import "../styles/components/Loginpage.css";
 import SmileyImage from "../assets/images/Smiley.jpg";
 
-const API_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? "http://127.0.0.1:8000"
-    : "https://backend-api-calender.onrender.com"; // Ensure this matches your deployed backend URL
-
 function Loginpage() {
   const { loginUser } = useContext(AuthContext);
   const [error, setError] = useState("");
