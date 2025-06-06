@@ -4,6 +4,11 @@ import AuthContext from "../context/AuthContext";
 import "../styles/components/Loginpage.css";
 import SmileyImage from "../assets/images/Smiley.jpg";
 
+const API_BASE_URL =
+  process.env.NODE_ENV === "development"
+    ? "http://127.0.0.1:8000"
+    : "https://calendar-backend.onrender.com";
+
 function Loginpage() {
   const { loginUser } = useContext(AuthContext);
   const [error, setError] = useState("");
@@ -24,7 +29,7 @@ function Loginpage() {
     }
 
     try {
-      await loginUser(email, password);
+      await loginUser(email, password, API_BASE_URL);
     } catch (err) {
       setError("Invalid credentials. Please try again.");
       console.error("Login error:", err.message);
