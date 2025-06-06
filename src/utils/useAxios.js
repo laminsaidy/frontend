@@ -4,7 +4,6 @@ import dayjs from "dayjs";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
-// Update the baseURL to point to the live backend on Render
 const baseURL = "https://backend-api-calender.onrender.com/api";
 
 const useAxios = () => {
@@ -12,24 +11,25 @@ const useAxios = () => {
 
   const axiosInstance = axios.create({
     baseURL,
-    headers: { Authorization: `Bearer ${authTokens?.access}` },
+    headers: { 
+      Authorization: authTokens?.access ? `Bearer ${authTokens.access}` : undefined 
+    },
   });
 
   axiosInstance.interceptors.request.use(async (req) => {
-    if (!authTokens?.access) {
-      // Handle the case where authTokens is missing
-      return req;
-    }
-
-    const user = jwtDecode(authTokens.access); // Use jwtDecode
-    const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
-
-    if (!isExpired) return req;
+    if (!authTokens?.access) return req;
 
     try {
+      const user = jwtDecode(authTokens.access);
+      const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
+
+      if (!isExpired) return req;
+
       const response = await axios.post(`${baseURL}/token/refresh/`, {
         refresh: authTokens.refresh,
       });
+
+      if (!response.data.access) throw new Error("Invalid refresh response");
 
       localStorage.setItem("authTokens", JSON.stringify(response.data));
       setAuthTokens(response.data);
@@ -38,7 +38,6 @@ const useAxios = () => {
       req.headers.Authorization = `Bearer ${response.data.access}`;
     } catch (error) {
       console.error("Token refresh failed:", error);
-      // Handle the error (e.g., log out the user)
       setAuthTokens(null);
       setUser(null);
       localStorage.removeItem("authTokens");
