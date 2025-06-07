@@ -7,7 +7,6 @@ import axios from "axios";
 const AuthContext = createContext();
 const backendUrl = "https://backend-api-calender.onrender.com";
 
-// Configure axios instance
 const api = axios.create({
   baseURL: backendUrl,
   withCredentials: true,
@@ -17,10 +16,9 @@ const api = axios.create({
   }
 });
 
-// Add request interceptor
 api.interceptors.request.use(config => {
   const tokens = JSON.parse(localStorage.getItem('authTokens'));
-  if (tokens?.token) {  // Changed from tokens?.access
+  if (tokens?.token) {
     config.headers.Authorization = `Bearer ${tokens.token}`;
   }
   return config;
@@ -66,22 +64,25 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (email, password) => {
     try {
-      const response = await api.post('/api/token/', { email, password });
-      const data = response.data;
+      const response = await api.post('/api/token/', { 
+        email, 
+        password 
+      });
 
       if (response.status === 200) {
-        const token = data.token || data.access;
-        if (!validateToken(token)) {
-          throw new Error("Invalid token format received");
+        const { access, refresh, user } = response.data;
+        
+        if (!access) {
+          throw new Error("Authentication token missing in response");
         }
 
         const authData = {
-          token: token,  // Using 'token' consistently
-          refresh: data.refresh,
-          user: data.user || {
-            id: data.user_id,
+          token: access,
+          refresh,
+          user: user || {
+            id: response.data.user_id,
             email: email,
-            username: data.username || email.split('@')[0]
+            username: email.split('@')[0]
           }
         };
 
@@ -100,14 +101,22 @@ export const AuthProvider = ({ children }) => {
         });
         return true;
       }
-      throw new Error(data.detail || "Login failed");
+      throw new Error(response.data?.detail || "Login failed");
     } catch (error) {
       console.error("Login Error:", {
         error: error.response?.data || error.message,
         request: { email }
       });
+      
+      let errorMessage = "Login failed";
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response?.data?.non_field_errors) {
+        errorMessage = error.response.data.non_field_errors[0];
+      }
+
       Swal.fire({
-        title: error.response?.data?.detail || "Invalid credentials",
+        title: errorMessage,
         icon: "error",
         toast: true,
         timer: 3000,
@@ -120,6 +129,17 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (email, username, password, password2) => {
     try {
+      // Client-side validation
+      if (!email || !username || !password || !password2) {
+        throw new Error("All fields are required");
+      }
+      if (password !== password2) {
+        throw new Error("Passwords do not match");
+      }
+      if (password.length < 8) {
+        throw new Error("Password must be at least 8 characters");
+      }
+
       const response = await api.post('/api/register/', {
         email,
         username,
@@ -128,7 +148,6 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.status >= 200 && response.status < 300) {
-        history.push("/login");
         Swal.fire({
           title: "Registration Successful! Please login.",
           icon: "success",
@@ -139,14 +158,26 @@ export const AuthProvider = ({ children }) => {
         });
         return true;
       }
-      throw new Error(response.data.error || "Registration failed");
+      throw new Error(response.data?.error || "Registration failed");
     } catch (error) {
       console.error("Registration Error:", {
         error: error.response?.data || error.message,
         request: { email, username }
       });
+
+      let errorMessage = "Registration failed";
+      if (error.response?.data?.email) {
+        errorMessage = `Email: ${error.response.data.email[0]}`;
+      } else if (error.response?.data?.username) {
+        errorMessage = `Username: ${error.response.data.username[0]}`;
+      } else if (error.response?.data?.password) {
+        errorMessage = `Password: ${error.response.data.password[0]}`;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       Swal.fire({
-        title: error.response?.data?.error || "Registration failed",
+        title: errorMessage,
         icon: "error",
         toast: true,
         timer: 3000,
@@ -188,7 +219,7 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200 && validateToken(data.access)) {
         const updatedTokens = {
           ...tokens,
-          token: data.access,  // Using 'token' consistently
+          token: data.access,
           user: data.user || tokens.user
         };
 
@@ -217,7 +248,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const verifyToken = async () => {
-      if (authTokens?.token) {  // Changed from authTokens?.access
+      if (authTokens?.token) {
         const decoded = safeDecode(authTokens.token);
         if (!decoded || decoded.exp * 1000 < Date.now()) {
           await refreshToken();
