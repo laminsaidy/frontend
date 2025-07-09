@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import "../styles/components/Loginpage.css";
 import SmileyImage from "../assets/images/Smiley.jpg";
@@ -8,7 +8,7 @@ function LoginPage() {
   const { loginUser } = useContext(AuthContext);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +28,7 @@ function LoginPage() {
     try {
       const loginSuccess = await loginUser(email, password);
       if (loginSuccess) {
-        history.push("/");
+        navigate("/");
       }
     } catch (err) {
       let errorMessage = "Login failed. Please try again.";

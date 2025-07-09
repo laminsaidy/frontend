@@ -1,8 +1,7 @@
-// src/App.js
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./pages/Navbar";
@@ -23,17 +22,17 @@ function App() {
       <AuthProvider>
         <ScrollToTop />
         <Navbar />
-        <Switch>
-          <Route exact path="/" component={Homepage} />
-          <Route exact path="/login" component={Loginpage} />
-          <Route exact path="/register" component={Registerpage} />
-          <PrivateRoute exact path="/tasks" component={TaskManager} />
-          <Route path="/task/:id" component={TaskDetail} />
-          <PrivateRoute exact path="/tasks/add" component={AddTask} />
-          <Route exact path="/terms" component={TermsOfService} />
-          <Route exact path="/privacy" component={PrivacyPolicy} />
-          <Route component={NotFound} />
-        </Switch>
+        <Routes>
+          <Route path="/" element={<Homepage />} />
+          <Route path="/login" element={<Loginpage />} />
+          <Route path="/register" element={<Registerpage />} />
+          <Route path="/tasks" element={<PrivateRoute><TaskManager /></PrivateRoute>} />
+          <Route path="/task/:id" element={<TaskDetail />} />
+          <Route path="/tasks/add" element={<PrivateRoute><AddTask /></PrivateRoute>} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </AuthProvider>
     </Router>
   );

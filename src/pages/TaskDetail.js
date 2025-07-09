@@ -1,6 +1,5 @@
-// src/pages/TaskDetail.js
 import React, { useState, useEffect, useContext } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import '../styles/components/Taskdetail.css';
 
@@ -9,7 +8,7 @@ const TaskDetail = () => {
   const { id } = useParams();
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get(`/api/tasks/${id}/`)
@@ -24,7 +23,7 @@ const TaskDetail = () => {
   }, [id, api]);
 
   const handleBack = () => {
-    history.push("/tasks");
+    navigate("/tasks");
   };
 
   if (loading) return <div>Loading...</div>;

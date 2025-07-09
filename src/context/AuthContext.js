@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { API_BASE_URL } from "../config";
@@ -11,13 +11,13 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-  }
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
 });
 
-api.interceptors.request.use(config => {
-  const tokens = JSON.parse(localStorage.getItem('authTokens'));
+api.interceptors.request.use((config) => {
+  const tokens = JSON.parse(localStorage.getItem("authTokens"));
   if (tokens?.token) {
     config.headers.Authorization = `Bearer ${tokens.token}`;
   }
@@ -27,7 +27,7 @@ api.interceptors.request.use(config => {
 const validateToken = (token) => {
   if (!token) return false;
   try {
-    const parts = token.split('.');
+    const parts = token.split(".");
     return parts.length === 3;
   } catch {
     return false;
@@ -39,12 +39,14 @@ const safeDecode = (token) => {
   try {
     return jwtDecode(token);
   } catch (error) {
-    console.error('Token decode error:', error);
+    console.error("Token decode error:", error);
     return null;
   }
 };
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   const [authTokens, setAuthTokens] = useState(() => {
     try {
       const tokens = localStorage.getItem("authTokens");
@@ -55,18 +57,21 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [user, setUser] = useState(() => {
-    const tokens = JSON.parse(localStorage.getItem("authTokens"));
-    return tokens?.user || (tokens?.token ? safeDecode(tokens.token) : null);
+    try {
+      const tokens = JSON.parse(localStorage.getItem("authTokens"));
+      return tokens?.user || (tokens?.token ? safeDecode(tokens.token) : null);
+    } catch {
+      return null;
+    }
   });
 
   const [loading, setLoading] = useState(true);
-  const history = useHistory();
 
   const loginUser = async (email, password) => {
     try {
-      const response = await api.post('/api/token/', {
+      const response = await api.post("/api/token/", {
         email,
-        password
+        password,
       });
 
       if (response.status === 200) {
@@ -79,18 +84,20 @@ export const AuthProvider = ({ children }) => {
         const authData = {
           token: access,
           refresh,
-          user: user || {
-            id: response.data.user_id,
-            email: email,
-            username: email.split('@')[0]
-          }
+          user:
+            user ||
+            ({
+              id: response.data.user_id,
+              email,
+              username: email.split("@")[0],
+            }),
         };
 
         localStorage.setItem("authTokens", JSON.stringify(authData));
         setAuthTokens(authData);
         setUser(authData.user);
 
-        history.push("/");
+        navigate("/");
         Swal.fire({
           title: "Login Successful",
           icon: "success",
@@ -105,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Login Error:", {
         error: error.response?.data || error.message,
-        request: { email }
+        request: { email },
       });
 
       let errorMessage = "Login failed";
@@ -139,11 +146,11 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Password must be at least 8 characters");
       }
 
-      const response = await api.post('/api/register/', {
+      const response = await api.post("/api/register/", {
         email,
         username,
         password,
-        password2
+        password2,
       });
 
       if (response.status >= 200 && response.status < 300) {
@@ -161,7 +168,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Registration Error:", {
         error: error.response?.data || error.message,
-        request: { email, username }
+        request: { email, username },
       });
 
       let errorMessage = "Registration failed";
@@ -191,7 +198,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("authTokens");
     setAuthTokens(null);
     setUser(null);
-    history.push("/login");
+    navigate("/login");
     Swal.fire({
       title: "Logged out successfully",
       icon: "success",
@@ -200,18 +207,18 @@ export const AuthProvider = ({ children }) => {
       position: "top-end",
       showConfirmButton: false,
     });
-  }, [history]);
+  }, [navigate]);
 
   const refreshToken = useCallback(async () => {
     try {
       const tokens = JSON.parse(localStorage.getItem("authTokens"));
       if (!tokens?.refresh) {
         logoutUser();
-        return;
+        return false;
       }
 
-      const response = await api.post('/api/token/refresh/', {
-        refresh: tokens.refresh
+      const response = await api.post("/api/token/refresh/", {
+        refresh: tokens.refresh,
       });
 
       const data = response.data;
@@ -219,7 +226,7 @@ export const AuthProvider = ({ children }) => {
         const updatedTokens = {
           ...tokens,
           token: data.access,
-          user: data.user || tokens.user
+          user: data.user || tokens.user,
         };
 
         localStorage.setItem("authTokens", JSON.stringify(updatedTokens));
