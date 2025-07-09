@@ -1,12 +1,14 @@
+// src/pages/TaskManager.js
 import React, { Component } from "react";
-import axios from "axios";
 import TaskModal from "../context/TaskModal";
 import ConfirmationDialog from "../context/ConfirmationDialog";
 import '../styles/components/TaskManager.css';
+import { API_BASE_URL } from "../config";
+import axios from "axios";
 
 // Configure axios instance
 const api = axios.create({
-  baseURL: "https://backend-api-calender.onrender.com",
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Accept': 'application/json',

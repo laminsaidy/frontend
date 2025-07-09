@@ -1,56 +1,54 @@
-import React, { Component } from "react";
-import axios from "axios";
+// src/pages/TaskDetail.js
+import React, { useState, useEffect, useContext } from "react";
+import { useHistory, useParams } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 import '../styles/components/Taskdetail.css';
 
-class TaskDetail extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      task: null,
-      loading: true,
-    };
-  }
+const TaskDetail = () => {
+  const { api } = useContext(AuthContext);
+  const { id } = useParams();
+  const [task, setTask] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const history = useHistory();
 
-  componentDidMount() {
-    const taskId = this.props.match.params.id;
-    axios
-      .get(`http://localhost:8000/api/tasks/${taskId}/`)
+  useEffect(() => {
+    api.get(`/api/tasks/${id}/`)
       .then((res) => {
-        this.setState({ task: res.data, loading: false });
+        setTask(res.data);
+        setLoading(false);
       })
-      .catch((err) => console.error("Error fetching task details:", err));
-  }
+      .catch((err) => {
+        console.error("Error fetching task details:", err);
+        setLoading(false);
+      });
+  }, [id, api]);
 
-  handleBack = () => {
-    // Navigate to the TaskManager page
-    this.props.history.push("/tasks");
+  const handleBack = () => {
+    history.push("/tasks");
   };
 
-  render() {
-    const { task, loading } = this.state;
-    if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
+  if (!task) return <div>Task not found</div>;
 
-    return (
-      <div className="task-detail-container">
-        <h2 className="task-detail-header">{task.title}</h2>
-        <p className="task-detail-description"><strong>Description:</strong> {task.description}</p>
-        <p className="task-detail-status"><strong>Status:</strong> {task.status}</p>
-        <p className="task-detail-priority"><strong>Priority:</strong> {task.priority}</p>
-        <p className="task-detail-category"><strong>Category:</strong> {task.category}</p>
-        <p className="task-detail-due-date"><strong>Due Date:</strong> {task.due_date || "No due date"}</p>
-        {task.overdue && (
-          <p className="task-detail-overdue">
-            <strong>Overdue!</strong>
-          </p>
-        )}
+  return (
+    <div className="task-detail-container">
+      <h2 className="task-detail-header">{task.title}</h2>
+      <p className="task-detail-description"><strong>Description:</strong> {task.description}</p>
+      <p className="task-detail-status"><strong>Status:</strong> {task.status}</p>
+      <p className="task-detail-priority"><strong>Priority:</strong> {task.priority}</p>
+      <p className="task-detail-category"><strong>Category:</strong> {task.category}</p>
+      <p className="task-detail-due-date"><strong>Due Date:</strong> {task.due_date || "No due date"}</p>
+      {task.overdue && (
+        <p className="task-detail-overdue">
+          <strong>Overdue!</strong>
+        </p>
+      )}
 
-        {/* BACK button */}
-        <button className="back-button" onClick={this.handleBack}>
-          BACK
-        </button>
-      </div>
-    );
-  }
-}
+      <button className="back-button" onClick={handleBack}>
+        BACK
+      </button>
+    </div>
+  );
+};
 
 export default TaskDetail;

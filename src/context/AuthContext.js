@@ -3,12 +3,12 @@ import { jwtDecode } from "jwt-decode";
 import { useHistory } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 
 const AuthContext = createContext();
-const backendUrl = "https://backend-api-calender.onrender.com";
 
 const api = axios.create({
-  baseURL: backendUrl,
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Accept': 'application/json',
@@ -64,14 +64,14 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (email, password) => {
     try {
-      const response = await api.post('/api/token/', { 
-        email, 
-        password 
+      const response = await api.post('/api/token/', {
+        email,
+        password
       });
 
       if (response.status === 200) {
         const { access, refresh, user } = response.data;
-        
+
         if (!access) {
           throw new Error("Authentication token missing in response");
         }
@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
         error: error.response?.data || error.message,
         request: { email }
       });
-      
+
       let errorMessage = "Login failed";
       if (error.response?.data?.detail) {
         errorMessage = error.response.data.detail;
@@ -129,7 +129,6 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (email, username, password, password2) => {
     try {
-      // Client-side validation
       if (!email || !username || !password || !password2) {
         throw new Error("All fields are required");
       }
@@ -203,7 +202,7 @@ export const AuthProvider = ({ children }) => {
     });
   }, [history]);
 
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     try {
       const tokens = JSON.parse(localStorage.getItem("authTokens"));
       if (!tokens?.refresh) {
@@ -234,7 +233,7 @@ export const AuthProvider = ({ children }) => {
       logoutUser();
       return false;
     }
-  };
+  }, [logoutUser]);
 
   const contextData = {
     user,
@@ -260,7 +259,7 @@ export const AuthProvider = ({ children }) => {
     verifyToken();
     const interval = setInterval(verifyToken, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [authTokens]);
+  }, [authTokens, refreshToken]);
 
   return (
     <AuthContext.Provider value={contextData}>

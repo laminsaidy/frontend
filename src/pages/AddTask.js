@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+// src/pages/AddTask.js
+import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 import '../styles/components/Task.css';
 
 const AddTask = () => {
+  const { api } = useContext(AuthContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("Open");
@@ -13,7 +15,7 @@ const AddTask = () => {
   const history = useHistory();
 
   useEffect(() => {
-    window.scrollTo(0, 0); 
+    window.scrollTo(0, 0);
   }, []);
 
   const handleSubmit = (e) => {
@@ -27,7 +29,7 @@ const AddTask = () => {
       due_date,
     };
 
-    axios.post("http://localhost:8000/api/tasks/add/", taskData)
+    api.post("/api/tasks/", taskData)
       .then(response => {
         history.push("/tasks");
       })
