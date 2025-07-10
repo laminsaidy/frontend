@@ -3,9 +3,10 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { API_BASE_URL } from "../config";
 
 const AuthContext = createContext();
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -67,30 +68,27 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
 
-  const loginUser = async (email, password) => {
+  const loginUser = async (username, password) => {
     try {
       const response = await api.post("/api/token/", {
-        email,
+        username,  // Use username instead of email
         password,
       });
 
       if (response.status === 200) {
-        const { access, refresh, user } = response.data;
+        const { token, refresh, user } = response.data;
 
-        if (!access) {
+        if (!token) {
           throw new Error("Authentication token missing in response");
         }
 
         const authData = {
-          token: access,
+          token,
           refresh,
-          user:
-            user ||
-            ({
-              id: response.data.user_id,
-              email,
-              username: email.split("@")[0],
-            }),
+          user: user || {
+            id: response.data.user_id,
+            username,
+          },
         };
 
         localStorage.setItem("authTokens", JSON.stringify(authData));
@@ -112,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Login Error:", {
         error: error.response?.data || error.message,
-        request: { email },
+        request: { username },  // Use username instead of email
       });
 
       let errorMessage = "Login failed";
@@ -222,10 +220,10 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = response.data;
-      if (response.status === 200 && validateToken(data.access)) {
+      if (response.status === 200 && validateToken(data.token)) {
         const updatedTokens = {
           ...tokens,
-          token: data.access,
+          token: data.token,
           user: data.user || tokens.user,
         };
 

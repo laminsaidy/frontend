@@ -16,17 +16,17 @@ function LoginPage() {
     setError("");
 
     const formData = new FormData(e.target);
-    const email = formData.get("email").trim();
+    const username = formData.get("username").trim();
     const password = formData.get("password");
 
-    if (!email || !password) {
-      setError("Email and password are required");
+    if (!username || !password) {
+      setError("Username and password are required");
       setIsLoading(false);
       return;
     }
 
     try {
-      const loginSuccess = await loginUser(email, password);
+      const loginSuccess = await loginUser(username, password);
       if (loginSuccess) {
         navigate("/");
       }
@@ -34,7 +34,7 @@ function LoginPage() {
       let errorMessage = "Login failed. Please try again.";
 
       if (err.message.includes("credentials")) {
-        errorMessage = "Invalid email or password";
+        errorMessage = "Invalid username or password";
       } else if (err.response?.status === 400) {
         errorMessage = "Validation error - check your input";
       } else if (err.response?.data?.detail) {
@@ -86,15 +86,15 @@ function LoginPage() {
 
                         <div className="form-outline mb-4">
                           <input
-                            type="email"
-                            id="email"
+                            type="text"
+                            id="username"
                             className="form-control form-control-lg"
-                            name="email"
+                            name="username"
                             autoComplete="username"
                             required
                           />
-                          <label className="form-label" htmlFor="email">
-                            Email address
+                          <label className="form-label" htmlFor="username">
+                            Username
                           </label>
                         </div>
 
