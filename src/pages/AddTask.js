@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import "../styles/components/Task.css";
+import Swal from "sweetalert2";
 
 const AddTask = () => {
   const { api } = useContext(AuthContext);
@@ -12,10 +13,6 @@ const AddTask = () => {
   const [category, setCategory] = useState("");
   const [due_date, setDueDate] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,11 +26,32 @@ const AddTask = () => {
     };
 
     try {
-      await api.post("/api/tasks/", taskData);
-      navigate("/tasks");
+      const response = await api.post("/api/tasks/", taskData);
+      if (response.status === 201) {
+        Swal.fire({
+          title: "Task added successfully",
+          icon: "success",
+          toast: true,
+          timer: 3000,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+        navigate("/tasks");
+      }
     } catch (error) {
       console.error("Error adding task:", error);
-      alert("Failed to add task, please try again.");
+      let errorMessage = "Failed to add task, please try again.";
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
+      Swal.fire({
+        title: errorMessage,
+        icon: "error",
+        toast: true,
+        timer: 3000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
     }
   };
 
@@ -66,7 +84,7 @@ const AddTask = () => {
           <select value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="Open">Open</option>
             <option value="In Progress">In Progress</option>
-            <option value="Complete">Complete</option>
+            <option value="Done">Done</option>
           </select>
         </div>
 

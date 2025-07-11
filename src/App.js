@@ -1,7 +1,5 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./pages/Navbar";
@@ -10,11 +8,12 @@ import Loginpage from "./pages/Loginpage";
 import Registerpage from "./pages/Registerpage";
 import TaskManager from "./pages/TaskManager";
 import TaskDetail from "./pages/TaskDetail";
-import AddTask from "./pages/AddTask";
-import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import NotFound from "./pages/NotFound";
 import ScrollToTop from "./utils/ScrollToTop";
+console.log("APP MOUNTED - REACT IS WORKING");
+
 
 function App() {
   return (
@@ -22,17 +21,25 @@ function App() {
       <AuthProvider>
         <ScrollToTop />
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Homepage />} />
-          <Route path="/login" element={<Loginpage />} />
-          <Route path="/register" element={<Registerpage />} />
-          <Route path="/tasks" element={<PrivateRoute><TaskManager /></PrivateRoute>} />
-          <Route path="/task/:id" element={<TaskDetail />} />
-          <Route path="/tasks/add" element={<PrivateRoute><AddTask /></PrivateRoute>} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="app-content">
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Homepage />} />
+            <Route path="/login" element={<Loginpage />} />
+            <Route path="/register" element={<Registerpage />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            
+            {/* Protected routes */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/tasks" element={<TaskManager />} />
+              <Route path="/task/:id" element={<TaskDetail />} />
+            </Route>
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
       </AuthProvider>
     </Router>
   );

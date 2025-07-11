@@ -1,24 +1,42 @@
 import React, { Component } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from "reactstrap";
+import {
+  Button, Modal, ModalHeader, ModalBody, ModalFooter,
+  Form, FormGroup, Label, Input
+} from "reactstrap";
 
 class TaskModal extends Component {
+  static defaultProps = {
+    activeItem: {
+      title: "",
+      description: "",
+      status: "Open",
+      priority: "Low",
+      category: "General",
+      due_date: ""
+    }
+  };
+
   constructor(props) {
     super(props);
     this.state = {
       currentItem: {
         ...this.props.activeItem,
-        category: this.props.activeItem.category || "General", 
-      },
+        category: this.props.activeItem.category || "General"
+      }
     };
   }
 
   handleInputChange = (event) => {
     const { name, value } = event.target;
-    this.setState({ currentItem: { ...this.state.currentItem, [name]: value } });
+    this.setState(prevState => ({
+      currentItem: { ...prevState.currentItem, [name]: value }
+    }));
   };
 
   render() {
     const { toggle, onSave } = this.props;
+    const { currentItem } = this.state;
+
     return (
       <Modal isOpen={true} toggle={toggle}>
         <ModalHeader toggle={toggle}> Task Item </ModalHeader>
@@ -29,7 +47,7 @@ class TaskModal extends Component {
               <Input
                 type="text"
                 name="title"
-                value={this.state.currentItem.title}
+                value={currentItem.title}
                 onChange={this.handleInputChange}
                 placeholder="Enter Task Title"
               />
@@ -40,7 +58,7 @@ class TaskModal extends Component {
               <Input
                 type="text"
                 name="description"
-                value={this.state.currentItem.description}
+                value={currentItem.description}
                 onChange={this.handleInputChange}
                 placeholder="Enter Task Description"
               />
@@ -51,7 +69,7 @@ class TaskModal extends Component {
               <Input
                 type="select"
                 name="status"
-                value={this.state.currentItem.status || "Open"}
+                value={currentItem.status}
                 onChange={this.handleInputChange}
               >
                 <option value="Open">Open</option>
@@ -65,7 +83,7 @@ class TaskModal extends Component {
               <Input
                 type="select"
                 name="priority"
-                value={this.state.currentItem.priority}
+                value={currentItem.priority}
                 onChange={this.handleInputChange}
               >
                 <option value="Low">Low</option>
@@ -79,7 +97,7 @@ class TaskModal extends Component {
               <Input
                 type="text"
                 name="category"
-                value={this.state.currentItem.category}
+                value={currentItem.category}
                 onChange={this.handleInputChange}
                 placeholder="Enter Category (e.g., House Chores)"
               />
@@ -90,14 +108,14 @@ class TaskModal extends Component {
               <Input
                 type="date"
                 name="due_date"
-                value={this.state.currentItem.due_date}
+                value={currentItem.due_date}
                 onChange={this.handleInputChange}
               />
             </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="success" onClick={() => onSave(this.state.currentItem)}>
+          <Button color="success" onClick={() => onSave(currentItem)}>
             Save
           </Button>
         </ModalFooter>

@@ -26,24 +26,12 @@ function LoginPage() {
     }
 
     try {
-      const loginSuccess = await loginUser(username, password);
-      if (loginSuccess) {
-        navigate("/");
+      const success = await loginUser(username, password);
+      if (!success) {
+        setError("Invalid username or password");
       }
     } catch (err) {
-      let errorMessage = "Login failed. Please try again.";
-
-      if (err.message.includes("credentials")) {
-        errorMessage = "Invalid username or password";
-      } else if (err.response?.status === 400) {
-        errorMessage = "Validation error - check your input";
-      } else if (err.response?.data?.detail) {
-        errorMessage = err.response.data.detail;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-
-      setError(errorMessage);
+      setError(err.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +107,13 @@ function LoginPage() {
                             type="submit"
                             disabled={isLoading}
                           >
-                            {isLoading ? "Logging in..." : "Login"}
+                            {isLoading ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span className="visually-hidden">Loading...</span>
+                                Logging in...
+                              </>
+                            ) : "Login"}
                           </button>
                         </div>
 
