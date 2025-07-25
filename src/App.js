@@ -12,8 +12,8 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./utils/ScrollToTop";
-console.log("APP MOUNTED - REACT IS WORKING");
 
+console.log("APP MOUNTED - REACT IS WORKING");
 
 function App() {
   return (
@@ -29,13 +29,25 @@ function App() {
             <Route path="/register" element={<Registerpage />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
-            
+
             {/* Protected routes */}
-            <Route element={<PrivateRoute />}>
-              <Route path="/tasks" element={<TaskManager />} />
-              <Route path="/task/:id" element={<TaskDetail />} />
-            </Route>
-            
+            <Route 
+              path="/tasks" 
+              element={
+                <PrivateRoute>
+                  <TaskManager />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/task/:id" 
+              element={
+                <PrivateRoute>
+                  <TaskDetail />
+                </PrivateRoute>
+              } 
+            />
+
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8081';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
+    'Accept': 'application/json',
+  },
 });
 
 export const AuthContext = createContext();
@@ -21,9 +21,24 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const logoutUser = useCallback(() => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    delete api.defaults.headers.common['Authorization'];
+    setUser(null);
+    navigate('/login');
+    Swal.fire({
+      title: "Logged out successfully",
+      icon: "success",
+      toast: true,
+      timer: 3000,
+      position: "top-end",
+      showConfirmButton: false,
+    });
+  }, [navigate]);
+
   // Initialize axios interceptors
   useEffect(() => {
-    // Request interceptor to add auth token
     const requestInterceptor = api.interceptors.request.use(
       config => {
         const token = localStorage.getItem('access_token');
@@ -35,25 +50,22 @@ export const AuthProvider = ({ children }) => {
       error => Promise.reject(error)
     );
 
-    // Response interceptor to handle token refresh
     const responseInterceptor = api.interceptors.response.use(
       response => response,
       async error => {
         const originalRequest = error.config;
-        
+
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
-          
+
           try {
             const refreshToken = localStorage.getItem('refresh_token');
-            if (!refreshToken) {
-              throw new Error('No refresh token available');
-            }
+            if (!refreshToken) throw new Error('No refresh token available');
 
             const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
               refresh: refreshToken
             });
-            
+
             localStorage.setItem('access_token', response.data.access);
             api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
             return api(originalRequest);
@@ -62,6 +74,7 @@ export const AuthProvider = ({ children }) => {
             return Promise.reject(err);
           }
         }
+
         return Promise.reject(error);
       }
     );
@@ -70,25 +83,23 @@ export const AuthProvider = ({ children }) => {
       api.interceptors.request.eject(requestInterceptor);
       api.interceptors.response.eject(responseInterceptor);
     };
-  }, []);
+  }, [logoutUser]);
 
   const loginUser = async (username, password) => {
     try {
       const response = await api.post('/api/token/', {
         username,
-        password
+        password,
       });
 
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
-      
-      // Set default auth header
+
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
-      
-      // Get user profile
+
       const userResponse = await api.get('/api/user/');
       setUser(userResponse.data);
-      
+
       navigate('/');
       Swal.fire({
         title: "Login Successful",
@@ -119,7 +130,7 @@ export const AuthProvider = ({ children }) => {
         username,
         email,
         password,
-        password2
+        password2,
       });
 
       if (response.status === 201) {
@@ -152,22 +163,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logoutUser = useCallback(() => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    delete api.defaults.headers.common['Authorization'];
-    setUser(null);
-    navigate('/login');
-    Swal.fire({
-      title: "Logged out successfully",
-      icon: "success",
-      toast: true,
-      timer: 3000,
-      position: "top-end",
-      showConfirmButton: false,
-    });
-  }, [navigate]);
-
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -176,10 +171,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      // Verify token is still valid
       await api.post('/api/token/verify/', { token });
-      
-      // Get user data if needed
       const userResponse = await api.get('/api/user/');
       setUser(userResponse.data);
     } catch (error) {
@@ -200,7 +192,7 @@ export const AuthProvider = ({ children }) => {
     loginUser,
     logoutUser,
     registerUser,
-    loading
+    loading,
   };
 
   return (
