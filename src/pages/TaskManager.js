@@ -1,279 +1,311 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { debounce } from 'lodash';
+import React, { Component } from "react";
+import axios from "axios";
 import TaskModal from "../components/TaskModal";
 import ConfirmationDialog from "../context/ConfirmationDialog";
-import '../styles/components/TaskManager.css';
-import AuthContext from "../context/AuthContext";
+import "../styles/components/TaskManager.css";
 
-const TaskManager = () => {
-  const { api, user } = useContext(AuthContext);
-  const navigate = useNavigate();
+// Correct local API base URL
+const api = axios.create({
+  baseURL: "http://127.0.0.1:8081",
+  withCredentials: true,
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+});
 
-  const [viewStatus, setViewStatus] = useState("Open");
-  const [activeItem, setActiveItem] = useState({
-    title: "",
-    description: "",
-    status: "Open",
-    priority: "Medium",
-    category: "General",
-    due_date: "",
-  });
-  const [taskList, setTaskList] = useState([]);
-  const [modal, setModal] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-  const refreshList = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/api/tasks/", { params: { page: 1, page_size: 10 } });
-      if (response.data && response.data.length > 0) {
-        const tasksWithOverdue = response.data.map((task) => ({
+class TaskManager extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      viewStatus: "Open",
+      activeItem: {
+        title: "",
+        description: "",
+        status: "Open",
+        priority: "Medium",
+        category: "General",
+        due_date: "",
+      },
+      taskList: [],
+      modal: false,
+      loading: true,
+      showConfirmationDialog: false,
+      itemToDelete: null,
+    };
+  }
+
+  componentDidMount() {
+    this.refreshList();
+  }
+
+  refreshList = () => {
+    api
+      .get("/api/tasks/")
+      .then((res) => {
+        const tasksWithOverdue = res.data.map((task) => ({
           ...task,
-          overdue: task.due_date && new Date(task.due_date) < new Date() && task.status !== "Done",
+          overdue:
+            task.due_date &&
+            new Date(task.due_date) < new Date() &&
+            task.status !== "Done",
         }));
-        setTaskList(tasksWithOverdue);
-      } else {
-        setTaskList([]);
-      }
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error);
-      if (error.response?.status === 401) {
-        navigate("/login");
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [api, navigate]);
-
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    refreshList();
-  }, [user, navigate, refreshList]);
-
-  const handleSubmit = async (item) => {
-    setModal(false);
-    try {
-      const payload = {
-        ...item,
-        category: Array.isArray(item.category) ? item.category[0] : item.category,
-      };
-
-      if (item.id) {
-        await api.put(`/api/tasks/${item.id}/`, payload);
-      } else {
-        await api.post("/api/tasks/", payload);
-      }
-      refreshList();
-    } catch (error) {
-      console.error('Task operation failed:', error);
-    }
+        this.setState({ taskList: tasksWithOverdue, loading: false });
+      })
+      .catch((err) => {
+        console.error("Error fetching tasks:", err);
+        this.setState({ taskList: [], loading: false });
+      });
   };
 
-  const createItem = () => {
-    setActiveItem({
+  toggle = () => {
+    this.setState({ modal: !this.state.modal });
+  };
+
+  handleSubmit = (item) => {
+    this.toggle();
+    const payload = {
+      ...item,
+      category: Array.isArray(item.category)
+        ? item.category[0]
+        : item.category,
+    };
+
+    if (item.id) {
+      api
+        .put(`/api/tasks/${item.id}/`, payload)
+        .then(this.refreshList)
+        .catch((error) =>
+          console.error("Error updating task:", error.response?.data || error)
+        );
+      return;
+    }
+
+    api
+      .post("/api/tasks/", payload)
+      .then(this.refreshList)
+      .catch((error) =>
+        console.error("Error creating task:", error.response?.data || error)
+      );
+  };
+
+  handleDelete = (item) => {
+    this.setState({ showConfirmationDialog: true, itemToDelete: item });
+  };
+
+  confirmDelete = () => {
+    const { itemToDelete } = this.state;
+    api
+      .delete(`/api/tasks/${itemToDelete.id}/`)
+      .then(this.refreshList)
+      .catch((error) =>
+        console.error("Error deleting task:", error.response?.data || error)
+      );
+    this.setState({ showConfirmationDialog: false, itemToDelete: null });
+  };
+
+  cancelDelete = () => {
+    this.setState({ showConfirmationDialog: false, itemToDelete: null });
+  };
+
+  createItem = () => {
+    const item = {
       title: "",
       description: "",
       status: "Open",
       priority: "Medium",
       category: "General",
       due_date: "",
-    });
-    setModal(true);
+    };
+    this.setState({ activeItem: item, modal: true });
   };
 
-  const editItem = (item) => {
-    setActiveItem(item);
-    setModal(true);
+  editItem = (item) => {
+    this.setState({ activeItem: item, modal: true });
   };
 
-  const handleDelete = (item) => {
-    setItemToDelete(item);
-    setShowConfirmationDialog(true);
+  updateTaskStatus = (item, newStatus) => {
+    const payload = { ...item, status: newStatus };
+    api
+      .put(`/api/tasks/${item.id}/`, payload)
+      .then(this.refreshList)
+      .catch((error) =>
+        console.error("Error updating status:", error.response?.data || error)
+      );
   };
 
-  const confirmDelete = async () => {
-    try {
-      await api.delete(`/api/tasks/${itemToDelete.id}/`);
-      refreshList();
-    } catch (error) {
-      console.error('Deletion failed:', error);
-    } finally {
-      setShowConfirmationDialog(false);
-    }
-  };
+  renderItems = () => {
+    const { viewStatus, taskList } = this.state;
+    const filteredItems = taskList.filter((item) => item.status === viewStatus);
 
-  const renderItems = () => {
-    const filteredTasks = taskList.filter((task) => task.status === viewStatus);
-
-    if (filteredTasks.length === 0) {
+    if (filteredItems.length === 0) {
       return (
         <div className="empty-state">
-          <div className="empty-state-icon">📋</div>
+          <div className="empty-icon">📋</div>
           <h3>No {viewStatus.toLowerCase()} tasks</h3>
-          <p>You're all caught up or ready to get started!</p>
+          <p>You're all caught up!</p>
           {viewStatus === "Open" && (
-            <button
-              onClick={createItem}
-              className="btn btn-primary"
-            >
-              Create Your First Task
+            <button onClick={this.createItem} className="btn btn-primary">
+              Create First Task
             </button>
           )}
         </div>
       );
     }
 
-    return (
-      <div className="task-grid">
-        {filteredTasks.map((task) => (
-          <div
-            key={task.id}
-            className={`task-card ${task.priority.toLowerCase()} ${task.overdue ? 'overdue' : ''}`}
-            onClick={() => navigate(`/task/${task.id}`)}
-          >
-            <div className="task-card-header">
-              <h3>{task.title}</h3>
-              <div className="task-actions">
-                <button
-                  className="btn btn-icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    editItem(task);
-                  }}
-                  aria-label="Edit task"
-                >
-                  ✏️
-                </button>
-                <button
-                  className="btn btn-icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(task);
-                  }}
-                  aria-label="Delete task"
-                >
-                  🗑️
-                </button>
-              </div>
-            </div>
-            <p className="task-description">
-              {task.description || <span className="no-description">No description</span>}
-            </p>
-            <div className="task-meta">
-              <div className="task-tags">
-                <span className={`badge status ${task.status.toLowerCase().replace(' ', '-')}`}>
-                  {task.status}
-                </span>
-                <span className={`badge priority ${task.priority.toLowerCase()}`}>
-                  {task.priority}
-                </span>
-              </div>
-              <div className="task-due-date">
-                {task.due_date ? (
-                  <>
-                    <span className={task.overdue ? 'overdue-text' : ''}>
-                      📅 {new Date(task.due_date).toLocaleDateString()}
-                    </span>
-                  </>
-                ) : (
-                  <span className="no-due-date">No due date</span>
-                )}
-              </div>
-            </div>
-            {task.overdue && (
-              <div className="overdue-banner">OVERDUE</div>
-            )}
+    return filteredItems.map((item) => (
+      <div
+        key={item.id}
+        className={`task-card ${item.priority.toLowerCase()} ${
+          item.overdue ? "overdue" : ""
+        }`}
+        onClick={() => this.props.history.push(`/task/${item.id}`)}
+      >
+        <div className="task-card-header">
+          <h3>{item.title}</h3>
+          {item.overdue && <span className="overdue-badge">OVERDUE</span>}
+          <div className="task-actions">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                this.editItem(item);
+              }}
+              className="btn-icon"
+            >
+              ✏️
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                this.handleDelete(item);
+              }}
+              className="btn-icon"
+            >
+              🗑️
+            </button>
           </div>
-        ))}
+        </div>
+
+        <div className="task-meta">
+          <span className={`badge priority ${item.priority.toLowerCase()}`}>
+            {item.priority}
+          </span>
+          <span
+            className={`badge status ${item.status
+              .toLowerCase()
+              .replace(" ", "-")}`}
+          >
+            {item.status}
+          </span>
+          <span className="badge category">{item.category}</span>
+        </div>
+
+        {item.description && (
+          <p className="task-description">{item.description}</p>
+        )}
+
+        {item.due_date && (
+          <div className="task-due-date">
+            <span className={item.overdue ? "overdue-text" : ""}>
+              📅 {new Date(item.due_date).toLocaleDateString()}
+            </span>
+          </div>
+        )}
+
+        <div className="status-buttons">
+          {item.status === "Open" && (
+            <button
+              className="btn-status"
+              onClick={(e) => {
+                e.stopPropagation();
+                this.updateTaskStatus(item, "In Progress");
+              }}
+            >
+              ▶ Move to In Progress
+            </button>
+          )}
+          {item.status === "In Progress" && (
+            <button
+              className="btn-status"
+              onClick={(e) => {
+                e.stopPropagation();
+                this.updateTaskStatus(item, "Done");
+              }}
+            >
+              ✔ Move to Done
+            </button>
+          )}
+        </div>
       </div>
-    );
+    ));
   };
 
-  const handleResize = debounce(() => {
-    // Handle resize event
-  }, 250);
+  render() {
+    const { loading, showConfirmationDialog, viewStatus } = this.state;
 
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [handleResize]);
+    if (loading) {
+      return (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Loading tasks...</p>
+        </div>
+      );
+    }
 
-  if (loading) {
     return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Loading your tasks...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="task-manager-wrapper">
-      <main className="task-manager-container">
-        <div className="task-manager-header">
-          <div className="header-content">
+      <div className="task-manager-wrapper">
+        <main className="task-manager-container">
+          <div className="task-manager-header">
             <h1>Task Manager</h1>
-            <p>Stay organized and productive</p>
-          </div>
-          <div className="header-controls">
-            <div className="user-info">
-              👋 Welcome, <strong>{user?.username}</strong>
-            </div>
-            <button
-              onClick={createItem}
-              className="btn btn-primary add-task-btn"
-            >
+            <button onClick={this.createItem} className="btn btn-primary">
               ＋ Add New Task
             </button>
           </div>
-        </div>
 
-        <div className="status-tabs">
-          {["Open", "In Progress", "Done"].map((status) => (
-            <button
-              key={status}
-              className={`tab-btn ${viewStatus === status ? 'active' : ''}`}
-              onClick={() => setViewStatus(status)}
-            >
-              {status}
-              <span className="task-count">
-                ({taskList.filter(t => t.status === status).length})
-              </span>
-            </button>
-          ))}
-        </div>
+          <div className="status-tabs">
+            {["Open", "In Progress", "Done"].map((status) => (
+              <button
+                key={status}
+                className={`tab-btn ${
+                  viewStatus === status ? "active" : ""
+                }`}
+                onClick={() => this.setState({ viewStatus: status })}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
 
-        <div className="task-list-container">
-          {renderItems()}
-        </div>
+          <div className="task-list-container">{this.renderItems()}</div>
 
-        {modal && (
-          <TaskModal
-            activeItem={activeItem}
-            toggle={() => setModal(false)}
-            onSave={handleSubmit}
-          />
-        )}
+          {this.state.modal && (
+            <TaskModal
+              activeItem={this.state.activeItem}
+              toggle={this.toggle}
+              onSave={this.handleSubmit}
+            />
+          )}
 
-        {showConfirmationDialog && (
-          <ConfirmationDialog
-            show={showConfirmationDialog}
-            onConfirm={confirmDelete}
-            onCancel={() => setShowConfirmationDialog(false)}
-            message="Are you sure you want to delete this task?"
-          />
-        )}
-      </main>
-    </div>
-  );
-};
+          {showConfirmationDialog && (
+            <ConfirmationDialog
+              show={showConfirmationDialog}
+              onConfirm={this.confirmDelete}
+              onCancel={this.cancelDelete}
+              message="Are you sure you want to delete this task?"
+            />
+          )}
+        </main>
+      </div>
+    );
+  }
+}
 
 export default TaskManager;

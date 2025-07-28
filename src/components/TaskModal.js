@@ -3,6 +3,7 @@ import {
   Button, Modal, ModalHeader, ModalBody, ModalFooter,
   Form, FormGroup, Label, Input
 } from "reactstrap";
+import "../styles/components/TaskModal.css"; // Add this!
 
 class TaskModal extends Component {
   static defaultProps = {
@@ -38,8 +39,8 @@ class TaskModal extends Component {
     const { currentItem } = this.state;
 
     return (
-      <Modal isOpen={true} toggle={toggle}>
-        <ModalHeader toggle={toggle}> Task Item </ModalHeader>
+      <Modal isOpen={true} toggle={toggle} className="custom-task-modal">
+        <ModalHeader toggle={toggle}>📝 Task Details</ModalHeader>
         <ModalBody>
           <Form>
             <FormGroup>
@@ -56,11 +57,11 @@ class TaskModal extends Component {
             <FormGroup>
               <Label for="description">Description</Label>
               <Input
-                type="text"
+                type="textarea"
                 name="description"
                 value={currentItem.description}
                 onChange={this.handleInputChange}
-                placeholder="Enter Task Description"
+                placeholder="Describe the task"
               />
             </FormGroup>
 
@@ -72,9 +73,9 @@ class TaskModal extends Component {
                 value={currentItem.status}
                 onChange={this.handleInputChange}
               >
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Done">Done</option>
+                <option>Open</option>
+                <option>In Progress</option>
+                <option>Done</option>
               </Input>
             </FormGroup>
 
@@ -86,9 +87,9 @@ class TaskModal extends Component {
                 value={currentItem.priority}
                 onChange={this.handleInputChange}
               >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
               </Input>
             </FormGroup>
 
@@ -99,7 +100,7 @@ class TaskModal extends Component {
                 name="category"
                 value={currentItem.category}
                 onChange={this.handleInputChange}
-                placeholder="Enter Category (e.g., House Chores)"
+                placeholder="e.g. Work, Home, Health"
               />
             </FormGroup>
 
@@ -115,9 +116,8 @@ class TaskModal extends Component {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="success" onClick={() => onSave(currentItem)}>
-            Save
-          </Button>
+          <Button color="success" onClick={() => onSave(currentItem)}>Save</Button>
+          <Button color="secondary" onClick={toggle}>Cancel</Button>
         </ModalFooter>
       </Modal>
     );

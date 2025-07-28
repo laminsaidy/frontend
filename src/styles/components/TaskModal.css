@@ -1,0 +1,27 @@
+/* styles/components/TaskModal.css */
+
+.custom-task-modal .modal-content {
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.custom-task-modal .modal-body {
+  padding: 20px;
+}
+
+.custom-task-modal .form-group {
+  margin-bottom: 15px;
+}
+
+.custom-task-modal .form-group input,
+.custom-task-modal .form-group textarea,
+.custom-task-modal .form-group select {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+}
+
+.custom-task-modal .modal-footer {
+  display: flex;
+  justify-content: space-between;
+}
