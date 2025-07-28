@@ -3,25 +3,73 @@
 .custom-task-modal .modal-content {
   padding: 10px;
   border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .custom-task-modal .modal-body {
   padding: 20px;
+  background-color: #f9f9f9;
 }
 
 .custom-task-modal .form-group {
   margin-bottom: 15px;
 }
 
+.custom-task-modal .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
 .custom-task-modal .form-group input,
 .custom-task-modal .form-group textarea,
 .custom-task-modal .form-group select {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
   font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.custom-task-modal .form-group input:focus,
+.custom-task-modal .form-group textarea:focus,
+.custom-task-modal .form-group select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.custom-task-modal .form-group textarea {
+  min-height: 100px;
+  resize: vertical;
 }
 
 .custom-task-modal .modal-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 20px;
+  background-color: #f1f1f1;
+  border-top: 1px solid #ddd;
+}
+
+.custom-task-modal .btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.custom-task-modal .btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.custom-task-modal .btn-secondary {
+  background-color: #6c757d;
+  color: white;
 }
