@@ -39,7 +39,7 @@ function Navbar() {
           <Link className="navbar-brand" to="/" onClick={handleNavLinkClick}>
             <img
               style={{
-                width: "120px",
+                width: "60px",
                 padding: "6px",
                 backgroundColor: "none",
               }}

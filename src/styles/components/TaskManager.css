@@ -2,7 +2,7 @@
 .task-manager-wrapper {
   display: flex;
   justify-content: center;
-  padding-top: 100px;
+  padding-top: 20px;
 }
 
 .task-manager-container {
