@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./pages/Navbar";
@@ -18,47 +19,49 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <ScrollToTop />
-        <Navbar />
-        <div className="app-content">
-          <ErrorBoundary>
-            <Suspense fallback={<div>Loading...</div>}>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Homepage />} />
-                <Route path="/login" element={<Loginpage />} />
-                <Route path="/register" element={<Registerpage />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
+    <HelmetProvider>
+      <Router>
+        <AuthProvider>
+          <ScrollToTop />
+          <Navbar />
+          <div className="app-content">
+            <ErrorBoundary>
+              <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Homepage />} />
+                  <Route path="/login" element={<Loginpage />} />
+                  <Route path="/register" element={<Registerpage />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
 
-                {/* Protected routes */}
-                <Route
-                  path="/tasks"
-                  element={
-                    <PrivateRoute>
-                      <TaskManager />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/task/:id"
-                  element={
-                    <PrivateRoute>
-                      <TaskDetail />
-                    </PrivateRoute>
-                  }
-                />
+                  {/* Protected routes */}
+                  <Route
+                    path="/tasks"
+                    element={
+                      <PrivateRoute>
+                        <TaskManager />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/task/:id"
+                    element={
+                      <PrivateRoute>
+                        <TaskDetail />
+                      </PrivateRoute>
+                    }
+                  />
 
-                {/* Catch-all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </div>
-      </AuthProvider>
-    </Router>
+                  {/* Catch-all route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        </AuthProvider>
+      </Router>
+    </HelmetProvider>
   );
 }
 
