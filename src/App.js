@@ -12,8 +12,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./utils/ScrollToTop";
-
-console.log("APP MOUNTED - REACT IS WORKING");
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
   return (
@@ -22,35 +21,37 @@ function App() {
         <ScrollToTop />
         <Navbar />
         <div className="app-content">
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Homepage />} />
-            <Route path="/login" element={<Loginpage />} />
-            <Route path="/register" element={<Registerpage />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
+          <ErrorBoundary>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Homepage />} />
+              <Route path="/login" element={<Loginpage />} />
+              <Route path="/register" element={<Registerpage />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
 
-            {/* Protected routes */}
-            <Route 
-              path="/tasks" 
-              element={
-                <PrivateRoute>
-                  <TaskManager />
-                </PrivateRoute>
-              } 
-            />
-            <Route 
-              path="/task/:id" 
-              element={
-                <PrivateRoute>
-                  <TaskDetail />
-                </PrivateRoute>
-              } 
-            />
+              {/* Protected routes */}
+              <Route
+                path="/tasks"
+                element={
+                  <PrivateRoute>
+                    <TaskManager />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/task/:id"
+                element={
+                  <PrivateRoute>
+                    <TaskDetail />
+                  </PrivateRoute>
+                }
+              />
 
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* Catch-all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ErrorBoundary>
         </div>
       </AuthProvider>
     </Router>
