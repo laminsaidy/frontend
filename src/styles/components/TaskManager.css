@@ -230,8 +230,48 @@
   margin-bottom: 10px;
 }
 
+/* Status Change Buttons - Modern Styled */
+.task-status-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-move-progress,
+.btn-mark-done {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-move-progress {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-move-progress:hover {
+  background-color: #138496;
+  transform: translateY(-2px) scale(1.03);
+}
+
+.btn-mark-done {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-mark-done:hover {
+  background-color: #218838;
+  transform: translateY(-2px) scale(1.03);
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
+

@@ -58,9 +58,7 @@ class TaskManager extends Component {
     this.toggle();
     const payload = {
       ...item,
-      category: Array.isArray(item.category)
-        ? item.category[0]
-        : item.category,
+      category: Array.isArray(item.category) ? item.category[0] : item.category,
     };
 
     const request = item.id
@@ -70,10 +68,7 @@ class TaskManager extends Component {
     request
       .then(this.refreshList)
       .catch((error) =>
-        console.error(
-          "Error saving task:",
-          error.response?.data || error
-        )
+        console.error("Error saving task:", error.response?.data || error)
       );
   };
 
@@ -112,8 +107,14 @@ class TaskManager extends Component {
     this.setState({ activeItem: item, modal: true });
   };
 
-  openDeleteDialog = (item) => {
-    this.setState({ showConfirmationDialog: true, itemToDelete: item });
+  updateTaskStatus = (task, newStatus) => {
+    const updatedTask = { ...task, status: newStatus };
+    this.props.api
+      .put(`/api/tasks/${task.id}/`, updatedTask)
+      .then(this.refreshList)
+      .catch((error) =>
+        console.error("Error updating task status:", error.response?.data || error)
+      );
   };
 
   renderItems = () => {
@@ -127,9 +128,7 @@ class TaskManager extends Component {
     return filteredTasks.map((task) => (
       <div
         key={task.id}
-        className={`task-card ${task.overdue ? "overdue" : ""} ${
-          task.priority.toLowerCase()
-        }`}
+        className={`task-card ${task.overdue ? "overdue" : ""} ${task.priority.toLowerCase()}`}
       >
         <div className="task-card-header">
           <h5 className="task-title">{task.title}</h5>
@@ -137,34 +136,29 @@ class TaskManager extends Component {
         </div>
         <div className="task-description">{task.description}</div>
         <div className="task-meta">
-          <span className={`priority-badge ${task.priority.toLowerCase()}`}>
-            {task.priority}
-          </span>
-          <span
-            className={`status-badge ${task.status
-              .replace(" ", "-")
-              .toLowerCase()}`}
-          >
-            {task.status}
-          </span>
+          <span className={`priority-badge ${task.priority.toLowerCase()}`}>{task.priority}</span>
+          <span className={`status-badge ${task.status.replace(" ", "-").toLowerCase()}`}>{task.status}</span>
           <span className="task-category">{task.category}</span>
           <span className="task-due">
             Due:{" "}
-            <span className={task.overdue ? "overdue-text" : ""}>
-              {task.due_date}
-            </span>
+            <span className={task.overdue ? "overdue-text" : ""}>{task.due_date}</span>
           </span>
         </div>
         <div className="task-actions">
-          <button className="btn-edit" onClick={() => this.editItem(task)}>
-            ✏️
-          </button>
-          <button
-            className="btn-delete"
-            onClick={() => this.openDeleteDialog(task)}
-          >
-            🗑️
-          </button>
+          <button className="btn-edit" onClick={() => this.editItem(task)}>✏️</button>
+          <button className="btn-delete" onClick={() => this.handleDelete(task)}>🗑️</button>
+        </div>
+        <div className="task-status-controls">
+          {task.status === "Open" && (
+            <button className="btn-move-progress" onClick={() => this.updateTaskStatus(task, "In Progress")}>
+              Move to Progress
+            </button>
+          )}
+          {task.status === "In Progress" && (
+            <button className="btn-mark-done" onClick={() => this.updateTaskStatus(task, "Done")}>
+              Mark as Done
+            </button>
+          )}
         </div>
       </div>
     ));
@@ -200,9 +194,7 @@ class TaskManager extends Component {
               {["Open", "In Progress", "Done"].map((status) => (
                 <button
                   key={status}
-                  className={`tab-btn ${
-                    viewStatus === status ? "active" : ""
-                  }`}
+                  className={`tab-btn ${viewStatus === status ? "active" : ""}`}
                   onClick={() => this.setState({ viewStatus: status })}
                 >
                   {status}
@@ -232,7 +224,6 @@ class TaskManager extends Component {
   }
 }
 
-// `api` from AuthContext into the class component
 const TaskManagerWithAuth = (props) => (
   <AuthContext.Consumer>
     {({ api }) => <TaskManager {...props} api={api} />}
@@ -240,4 +231,3 @@ const TaskManagerWithAuth = (props) => (
 );
 
 export default TaskManagerWithAuth;
-
