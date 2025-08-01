@@ -49,7 +49,21 @@ const TaskDetail = () => {
         <meta name="description" content={`Details for task: ${task.title}`} />
       </Helmet>
       <h2 className="task-detail-header">{task.title}</h2>
-      {/* Task details */}
+      <p className="task-detail-description"><strong>Description:</strong> {task.description || "No description"}</p>
+      <p className="task-detail-status"><strong>Status:</strong> {task.status}</p>
+      <p className="task-detail-priority"><strong>Priority:</strong> {task.priority}</p>
+      <p className="task-detail-category"><strong>Category:</strong> {task.category || "No category"}</p>
+      <p className="task-detail-due-date"><strong>Due Date:</strong> {task.due_date || "No due date"}</p>
+      {task.overdue && (
+        <p className="task-detail-overdue">
+          <strong>Overdue!</strong>
+        </p>
+      )}
+      <p className="task-detail-created-at"><strong>Created At:</strong> {new Date(task.created_at).toLocaleString()}</p>
+      <p className="task-detail-updated-at"><strong>Updated At:</strong> {new Date(task.updated_at).toLocaleString()}</p>
+      <button className="back-button" onClick={handleBack}>
+        BACK
+      </button>
     </div>
   );
 };

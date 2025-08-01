@@ -54,18 +54,14 @@ export const AuthProvider = ({ children }) => {
       response => response,
       async error => {
         const originalRequest = error.config;
-
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
-
           try {
             const refreshToken = localStorage.getItem('refresh_token');
             if (!refreshToken) throw new Error('No refresh token available');
-
             const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
               refresh: refreshToken
             });
-
             localStorage.setItem('access_token', response.data.access);
             api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
             return api(originalRequest);
@@ -74,7 +70,6 @@ export const AuthProvider = ({ children }) => {
             return Promise.reject(err);
           }
         }
-
         return Promise.reject(error);
       }
     );
@@ -91,15 +86,11 @@ export const AuthProvider = ({ children }) => {
         username,
         password,
       });
-
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
-
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
-
       const userResponse = await api.get('/api/user/');
       setUser(userResponse.data);
-
       navigate('/');
       Swal.fire({
         title: "Login Successful",
@@ -132,7 +123,6 @@ export const AuthProvider = ({ children }) => {
         password,
         password2,
       });
-
       if (response.status === 201) {
         Swal.fire({
           title: "Registration Successful! Please login.",
@@ -164,12 +154,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const checkAuth = useCallback(async () => {
+    console.log('Running checkAuth...'); // Debug 1
     const token = localStorage.getItem('access_token');
+    console.log('Current token:', token); // Debug 4
+
     if (!token) {
+      console.log('No token found'); // Debug 5
       setLoading(false);
       return;
     }
 
+    console.log('Checking auth...'); // Debug 2
     try {
       await api.post('/api/token/verify/', { token });
       const userResponse = await api.get('/api/user/');
@@ -178,6 +173,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Auth check failed:', error);
       logoutUser();
     } finally {
+      console.log('Auth check completed'); // Debug 3
       setLoading(false);
     }
   }, [logoutUser]);
@@ -197,7 +193,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={contextData}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
