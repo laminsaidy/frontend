@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import '../styles/components/Homepage.css';
 
@@ -13,8 +14,11 @@ const Homepage = () => {
         {/* SVG content */}
       </svg>
       <h1>Welcome to Your Task Manager</h1>
-      <p>Organize your work, manage your projects, and boost your productivity with our simple yet powerful task management tool.</p>
-      <a href="/tasks" className="btn">Get Started</a>
+      <p>
+        Organize your work, manage your projects, and boost your productivity
+        with our simple yet powerful task management tool.
+      </p>
+      <Link to="/tasks" className="btn">Get Started</Link>
     </div>
   );
 };

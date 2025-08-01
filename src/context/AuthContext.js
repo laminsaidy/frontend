@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
   }, [navigate]);
 
   useEffect(() => {
-    const requestInterceptor = api.interceptors.request.use(
+    const reqInterceptor = api.interceptors.request.use(
       config => {
         const token = localStorage.getItem('access_token');
         if (token && token !== "undefined" && token !== "null") {
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
       error => Promise.reject(error)
     );
 
-    const responseInterceptor = api.interceptors.response.use(
+    const resInterceptor = api.interceptors.response.use(
       response => response,
       async error => {
         const originalRequest = error.config;
@@ -68,24 +68,15 @@ export const AuthProvider = ({ children }) => {
             }
 
             const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
-              refresh: refreshToken
+              refresh: refreshToken,
             });
 
             localStorage.setItem('access_token', response.data.access);
             api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
             return api(originalRequest);
-          } catch (err) {
-            console.error("Token refresh failed:", err.response?.data || err.message);
-            Swal.fire({
-              title: "Session expired. Please log in again.",
-              icon: "warning",
-              toast: true,
-              timer: 3000,
-              position: "top-end",
-              showConfirmButton: false,
-            });
+          } catch {
             logoutUser();
-            return Promise.reject(err);
+            return Promise.reject(error);
           }
         }
 
@@ -94,18 +85,14 @@ export const AuthProvider = ({ children }) => {
     );
 
     return () => {
-      api.interceptors.request.eject(requestInterceptor);
-      api.interceptors.response.eject(responseInterceptor);
+      api.interceptors.request.eject(reqInterceptor);
+      api.interceptors.response.eject(resInterceptor);
     };
   }, [logoutUser]);
 
   const loginUser = async (username, password) => {
     try {
-      const response = await api.post('/api/token/', {
-        username,
-        password,
-      });
-
+      const response = await api.post('/api/token/', { username, password });
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
@@ -123,7 +110,6 @@ export const AuthProvider = ({ children }) => {
       });
       return true;
     } catch (error) {
-      console.error('Login error:', error);
       Swal.fire({
         title: error.response?.data?.detail || "Login failed",
         icon: "error",
@@ -139,10 +125,7 @@ export const AuthProvider = ({ children }) => {
   const registerUser = async (username, email, password, password2) => {
     try {
       const response = await api.post('/api/register/', {
-        username,
-        email,
-        password,
-        password2,
+        username, email, password, password2,
       });
 
       if (response.status === 201) {
@@ -158,7 +141,6 @@ export const AuthProvider = ({ children }) => {
         return true;
       }
     } catch (error) {
-      console.error('Registration error:', error);
       let errorMessage = "Registration failed";
       if (error.response?.data) {
         errorMessage = Object.values(error.response.data).flat().join('\n');
@@ -177,7 +159,6 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('access_token');
-
     if (!token || token === "undefined" || token === "null") {
       setLoading(false);
       return;
@@ -187,8 +168,7 @@ export const AuthProvider = ({ children }) => {
       await api.post('/api/token/verify/', { token });
       const userResponse = await api.get('/api/user/');
       setUser(userResponse.data);
-    } catch (error) {
-      console.error('Auth check failed:', error.response?.data || error.message);
+    } catch {
       logoutUser();
     } finally {
       setLoading(false);
@@ -202,7 +182,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const interval = setInterval(async () => {
       const refreshToken = localStorage.getItem("refresh_token");
-
       if (!refreshToken || refreshToken === "undefined" || refreshToken === "null") {
         return;
       }
@@ -214,8 +193,7 @@ export const AuthProvider = ({ children }) => {
 
         localStorage.setItem("access_token", response.data.access);
         api.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
-      } catch (err) {
-        console.error("Auto-refresh failed:", err.response?.data || err.message);
+      } catch {
         logoutUser();
       }
     }, 4 * 60 * 1000); // every 4 minutes
