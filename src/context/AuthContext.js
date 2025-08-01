@@ -7,7 +7,6 @@ const API_BASE_URL = 'http://127.0.0.1:8081';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -37,13 +36,14 @@ export const AuthProvider = ({ children }) => {
     });
   }, [navigate]);
 
-  // Initialize axios interceptors
   useEffect(() => {
     const requestInterceptor = api.interceptors.request.use(
       config => {
         const token = localStorage.getItem('access_token');
-        if (token) {
+        if (token && token !== "undefined" && token !== "null") {
           config.headers.Authorization = `Bearer ${token}`;
+        } else {
+          delete config.headers.Authorization;
         }
         return config;
       },
@@ -54,22 +54,41 @@ export const AuthProvider = ({ children }) => {
       response => response,
       async error => {
         const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry) {
+
+        if (
+          error.response?.status === 401 &&
+          !originalRequest._retry &&
+          !originalRequest.url.includes("/token/refresh/")
+        ) {
           originalRequest._retry = true;
           try {
             const refreshToken = localStorage.getItem('refresh_token');
-            if (!refreshToken) throw new Error('No refresh token available');
+            if (!refreshToken || refreshToken === "undefined" || refreshToken === "null") {
+              throw new Error('No refresh token available');
+            }
+
             const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
               refresh: refreshToken
             });
+
             localStorage.setItem('access_token', response.data.access);
             api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
             return api(originalRequest);
           } catch (err) {
+            console.error("Token refresh failed:", err.response?.data || err.message);
+            Swal.fire({
+              title: "Session expired. Please log in again.",
+              icon: "warning",
+              toast: true,
+              timer: 3000,
+              position: "top-end",
+              showConfirmButton: false,
+            });
             logoutUser();
             return Promise.reject(err);
           }
         }
+
         return Promise.reject(error);
       }
     );
@@ -86,9 +105,11 @@ export const AuthProvider = ({ children }) => {
         username,
         password,
       });
+
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
+
       const userResponse = await api.get('/api/user/');
       setUser(userResponse.data);
       navigate('/');
@@ -123,6 +144,7 @@ export const AuthProvider = ({ children }) => {
         password,
         password2,
       });
+
       if (response.status === 201) {
         Swal.fire({
           title: "Registration Successful! Please login.",
@@ -154,26 +176,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const checkAuth = useCallback(async () => {
-    console.log('Running checkAuth...'); // Debug 1
     const token = localStorage.getItem('access_token');
-    console.log('Current token:', token); // Debug 4
 
-    if (!token) {
-      console.log('No token found'); // Debug 5
+    if (!token || token === "undefined" || token === "null") {
       setLoading(false);
       return;
     }
 
-    console.log('Checking auth...'); // Debug 2
     try {
       await api.post('/api/token/verify/', { token });
       const userResponse = await api.get('/api/user/');
       setUser(userResponse.data);
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error('Auth check failed:', error.response?.data || error.message);
       logoutUser();
     } finally {
-      console.log('Auth check completed'); // Debug 3
       setLoading(false);
     }
   }, [logoutUser]);
@@ -181,6 +198,30 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const refreshToken = localStorage.getItem("refresh_token");
+
+      if (!refreshToken || refreshToken === "undefined" || refreshToken === "null") {
+        return;
+      }
+
+      try {
+        const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
+          refresh: refreshToken,
+        });
+
+        localStorage.setItem("access_token", response.data.access);
+        api.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
+      } catch (err) {
+        console.error("Auto-refresh failed:", err.response?.data || err.message);
+        logoutUser();
+      }
+    }, 4 * 60 * 1000); // every 4 minutes
+
+    return () => clearInterval(interval);
+  }, [logoutUser]);
 
   const contextData = {
     user,
