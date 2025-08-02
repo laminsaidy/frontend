@@ -54,7 +54,6 @@ export const AuthProvider = ({ children }) => {
       response => response,
       async error => {
         const originalRequest = error.config;
-
         if (
           error.response?.status === 401 &&
           !originalRequest._retry &&
@@ -66,11 +65,9 @@ export const AuthProvider = ({ children }) => {
             if (!refreshToken || refreshToken === "undefined" || refreshToken === "null") {
               throw new Error('No refresh token available');
             }
-
             const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
               refresh: refreshToken,
             });
-
             localStorage.setItem('access_token', response.data.access);
             api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
             return api(originalRequest);
@@ -79,7 +76,6 @@ export const AuthProvider = ({ children }) => {
             return Promise.reject(error);
           }
         }
-
         return Promise.reject(error);
       }
     );
@@ -96,7 +92,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
-
       const userResponse = await api.get('/api/user/');
       setUser(userResponse.data);
       navigate('/');
@@ -124,10 +119,10 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (username, email, password, password2) => {
     try {
+      console.log('Registering user with data:', { email, username, password, password2 });
       const response = await api.post('/api/register/', {
-        username, email, password, password2,
+        email, username, password, password2,
       });
-
       if (response.status === 201) {
         Swal.fire({
           title: "Registration Successful! Please login.",
@@ -141,9 +136,16 @@ export const AuthProvider = ({ children }) => {
         return true;
       }
     } catch (error) {
+      console.error('Registration error response:', error.response?.data);
       let errorMessage = "Registration failed";
       if (error.response?.data) {
-        errorMessage = Object.values(error.response.data).flat().join('\n');
+        if (typeof error.response.data === 'object') {
+          errorMessage = Object.values(error.response.data).flat().join('\n');
+        } else if (Array.isArray(error.response.data)) {
+          errorMessage = error.response.data.join('\n');
+        } else {
+          errorMessage = error.response.data;
+        }
       }
       Swal.fire({
         title: errorMessage,
@@ -163,7 +165,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return;
     }
-
     try {
       await api.post('/api/token/verify/', { token });
       const userResponse = await api.get('/api/user/');
@@ -185,19 +186,16 @@ export const AuthProvider = ({ children }) => {
       if (!refreshToken || refreshToken === "undefined" || refreshToken === "null") {
         return;
       }
-
       try {
         const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
           refresh: refreshToken,
         });
-
         localStorage.setItem("access_token", response.data.access);
         api.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
       } catch {
         logoutUser();
       }
     }, 4 * 60 * 1000); // every 4 minutes
-
     return () => clearInterval(interval);
   }, [logoutUser]);
 

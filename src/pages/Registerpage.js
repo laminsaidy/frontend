@@ -18,7 +18,7 @@ function Registerpage() {
       return;
     }
     try {
-      await registerUser(email, username, password, password2);
+      await registerUser(username, email, password, password2);
     } catch (error) {
       console.error("Registration error:", error);
     }
@@ -65,6 +65,7 @@ function Registerpage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            autoComplete="email"
                           />
                         </div>
                         <div className="form-outline mb-4">
@@ -77,6 +78,7 @@ function Registerpage() {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
+                            autoComplete="username"
                           />
                         </div>
                         <div className="form-outline mb-4">
@@ -89,7 +91,8 @@ function Registerpage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            minLength="6"
+                            minLength="8"
+                            autoComplete="new-password"
                           />
                         </div>
                         <div className="form-outline mb-4">
@@ -102,7 +105,8 @@ function Registerpage() {
                             value={password2}
                             onChange={(e) => setPassword2(e.target.value)}
                             required
-                            minLength="6"
+                            minLength="8"
+                            autoComplete="new-password"
                           />
                         </div>
                         <div className="pt-1 mb-4">
