@@ -364,9 +364,9 @@ Automated tests are included in `backend-api-calender/tasks/tests.py` and test t
 - Authentication required to access tasks
 
 Run tests using:
-
-```bash
 python manage.py test
+
+
 
 ## Credits & Acknowledgements
 
@@ -401,5 +401,6 @@ python manage.py test
 
 ### 📝 Note on Attribution
 
-All external libraries and resources used have been credited. All images, icons, and assets are either open source, created by me, or generated with permission.
+All external libraries and resources used have been credited. All images, icons, 
+and assets are either open source, created by me, or generated with permission.
 
