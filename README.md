@@ -197,4 +197,31 @@ Development was split into two main sprints:
   - Style the app with status-based views
   - Add validation, toasts, and final deployment
 
+## Entity Relationship Diagram (ERD)
+
+The diagram below illustrates the relationship between users and their tasks. Each user can create multiple tasks, but each task belongs to one specific user.
+
+![ER Diagram](docs/er-diagram.png)
+
+The database consists of two main tables:
+
+### `users` (Django built-in)
+- `id` – Primary key
+- `username`
+- `email`
+- `password` (hashed)
+
+### `tasks` (custom model)
+- `id` – Primary key
+- `title`
+- `description`
+- `status` (Open, In Progress, Done)
+- `priority` (Low, Medium, High)
+- `category`
+- `due_date`
+- `created_at`
+- `updated_at`
+- `owner_id` – ForeignKey to `users(id)`
+
+
 
