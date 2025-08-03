@@ -261,6 +261,28 @@ The database consists of two main tables:
 - [dbdiagram.io](https://dbdiagram.io/) – ERD diagram generation
 - [draw.io](https://app.diagrams.net/) – Optional diagram tool
 
+## Installation & Deployment
+
+### Local Installation
+
+| Step | Description |
+|------|-------------|
+| 1️⃣ | **Clone the repositories**<br>`git clone https://github.com/laminsaidy/frontend.git`<br>`git clone https://github.com/laminsaidy/backend-api-calender.git` |
+| 2️⃣ | **Backend Setup**<br>Navigate into the backend directory:<br>`cd backend-api-calender`<br><br>Create a virtual environment and activate it:<br>`python -m venv venv`<br>`source venv/bin/activate` <br> *(Windows: `venv\Scripts\activate`)*<br><br>Install dependencies:<br>`pip install -r requirements.txt`<br><br>Create a `.env` file with your environment variables *(SECRET_KEY, DATABASE_URL, DEBUG, etc.)*<br><br>Run migrations and start the server:<br>`python manage.py migrate`<br>`python manage.py runserver` |
+| 3️⃣ | **Frontend Setup**<br>Navigate into the frontend directory:<br>`cd ../frontend`<br><br>Install dependencies:<br>`npm install`<br><br>Create a `.env` file and set your backend API base URL:<br>`REACT_APP_API_URL=http://localhost:8000`<br><br>Start the frontend app:<br>`npm start` |
+
+
+
+### Deployment (Live App)
+
+| Platform | Description |
+|----------|-------------|
+| 🔗 **Frontend** | Deployed using **Render**: <br>👉 [https://your-frontend-url.onrender.com](https://your-frontend-url.onrender.com) |
+| 🔗 **Backend API** | Deployed using **Render**: <br>👉 [https://your-backend-url.onrender.com](https://your-backend-url.onrender.com) |
+
+- Environment variables are managed securely in Render's Environment tab
+- `DEBUG = False` is set in production
+- PostgreSQL is used as the production database
 
 
 
