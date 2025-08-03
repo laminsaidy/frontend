@@ -223,5 +223,44 @@ The database consists of two main tables:
 - `updated_at`
 - `owner_id` – ForeignKey to `users(id)`
 
+## Technologies Used
+
+### Languages
+
+- [Python](https://www.python.org/)
+- [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+- [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
+- [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS)
+
+### Frameworks, Libraries, and Tools
+
+#### Backend
+
+- [Django](https://www.djangoproject.com/) – Python web framework
+- [Django REST Framework](https://www.django-rest-framework.org/) – API framework
+- [PostgreSQL](https://www.postgresql.org/) – Production database
+- [SQLite](https://www.sqlite.org/index.html) – Local development DB
+
+#### Frontend
+
+- [React](https://reactjs.org/) – JavaScript UI library
+- [React Router DOM](https://reactrouter.com/) – Routing and navigation
+- [Axios](https://axios-http.com/) – HTTP client for API calls
+- [React Helmet Async](https://github.com/staylor/react-helmet-async) – SEO/meta tags
+- [SweetAlert2](https://sweetalert2.github.io/) – Toast and popup alerts
+
+#### Version Control & Deployment
+
+- [Git](https://git-scm.com/) – Version control
+- [GitHub](https://github.com/) – Repository hosting
+- [Render](https://render.com/) – Backend & frontend cloud deployment
+
+#### Other Tools
+
+- [VS Code](https://code.visualstudio.com/) – Code editor
+- [dbdiagram.io](https://dbdiagram.io/) – ERD diagram generation
+- [draw.io](https://app.diagrams.net/) – Optional diagram tool
+
+
 
 
