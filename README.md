@@ -285,4 +285,87 @@ The database consists of two main tables:
 - PostgreSQL is used as the production database
 
 
+## Testing
+
+### Manual Testing
+
+All features were manually tested across the latest versions of Chrome, Firefox, and Edge on both desktop and mobile screen sizes.
+
+#### ✅ Functional Testing
+
+| Feature                        | Test Performed                                                                 | Result |
+|-------------------------------|--------------------------------------------------------------------------------|--------|
+| User Registration             | Registered new user with valid and invalid credentials                        | ✅ Pass |
+| User Login                    | Logged in with correct and incorrect passwords                                | ✅ Pass |
+| Token Authenticated API Calls | Tried accessing `/api/tasks/` with and without login                          | ✅ Pass |
+| Create Task                   | Added a task with all required fields                                         | ✅ Pass |
+| Prevent Empty Title           | Tried submitting task form without a title                                    | ✅ Pass |
+| Prevent Past Due Date         | Tried adding a task with a due date before today                              | ✅ Pass |
+| Edit Task                     | Modified a task, saved changes, and confirmed update                          | ✅ Pass |
+| Delete Task                   | Deleted a task after confirmation dialog                                      | ✅ Pass |
+| Overdue Task Detection        | Verified task is marked overdue when due date has passed                      | ✅ Pass |
+| Status Switching              | Moved tasks between Open → In Progress → Done and confirmed update visually  | ✅ Pass |
+| Toast Notifications           | Saw toast messages for success/failure actions                                | ✅ Pass |
+| Mobile Responsiveness         | Checked layout on Chrome dev tools (iPhone 12, Pixel 5, Galaxy S)             | ✅ Pass |
+| Page Titles & Meta Tags       | Confirmed correct meta title on each route using `react-helmet-async`         | ✅ Pass |
+
+---
+
+### Manual Validation Tools Used
+
+#### 🔹 HTML Validation
+
+- [W3C HTML Validator](https://validator.w3.org/)
+- Validated main template and component HTML
+
+📸 Screenshot proof:  
+![HTML Validation Screenshot](docs/screens/tests/html-validation.png)
+
+---
+
+#### 🔹 CSS Validation
+
+- [W3C CSS Validator](https://jigsaw.w3.org/css-validator/)
+- Tested all custom stylesheets
+
+📸 Screenshot proof:  
+![CSS Validation Screenshot](docs/screens/tests/css-validation.png)
+
+---
+
+#### 🔹 JavaScript Linting
+
+- [JSHint](https://jshint.com/)
+- Checked for syntax errors and best practices
+
+📸 Screenshot proof:  
+![JS Linting Screenshot](docs/screens/tests/js-linting.png)
+
+---
+
+#### 🔹 Responsive Design Testing
+
+- [ResponsiveDesignChecker.com](https://responsivedesignchecker.com/)
+- Tested display on iPhone, iPad, Galaxy, and desktop resolutions
+
+📸 Screenshot proof:  
+![Responsive Design Screenshot](docs/screens/tests/responsive.png)
+
+
+### Automated Testing
+
+#### Django (Backend)
+
+Automated tests are included in `backend-api-calender/tasks/tests.py` and test the following:
+
+- Creating a task via the API
+- Editing a task
+- Deleting a task
+- Authentication required to access tasks
+
+Run tests using:
+
+```bash
+python manage.py test
+
 
