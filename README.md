@@ -367,6 +367,17 @@ Run tests using:
 python manage.py test
 
 
+## Known Bugs
+
+The following issues were noticed during development and where fixed:
+
+- Tasks do not automatically refresh after editing or deleting (manual reload required)
+- No toast message appears when login fails
+- Task title input allows whitespace-only entries (should be prevented)
+- Task modal sometimes briefly shows empty fields on slow connections
+- Toasts may appear with slight delay on very slow networks
+
+
 
 ## Credits & Acknowledgements
 
