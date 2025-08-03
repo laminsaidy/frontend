@@ -368,4 +368,38 @@ Run tests using:
 ```bash
 python manage.py test
 
+## Credits & Acknowledgements
+
+### 🔧 Tools & Frameworks
+
+- [React](https://reactjs.org/) — Frontend library
+- [Django REST Framework](https://www.django-rest-framework.org/) — Backend API
+- [React Router](https://reactrouter.com/) — Client-side routing
+- [SweetAlert2](https://sweetalert2.github.io/) — Toasts and modals
+- [React Helmet Async](https://github.com/staylor/react-helmet-async) — SEO & meta tags
+- [Bootstrap](https://getbootstrap.com/) — CSS framework (for styling adjustments)
+- [Render](https://render.com/) — Cloud deployment platform
+
+---
+
+### 🧑‍🏫 Educational Resources
+
+- [Code Institute](https://codeinstitute.net/) — Full-Stack Toolkit course
+- Code Institute's walkthrough projects (Blog, Moments)
+- YouTube tutorials, GitHub snippets, and Stack Overflow answers
+
+---
+
+### 🙏 Special Thanks
+
+- **My mentor and tutors** at Code Institute for guidance
+- My friend Pedram who is a React Senior developer
+- Fellow students and the community on the Slack channels
+- Reviewers and assessors for constructive feedback
+
+---
+
+### 📝 Note on Attribution
+
+All external libraries and resources used have been credited. All images, icons, and assets are either open source, created by me, or generated with permission.
 
