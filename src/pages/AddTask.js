@@ -17,6 +17,32 @@ const AddTask = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ BASIC VALIDATION
+    if (!title.trim()) {
+      Swal.fire({
+        title: "Title is required.",
+        icon: "warning",
+        toast: true,
+        timer: 3000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    if (due_date && new Date(due_date) < new Date()) {
+      Swal.fire({
+        title: "Due date cannot be in the past.",
+        icon: "warning",
+        toast: true,
+        timer: 3000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+
     const taskData = {
       title,
       description,
@@ -25,6 +51,7 @@ const AddTask = () => {
       category,
       due_date,
     };
+
     try {
       const response = await api.post("/api/tasks/", taskData);
       if (response.status === 201) {
@@ -63,7 +90,7 @@ const AddTask = () => {
       </Helmet>
       <h2>Add Task</h2>
       <form onSubmit={handleSubmit}>
-        {/* Form fields */}
+        {/* Form fields go here */}
       </form>
     </div>
   );

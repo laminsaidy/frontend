@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import TaskModal from "../components/TaskModal";
 import ConfirmationDialog from "../context/ConfirmationDialog";
 import ErrorBoundary from "../components/ErrorBoundary";
+import Swal from "sweetalert2";
 import "../styles/components/TaskManager.css";
 
 class TaskManager extends Component {
@@ -55,7 +56,33 @@ class TaskManager extends Component {
   };
 
   handleSubmit = (item) => {
+    // ✅ Basic validation
+    if (!item.title || !item.title.trim()) {
+      Swal.fire({
+        title: "Task title is required.",
+        icon: "warning",
+        toast: true,
+        timer: 3000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    if (item.due_date && new Date(item.due_date) < new Date()) {
+      Swal.fire({
+        title: "Due date cannot be in the past.",
+        icon: "warning",
+        toast: true,
+        timer: 3000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+
     this.toggle();
+
     const payload = {
       ...item,
       category: Array.isArray(item.category) ? item.category[0] : item.category,
