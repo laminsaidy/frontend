@@ -201,7 +201,7 @@ Development was split into two main sprints:
 
 The diagram below illustrates the relationship between users and their tasks. Each user can create multiple tasks, but each task belongs to one specific user.
 
-![ER Diagram](docs/er-diagram.png)
+![ER Diagram](Images/Erdiagrampic.png)
 
 The database consists of two main tables:
 
