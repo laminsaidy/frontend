@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { Helmet } from "react-helmet-async";
+import { toast } from 'react-toastify';
 import { AuthContext } from "../context/AuthContext";
 import TaskModal from "../components/TaskModal";
 import ConfirmationDialog from "../context/ConfirmationDialog";
 import ErrorBoundary from "../components/ErrorBoundary";
-import Swal from "sweetalert2";
 import "../styles/components/TaskManager.css";
 
 class TaskManager extends Component {
@@ -56,33 +56,23 @@ class TaskManager extends Component {
   };
 
   handleSubmit = (item) => {
-    // ✅ Basic validation
     if (!item.title || !item.title.trim()) {
-      Swal.fire({
-        title: "Task title is required.",
-        icon: "warning",
-        toast: true,
-        timer: 3000,
-        position: "top-end",
-        showConfirmButton: false,
+      toast.warning("Task title is required.", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return;
     }
 
     if (item.due_date && new Date(item.due_date) < new Date()) {
-      Swal.fire({
-        title: "Due date cannot be in the past.",
-        icon: "warning",
-        toast: true,
-        timer: 3000,
-        position: "top-end",
-        showConfirmButton: false,
+      toast.warning("Due date cannot be in the past.", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return;
     }
 
     this.toggle();
-
     const payload = {
       ...item,
       category: Array.isArray(item.category) ? item.category[0] : item.category,
@@ -93,10 +83,20 @@ class TaskManager extends Component {
       : this.props.api.post("/api/tasks/", payload);
 
     request
-      .then(this.refreshList)
-      .catch((error) =>
-        console.error("Error saving task:", error.response?.data || error)
-      );
+      .then(() => {
+        this.refreshList();
+        toast.success("Task saved successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error saving task:", error.response?.data || error);
+        toast.error("Failed to save task", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      });
   };
 
   handleDelete = (item) => {
@@ -107,10 +107,21 @@ class TaskManager extends Component {
     const { itemToDelete } = this.state;
     this.props.api
       .delete(`/api/tasks/${itemToDelete.id}/`)
-      .then(this.refreshList)
-      .catch((error) =>
-        console.error("Error deleting task:", error.response?.data || error)
-      );
+      .then(() => {
+        this.refreshList();
+        toast.success("Task deleted", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error deleting task:", error.response?.data || error);
+        toast.error("Failed to delete task", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      });
+
     this.setState({ showConfirmationDialog: false, itemToDelete: null });
   };
 
@@ -138,10 +149,20 @@ class TaskManager extends Component {
     const updatedTask = { ...task, status: newStatus };
     this.props.api
       .put(`/api/tasks/${task.id}/`, updatedTask)
-      .then(this.refreshList)
-      .catch((error) =>
-        console.error("Error updating task status:", error.response?.data || error)
-      );
+      .then(() => {
+        this.refreshList();
+        toast.success("Task status updated", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error updating task status:", error.response?.data || error);
+        toast.error("Failed to update task status", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      });
   };
 
   renderItems = () => {

@@ -1,6 +1,8 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./pages/Navbar";
@@ -28,14 +30,11 @@ function App() {
             <ErrorBoundary>
               <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
-                  {/* Public routes */}
                   <Route path="/" element={<Homepage />} />
                   <Route path="/login" element={<Loginpage />} />
                   <Route path="/register" element={<Registerpage />} />
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
-
-                  {/* Protected routes */}
                   <Route
                     path="/tasks"
                     element={
@@ -52,13 +51,12 @@ function App() {
                       </PrivateRoute>
                     }
                   />
-
-                  {/* Catch-all route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
             </ErrorBoundary>
           </div>
+          <ToastContainer />
         </AuthProvider>
       </Router>
     </HelmetProvider>

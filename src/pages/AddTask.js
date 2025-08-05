@@ -1,9 +1,9 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { toast } from 'react-toastify';
 import AuthContext from "../context/AuthContext";
 import "../styles/components/Task.css";
-import Swal from "sweetalert2";
 
 const AddTask = () => {
   const { api } = useContext(AuthContext);
@@ -18,27 +18,18 @@ const AddTask = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ BASIC VALIDATION
     if (!title.trim()) {
-      Swal.fire({
-        title: "Title is required.",
-        icon: "warning",
-        toast: true,
-        timer: 3000,
-        position: "top-end",
-        showConfirmButton: false,
+      toast.warning("Title is required", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return;
     }
 
     if (due_date && new Date(due_date) < new Date()) {
-      Swal.fire({
-        title: "Due date cannot be in the past.",
-        icon: "warning",
-        toast: true,
-        timer: 3000,
-        position: "top-end",
-        showConfirmButton: false,
+      toast.warning("Due date cannot be in the past.", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return;
     }
@@ -55,13 +46,9 @@ const AddTask = () => {
     try {
       const response = await api.post("/api/tasks/", taskData);
       if (response.status === 201) {
-        Swal.fire({
-          title: "Task added successfully",
-          icon: "success",
-          toast: true,
-          timer: 3000,
-          position: "top-end",
-          showConfirmButton: false,
+        toast.success("Task added successfully", {
+          position: "top-right",
+          autoClose: 3000,
         });
         navigate("/tasks");
       }
@@ -71,13 +58,9 @@ const AddTask = () => {
       if (error.response?.data?.detail) {
         errorMessage = error.response.data.detail;
       }
-      Swal.fire({
-        title: errorMessage,
-        icon: "error",
-        toast: true,
-        timer: 3000,
-        position: "top-end",
-        showConfirmButton: false,
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
       });
     }
   };
