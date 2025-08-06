@@ -1,4 +1,4 @@
-# Task Manager Calendar App
+  # Task Manager Calendar App
 
 ## Table of Contents
 
@@ -86,33 +86,35 @@ This project was built as the Portfolio Project 5: Full-Stack Toolkit for the Co
 
 ## Screenshots
 
-### 1. Login Page
-![Login Page](docs/screens/login.png)
+### 1. Home Page
+![Home Page](Images/homepage.png)
 
-### 2. Register Page
-![Register Page](docs/screens/register.png)
+### 2. Login Page
+![Login Page](Images/loginpage.png)
 
-### 3. Task Dashboard – Open Tasks
-![Open Tasks](docs/screens/dashboard-open.png)
+### 3. Register Page
+![Register Page](Images/registerpage.png)
 
-### 4. Task Dashboard – In Progress Tasks
-![In Progress Tasks](docs/screens/dashboard-progress.png)
+### 4. Task Dashboard – Open Tasks
+![Open Tasks](Images/dashboard-open.png)
 
-### 5. Task Dashboard – Done Tasks
-![Done Tasks](docs/screens/dashboard-done.png)
+### 5. Task Dashboard – In Progress Tasks
+![In Progress Tasks](Images/dashboard-progress.png)
 
-### 6. Add New Task Modal
-![Add Task Modal](docs/screens/add-task.png)
+### 6. Task Dashboard – Done Tasks
+![Done Tasks](Images/dashboard-done.png)
 
-### 7. Edit Task Modal
-![Edit Task Modal](docs/screens/edit-task.png)
+### 7. Add New Task Modal
+![Add Task Modal](Images/add-task.png)
 
-### 8. Toast Notification (Success or Error)
-![Toast Notification](docs/screens/toast.png)
+### 8. Edit Task Modal
+![Edit Task Modal](Images/edit-task.png)
 
-### 9. Mobile View (Responsive Layout)
-![Mobile View](docs/screens/mobile.png)
+### 9. Delete Task Modal
+![Delete Task Modal](Images/delete-task.png)
 
+### 10. Admin Page
+![Admin Page](Images/admin-signin-form.png)
 
 
 ## Agile Planning
