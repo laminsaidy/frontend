@@ -1,7 +1,7 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
@@ -18,8 +18,13 @@ import ErrorBoundary from "./components/ErrorBoundary";
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Unauthorized = lazy(() => import("./pages/Unauthorized"));
 
 function App() {
+  useEffect(() => {
+    toast.info("🧪 Toast system is working!", { autoClose: 2000 });
+  }, []);
+
   return (
     <HelmetProvider>
       <Router>
@@ -35,6 +40,7 @@ function App() {
                   <Route path="/register" element={<Registerpage />} />
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/unauthorized" element={<Unauthorized />} />
                   <Route
                     path="/tasks"
                     element={

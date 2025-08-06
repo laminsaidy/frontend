@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { toast } from 'react-toastify';
 import axios from "axios";
 
 const API_BASE_URL = 'http://127.0.0.1:8081';
@@ -26,13 +26,9 @@ export const AuthProvider = ({ children }) => {
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
     navigate('/login');
-    Swal.fire({
-      title: "Logged out successfully",
-      icon: "success",
-      toast: true,
-      timer: 3000,
-      position: "top-end",
-      showConfirmButton: false,
+    toast.info("Logged out successfully", {
+      position: "top-right",
+      autoClose: 3000,
     });
   }, [navigate]);
 
@@ -54,28 +50,35 @@ export const AuthProvider = ({ children }) => {
       response => response,
       async error => {
         const originalRequest = error.config;
+
         if (
           error.response?.status === 401 &&
+          error.response?.data?.code === "token_not_valid" &&
           !originalRequest._retry &&
           !originalRequest.url.includes("/token/refresh/")
         ) {
           originalRequest._retry = true;
           try {
-            const refreshToken = localStorage.getItem('refresh_token');
+            const refreshToken = localStorage.getItem("refresh_token");
             if (!refreshToken || refreshToken === "undefined" || refreshToken === "null") {
-              throw new Error('No refresh token available');
+              throw new Error("No refresh token");
             }
             const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
               refresh: refreshToken,
             });
-            localStorage.setItem('access_token', response.data.access);
-            api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
+            localStorage.setItem("access_token", response.data.access);
+            api.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
             return api(originalRequest);
           } catch {
             logoutUser();
             return Promise.reject(error);
           }
         }
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          navigate("/unauthorized");
+        }
+
         return Promise.reject(error);
       }
     );
@@ -84,34 +87,41 @@ export const AuthProvider = ({ children }) => {
       api.interceptors.request.eject(reqInterceptor);
       api.interceptors.response.eject(resInterceptor);
     };
-  }, [logoutUser]);
+  }, [logoutUser, navigate]);
 
   const loginUser = async (username, password) => {
     try {
+      // Step 1: Get tokens
       const response = await api.post('/api/token/', { username, password });
-      localStorage.setItem('access_token', response.data.access);
-      localStorage.setItem('refresh_token', response.data.refresh);
-      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
-      const userResponse = await api.get('/api/user/');
+      const access = response.data.token; 
+      const refresh = response.data.refresh;
+
+      // Step 2: Save tokens
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+
+      // Step 3: Make authenticated call with fresh token
+      const userResponse = await axios.get(`${API_BASE_URL}/api/user/`, {
+        headers: {
+          Authorization: `Bearer ${access}`
+        }
+      });
+
+      // Step 4: Set user and default auth for future requests
       setUser(userResponse.data);
+      api.defaults.headers.common['Authorization'] = `Bearer ${access}`; 
+
+      // Step 5: Navigate
       navigate('/');
-      Swal.fire({
-        title: "Login Successful",
-        icon: "success",
-        toast: true,
-        timer: 3000,
-        position: "top-end",
-        showConfirmButton: false,
+      toast.success("Login Successful", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return true;
     } catch (error) {
-      Swal.fire({
-        title: error.response?.data?.detail || "Login failed",
-        icon: "error",
-        toast: true,
-        timer: 3000,
-        position: "top-end",
-        showConfirmButton: false,
+      toast.error(error.response?.data?.detail || "Login failed", {
+        position: "top-right",
+        autoClose: 3000,
       });
       return false;
     }
@@ -119,24 +129,18 @@ export const AuthProvider = ({ children }) => {
 
   const registerUser = async (username, email, password, password2) => {
     try {
-      console.log('Registering user with data:', { email, username, password, password2 });
       const response = await api.post('/api/register/', {
         email, username, password, password2,
       });
       if (response.status === 201) {
-        Swal.fire({
-          title: "Registration Successful! Please login.",
-          icon: "success",
-          toast: true,
-          timer: 3000,
-          position: "top-end",
-          showConfirmButton: false,
+        toast.success("Registration Successful! Please login.", {
+          position: "top-right",
+          autoClose: 3000,
         });
         navigate('/login');
         return true;
       }
     } catch (error) {
-      console.error('Registration error response:', error.response?.data);
       let errorMessage = "Registration failed";
       if (error.response?.data) {
         if (typeof error.response.data === 'object') {
@@ -147,13 +151,9 @@ export const AuthProvider = ({ children }) => {
           errorMessage = error.response.data;
         }
       }
-      Swal.fire({
-        title: errorMessage,
-        icon: "error",
-        toast: true,
-        timer: 3000,
-        position: "top-end",
-        showConfirmButton: false,
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
       });
       return false;
     }
@@ -195,7 +195,7 @@ export const AuthProvider = ({ children }) => {
       } catch {
         logoutUser();
       }
-    }, 4 * 60 * 1000); // every 4 minutes
+    }, 4 * 60 * 1000);
     return () => clearInterval(interval);
   }, [logoutUser]);
 
