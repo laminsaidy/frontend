@@ -1,30 +1,27 @@
-import React, { lazy, Suspense, useEffect } from "react";
+import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./pages/Navbar";
-import Homepage from "./pages/Homepage";
-import Loginpage from "./pages/Loginpage";
-import Registerpage from "./pages/Registerpage";
-import TaskManager from "./pages/TaskManager";
-import TaskDetail from "./pages/TaskDetail";
 import ScrollToTop from "./utils/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
+import LoadingSpinner from "./components/LoadingSpinner";
 
-// Lazy-loaded components
+// Lazy-loaded pages
+const Homepage = lazy(() => import("./pages/Homepage"));
+const Loginpage = lazy(() => import("./pages/Loginpage"));
+const Registerpage = lazy(() => import("./pages/Registerpage"));
+const TaskManager = lazy(() => import("./pages/TaskManager"));
+const TaskDetail = lazy(() => import("./pages/TaskDetail"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Unauthorized = lazy(() => import("./pages/Unauthorized"));
 
 function App() {
-  useEffect(() => {
-    toast.info("🧪 Toast system is working!", { autoClose: 2000 });
-  }, []);
-
   return (
     <HelmetProvider>
       <Router>
@@ -33,7 +30,7 @@ function App() {
           <Navbar />
           <div className="app-content">
             <ErrorBoundary>
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<LoadingSpinner fullPage />}>
                 <Routes>
                   <Route path="/" element={<Homepage />} />
                   <Route path="/login" element={<Loginpage />} />
@@ -62,7 +59,17 @@ function App() {
               </Suspense>
             </ErrorBoundary>
           </div>
-          <ToastContainer />
+          <ToastContainer 
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
         </AuthProvider>
       </Router>
     </HelmetProvider>

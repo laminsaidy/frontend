@@ -1,7 +1,8 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import AuthContext from "../context/AuthContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 import "../styles/components/Loginpage.css";
 import SmileyImage from "../assets/images/Smiley.jpg";
 
@@ -9,6 +10,7 @@ function LoginPage() {
   const { loginUser } = useContext(AuthContext);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,22 +28,25 @@ function LoginPage() {
 
     try {
       const success = await loginUser(username, password);
-      if (!success) {
+      if (success) {
+        navigate("/tasks");
+      } else {
         setError("Invalid username or password");
       }
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div>
+    <div className="login-page">
       <Helmet>
-        <title>Login</title>
-        <meta name="description" content="Login to your task manager account." />
+        <title>Login | TaskManager</title>
+        <meta name="description" content="Login to your TaskManager account to access your tasks and productivity tools" />
       </Helmet>
+
       <section className="min-vh-85 login-section">
         <div className="container py-5">
           <div className="row d-flex justify-content-center align-items-center h-100">
@@ -51,7 +56,7 @@ function LoginPage() {
                   <div className="col-md-6 col-lg-5 d-none d-md-block">
                     <img
                       src={SmileyImage}
-                      alt="Login"
+                      alt="Login illustration"
                       className="img-fluid login-image"
                     />
                   </div>
@@ -106,11 +111,7 @@ function LoginPage() {
                             disabled={isLoading}
                           >
                             {isLoading ? (
-                              <>
-                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span className="visually-hidden">Loading...</span>
-                                Logging in...
-                              </>
+                              <LoadingSpinner small />
                             ) : "Login"}
                           </button>
                         </div>

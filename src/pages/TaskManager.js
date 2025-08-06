@@ -3,8 +3,9 @@ import { Helmet } from "react-helmet-async";
 import { toast } from 'react-toastify';
 import { AuthContext } from "../context/AuthContext";
 import TaskModal from "../components/TaskModal";
-import ConfirmationDialog from "../context/ConfirmationDialog";
+import ConfirmationDialog from "../components/ConfirmationDialog";
 import ErrorBoundary from "../components/ErrorBoundary";
+import LoadingSpinner from "../components/LoadingSpinner";
 import "../styles/components/TaskManager.css";
 
 class TaskManager extends Component {
@@ -33,6 +34,7 @@ class TaskManager extends Component {
   }
 
   refreshList = () => {
+    this.setState({ loading: true });
     this.props.api
       .get("/api/tasks/")
       .then((res) => {
@@ -47,6 +49,7 @@ class TaskManager extends Component {
       })
       .catch((err) => {
         console.error("Error fetching tasks:", err);
+        toast.error("Failed to load tasks");
         this.setState({ taskList: [], loading: false });
       });
   };
@@ -57,18 +60,11 @@ class TaskManager extends Component {
 
   handleSubmit = (item) => {
     if (!item.title || !item.title.trim()) {
-      toast.warning("Task title is required.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.warning("Task title is required");
       return;
     }
-
     if (item.due_date && new Date(item.due_date) < new Date()) {
-      toast.warning("Due date cannot be in the past.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.warning("Due date cannot be in the past");
       return;
     }
 
@@ -85,17 +81,11 @@ class TaskManager extends Component {
     request
       .then(() => {
         this.refreshList();
-        toast.success("Task saved successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.success("Task saved successfully");
       })
       .catch((error) => {
-        console.error("Error saving task:", error.response?.data || error);
-        toast.error("Failed to save task", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        console.error("Error saving task:", error);
+        toast.error("Failed to save task");
       });
   };
 
@@ -109,19 +99,12 @@ class TaskManager extends Component {
       .delete(`/api/tasks/${itemToDelete.id}/`)
       .then(() => {
         this.refreshList();
-        toast.success("Task deleted", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.success("Task deleted");
       })
       .catch((error) => {
-        console.error("Error deleting task:", error.response?.data || error);
-        toast.error("Failed to delete task", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        console.error("Error deleting task:", error);
+        toast.error("Failed to delete task");
       });
-
     this.setState({ showConfirmationDialog: false, itemToDelete: null });
   };
 
@@ -151,17 +134,11 @@ class TaskManager extends Component {
       .put(`/api/tasks/${task.id}/`, updatedTask)
       .then(() => {
         this.refreshList();
-        toast.success("Task status updated", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.success("Task status updated");
       })
       .catch((error) => {
-        console.error("Error updating task status:", error.response?.data || error);
-        toast.error("Failed to update task status", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        console.error("Error updating task status:", error);
+        toast.error("Failed to update task status");
       });
   };
 
@@ -170,7 +147,16 @@ class TaskManager extends Component {
     const filteredTasks = taskList.filter((task) => task.status === viewStatus);
 
     if (filteredTasks.length === 0) {
-      return <p>No tasks in this status.</p>;
+      return (
+        <div className="empty-state">
+          <p>No tasks in this status.</p>
+          {viewStatus === "Open" && (
+            <button onClick={this.createItem} className="btn btn-primary">
+              Create Your First Task
+            </button>
+          )}
+        </div>
+      );
     }
 
     return filteredTasks.map((task) => (
@@ -184,26 +170,42 @@ class TaskManager extends Component {
         </div>
         <div className="task-description">{task.description}</div>
         <div className="task-meta">
-          <span className={`priority-badge ${task.priority.toLowerCase()}`}>{task.priority}</span>
-          <span className={`status-badge ${task.status.replace(" ", "-").toLowerCase()}`}>{task.status}</span>
+          <span className={`priority-badge ${task.priority.toLowerCase()}`}>
+            {task.priority}
+          </span>
+          <span className={`status-badge ${task.status.replace(" ", "-").toLowerCase()}`}>
+            {task.status}
+          </span>
           <span className="task-category">{task.category}</span>
           <span className="task-due">
             Due:{" "}
-            <span className={task.overdue ? "overdue-text" : ""}>{task.due_date}</span>
+            <span className={task.overdue ? "overdue-text" : ""}>
+              {task.due_date || "No due date"}
+            </span>
           </span>
         </div>
         <div className="task-actions">
-          <button className="btn-edit" onClick={() => this.editItem(task)}>✏️</button>
-          <button className="btn-delete" onClick={() => this.handleDelete(task)}>🗑️</button>
+          <button className="btn-edit" onClick={() => this.editItem(task)}>
+            ✏️ Edit
+          </button>
+          <button className="btn-delete" onClick={() => this.handleDelete(task)}>
+            🗑️ Delete
+          </button>
         </div>
         <div className="task-status-controls">
           {task.status === "Open" && (
-            <button className="btn-move-progress" onClick={() => this.updateTaskStatus(task, "In Progress")}>
+            <button 
+              className="btn-move-progress" 
+              onClick={() => this.updateTaskStatus(task, "In Progress")}
+            >
               Move to Progress
             </button>
           )}
           {task.status === "In Progress" && (
-            <button className="btn-mark-done" onClick={() => this.updateTaskStatus(task, "Done")}>
+            <button 
+              className="btn-mark-done" 
+              onClick={() => this.updateTaskStatus(task, "Done")}
+            >
               Mark as Done
             </button>
           )}
@@ -216,20 +218,16 @@ class TaskManager extends Component {
     const { loading, showConfirmationDialog, viewStatus } = this.state;
 
     if (loading) {
-      return (
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Loading tasks...</p>
-        </div>
-      );
+      return <LoadingSpinner fullPage />;
     }
 
     return (
       <div className="task-manager-wrapper">
         <Helmet>
-          <title>Task Manager</title>
-          <meta name="description" content="Manage your tasks efficiently." />
+          <title>Task Manager | TaskManager</title>
+          <meta name="description" content="Manage and organize all your tasks in one place" />
         </Helmet>
+
         <ErrorBoundary>
           <main className="task-manager-container">
             <div className="task-manager-header">
@@ -238,6 +236,7 @@ class TaskManager extends Component {
                 ＋ Add New Task
               </button>
             </div>
+
             <div className="status-tabs">
               {["Open", "In Progress", "Done"].map((status) => (
                 <button
@@ -249,7 +248,11 @@ class TaskManager extends Component {
                 </button>
               ))}
             </div>
-            <div className="task-list-container">{this.renderItems()}</div>
+
+            <div className="task-list-container">
+              {this.renderItems()}
+            </div>
+
             {this.state.modal && (
               <TaskModal
                 activeItem={this.state.activeItem}
@@ -257,6 +260,7 @@ class TaskManager extends Component {
                 onSave={this.handleSubmit}
               />
             )}
+
             {showConfirmationDialog && (
               <ConfirmationDialog
                 show={showConfirmationDialog}
