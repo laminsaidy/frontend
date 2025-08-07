@@ -355,16 +355,6 @@ All features were manually tested across the latest versions of Chrome, Firefox,
 
 ---
 
-#### 🔹 Responsive Design Testing
-
-- [ResponsiveDesignChecker.com](https://responsivedesignchecker.com/)
-- Tested display on iPhone, iPad, Galaxy, and desktop resolutions
-
-📸 Screenshot proof:  
-![Responsive Design Screenshot](docs/screens/tests/responsive-mobile.png)
-![Responsive Design Screenshot](docs/screens/tests/responsive-tablet.png)
-
-
 
 ### Automated Testing
 
