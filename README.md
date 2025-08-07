@@ -294,12 +294,15 @@ The database consists of two main tables:
 
 | Platform | Description |
 |----------|-------------|
-| 🔗 **Frontend** | Deployed using **Render**: <br>👉 [https://your-frontend-url.onrender.com](https://your-frontend-url.onrender.com) |
-| 🔗 **Backend API** | Deployed using **Render**: <br>👉 [https://your-backend-url.onrender.com](https://your-backend-url.onrender.com) |
+| 🔗 **Frontend** | Deployed using **Render**: <br>👉 [https://frontend-calendar-2rcv.onrender.com](https://frontend-calendar-2rcv.onrender.com) |
+| 🔗 **Backend API** | Deployed using **Render**: <br>👉  [https://backend-render-api-calender.onrender.com](https://backend-render-api-calender.onrender.com) |
 
-- Environment variables are managed securely in Render's Environment tab
-- `DEBUG = False` is set in production
-- PostgreSQL is used as the production database
+###  Deployment Notes
+
+- Environment variables are securely stored in **Render → Environment tab**
+- `DEBUG = False` is used in production mode
+- **PostgreSQL** is used in production (Render auto-provisioned)
+- Static files are handled using **WhiteNoise**
 
 
 ## Testing
