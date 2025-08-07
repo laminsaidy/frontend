@@ -1,35 +1,83 @@
-/* TaskDetail.css */
-
 .task-detail-container {
-    padding: 20px;
-    margin-top: 80px;
-  }
-  
-  .task-detail-header {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .task-detail-description,
-  .task-detail-status,
-  .task-detail-priority,
-  .task-detail-category,
-  .task-detail-due-date {
-    margin-bottom: 0.5rem;
-  }
-  
-  .task-detail-overdue {
-    color: red;
-    font-weight: bold;
-  }
-  
-  .back-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 800px; /* Adjust the max-width as needed */
+}
+
+.task-detail-card {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.task-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.task-detail-overdue-badge {
+  background-color: red;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.task-detail-section {
+  margin-bottom: 1rem;
+}
+
+.task-detail-section h3 {
+  margin-bottom: 0.5rem;
+}
+
+.task-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.meta-item {
+  margin-bottom: 0.5rem;
+}
+
+.meta-label {
+  font-weight: bold;
+}
+
+.meta-value {
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.task-detail-dates {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.back-button {
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}

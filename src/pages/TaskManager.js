@@ -1,4 +1,5 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { toast } from 'react-toastify';
 import { AuthContext } from "../context/AuthContext";
@@ -8,35 +9,27 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import LoadingSpinner from "../components/LoadingSpinner";
 import "../styles/components/TaskManager.css";
 
-class TaskManager extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      viewStatus: "Open",
-      activeItem: {
-        title: "",
-        description: "",
-        status: "Open",
-        priority: "Medium",
-        category: "General",
-        due_date: "",
-      },
-      taskList: [],
-      modal: false,
-      loading: true,
-      showConfirmationDialog: false,
-      itemToDelete: null,
-    };
-  }
+const TaskManager = () => {
+  const { api } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [viewStatus, setViewStatus] = useState("Open");
+  const [activeItem, setActiveItem] = useState({
+    title: "",
+    description: "",
+    status: "Open",
+    priority: "Medium",
+    category: "General",
+    due_date: "",
+  });
+  const [taskList, setTaskList] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
-  componentDidMount() {
-    this.refreshList();
-  }
-
-  refreshList = () => {
-    this.setState({ loading: true });
-    this.props.api
-      .get("/api/tasks/")
+  const refreshList = useCallback(() => {
+    setLoading(true);
+    api.get("/api/tasks/")
       .then((res) => {
         const tasksWithOverdue = res.data.map((task) => ({
           ...task,
@@ -45,20 +38,26 @@ class TaskManager extends Component {
             new Date(task.due_date) < new Date() &&
             task.status !== "Done",
         }));
-        this.setState({ taskList: tasksWithOverdue, loading: false });
+        setTaskList(tasksWithOverdue);
+        setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching tasks:", err);
         toast.error("Failed to load tasks");
-        this.setState({ taskList: [], loading: false });
+        setTaskList([]);
+        setLoading(false);
       });
+  }, [api]);
+
+  useEffect(() => {
+    refreshList();
+  }, [refreshList]);
+
+  const toggle = () => {
+    setModal(!modal);
   };
 
-  toggle = () => {
-    this.setState({ modal: !this.state.modal });
-  };
-
-  handleSubmit = (item) => {
+  const handleSubmit = (item) => {
     if (!item.title || !item.title.trim()) {
       toast.warning("Task title is required");
       return;
@@ -67,20 +66,17 @@ class TaskManager extends Component {
       toast.warning("Due date cannot be in the past");
       return;
     }
-
-    this.toggle();
+    toggle();
     const payload = {
       ...item,
       category: Array.isArray(item.category) ? item.category[0] : item.category,
     };
-
     const request = item.id
-      ? this.props.api.put(`/api/tasks/${item.id}/`, payload)
-      : this.props.api.post("/api/tasks/", payload);
-
+      ? api.put(`/api/tasks/${item.id}/`, payload)
+      : api.post("/api/tasks/", payload);
     request
       .then(() => {
-        this.refreshList();
+        refreshList();
         toast.success("Task saved successfully");
       })
       .catch((error) => {
@@ -89,30 +85,31 @@ class TaskManager extends Component {
       });
   };
 
-  handleDelete = (item) => {
-    this.setState({ showConfirmationDialog: true, itemToDelete: item });
+  const handleDelete = (item) => {
+    setShowConfirmationDialog(true);
+    setItemToDelete(item);
   };
 
-  confirmDelete = () => {
-    const { itemToDelete } = this.state;
-    this.props.api
-      .delete(`/api/tasks/${itemToDelete.id}/`)
+  const confirmDelete = () => {
+    api.delete(`/api/tasks/${itemToDelete.id}/`)
       .then(() => {
-        this.refreshList();
+        refreshList();
         toast.success("Task deleted");
       })
       .catch((error) => {
         console.error("Error deleting task:", error);
         toast.error("Failed to delete task");
       });
-    this.setState({ showConfirmationDialog: false, itemToDelete: null });
+    setShowConfirmationDialog(false);
+    setItemToDelete(null);
   };
 
-  cancelDelete = () => {
-    this.setState({ showConfirmationDialog: false, itemToDelete: null });
+  const cancelDelete = () => {
+    setShowConfirmationDialog(false);
+    setItemToDelete(null);
   };
 
-  createItem = () => {
+  const createItem = () => {
     const item = {
       title: "",
       description: "",
@@ -121,19 +118,20 @@ class TaskManager extends Component {
       category: "General",
       due_date: "",
     };
-    this.setState({ activeItem: item, modal: true });
+    setActiveItem(item);
+    setModal(true);
   };
 
-  editItem = (item) => {
-    this.setState({ activeItem: item, modal: true });
+  const editItem = (item) => {
+    setActiveItem(item);
+    setModal(true);
   };
 
-  updateTaskStatus = (task, newStatus) => {
+  const updateTaskStatus = (task, newStatus) => {
     const updatedTask = { ...task, status: newStatus };
-    this.props.api
-      .put(`/api/tasks/${task.id}/`, updatedTask)
+    api.put(`/api/tasks/${task.id}/`, updatedTask)
       .then(() => {
-        this.refreshList();
+        refreshList();
         toast.success("Task status updated");
       })
       .catch((error) => {
@@ -142,27 +140,29 @@ class TaskManager extends Component {
       });
   };
 
-  renderItems = () => {
-    const { taskList, viewStatus } = this.state;
-    const filteredTasks = taskList.filter((task) => task.status === viewStatus);
+  const handleTaskClick = (taskId) => {
+    navigate(`/task/${taskId}`);
+  };
 
+  const renderItems = () => {
+    const filteredTasks = taskList.filter((task) => task.status === viewStatus);
     if (filteredTasks.length === 0) {
       return (
         <div className="empty-state">
           <p>No tasks in this status.</p>
           {viewStatus === "Open" && (
-            <button onClick={this.createItem} className="btn btn-primary">
+            <button onClick={createItem} className="btn btn-primary">
               Create Your First Task
             </button>
           )}
         </div>
       );
     }
-
     return filteredTasks.map((task) => (
       <div
         key={task.id}
         className={`task-card ${task.overdue ? "overdue" : ""} ${task.priority.toLowerCase()}`}
+        onClick={() => handleTaskClick(task.id)}
       >
         <div className="task-card-header">
           <h5 className="task-title">{task.title}</h5>
@@ -185,26 +185,26 @@ class TaskManager extends Component {
           </span>
         </div>
         <div className="task-actions">
-          <button className="btn-edit" onClick={() => this.editItem(task)}>
+          <button className="btn-edit" onClick={(e) => { e.stopPropagation(); editItem(task); }}>
             ✏️ Edit
           </button>
-          <button className="btn-delete" onClick={() => this.handleDelete(task)}>
+          <button className="btn-delete" onClick={(e) => { e.stopPropagation(); handleDelete(task); }}>
             🗑️ Delete
           </button>
         </div>
         <div className="task-status-controls">
           {task.status === "Open" && (
-            <button 
-              className="btn-move-progress" 
-              onClick={() => this.updateTaskStatus(task, "In Progress")}
+            <button
+              className="btn-move-progress"
+              onClick={(e) => { e.stopPropagation(); updateTaskStatus(task, "In Progress"); }}
             >
               Move to Progress
             </button>
           )}
           {task.status === "In Progress" && (
-            <button 
-              className="btn-mark-done" 
-              onClick={() => this.updateTaskStatus(task, "Done")}
+            <button
+              className="btn-mark-done"
+              onClick={(e) => { e.stopPropagation(); updateTaskStatus(task, "Done"); }}
             >
               Mark as Done
             </button>
@@ -214,67 +214,58 @@ class TaskManager extends Component {
     ));
   };
 
-  render() {
-    const { loading, showConfirmationDialog, viewStatus } = this.state;
-
-    if (loading) {
-      return <LoadingSpinner fullPage />;
-    }
-
-    return (
-      <div className="task-manager-wrapper">
-        <Helmet>
-          <title>Task Manager | TaskManager</title>
-          <meta name="description" content="Manage and organize all your tasks in one place" />
-        </Helmet>
-
-        <ErrorBoundary>
-          <main className="task-manager-container">
-            <div className="task-manager-header">
-              <h1>Task Manager</h1>
-              <button onClick={this.createItem} className="btn btn-primary">
-                ＋ Add New Task
-              </button>
-            </div>
-
-            <div className="status-tabs">
-              {["Open", "In Progress", "Done"].map((status) => (
-                <button
-                  key={status}
-                  className={`tab-btn ${viewStatus === status ? "active" : ""}`}
-                  onClick={() => this.setState({ viewStatus: status })}
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-
-            <div className="task-list-container">
-              {this.renderItems()}
-            </div>
-
-            {this.state.modal && (
-              <TaskModal
-                activeItem={this.state.activeItem}
-                toggle={this.toggle}
-                onSave={this.handleSubmit}
-              />
-            )}
-
-            {showConfirmationDialog && (
-              <ConfirmationDialog
-                show={showConfirmationDialog}
-                onConfirm={this.confirmDelete}
-                onCancel={this.cancelDelete}
-                message="Are you sure you want to delete this task?"
-              />
-            )}
-          </main>
-        </ErrorBoundary>
-      </div>
-    );
+  if (loading) {
+    return <LoadingSpinner fullPage />;
   }
-}
+
+  return (
+    <div className="task-manager-wrapper">
+      <Helmet>
+        <title>Task Manager | TaskManager</title>
+        <meta name="description" content="Manage and organize all your tasks in one place" />
+      </Helmet>
+      <ErrorBoundary>
+        <main className="task-manager-container">
+          <div className="task-manager-header">
+            <h1>Task Manager</h1>
+            <button onClick={createItem} className="btn btn-primary">
+              ＋ Add New Task
+            </button>
+          </div>
+          <div className="status-tabs">
+            {["Open", "In Progress", "Done"].map((status) => (
+              <button
+                key={status}
+                className={`tab-btn ${viewStatus === status ? "active" : ""}`}
+                onClick={() => setViewStatus(status)}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+          <div className="task-list-container">
+            {renderItems()}
+          </div>
+          {modal && (
+            <TaskModal
+              activeItem={activeItem}
+              toggle={toggle}
+              onSave={handleSubmit}
+            />
+          )}
+          {showConfirmationDialog && (
+            <ConfirmationDialog
+              show={showConfirmationDialog}
+              onConfirm={confirmDelete}
+              onCancel={cancelDelete}
+              message="Are you sure you want to delete this task?"
+            />
+          )}
+        </main>
+      </ErrorBoundary>
+    </div>
+  );
+};
 
 const TaskManagerWithAuth = (props) => (
   <AuthContext.Consumer>
