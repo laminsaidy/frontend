@@ -1,5 +1,4 @@
   # Task Manager Calendar App
-
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
@@ -12,14 +11,16 @@
     - [MoSCoW Prioritisation](#moscow-prioritisation)
     - [User Stories & Epics](#user-stories--epics)
     - [Sprints](#sprints)
-4. [Entity Relationship Diagram (ERD)](#entity-relationship-diagram-erd)
-5. [Technologies Used](#technologies-used)
-6. [Installation & Deployment](#installation--deployment)
-7. [Testing](#testing)
+4. [Wireframes](#wireframes)
+5. [Entity Relationship Diagram (ERD)](#entity-relationship-diagram-erd)
+6. [Technologies Used](#technologies-used)
+7. [Installation & Deployment](#installation--deployment)
+8. [Testing](#testing)
     - [Manual Testing](#manual-testing)
     - [Automated Testing](#automated-testing)
-8. [Known Bugs](#known-bugs)
-9. [Credits & Acknowledgements](#credits--acknowledgements)
+9. [Known Bugs](#known-bugs)
+10. [Credits & Acknowledgements](#credits--acknowledgements)
+
 
 
 ## Project Overview
@@ -198,6 +199,22 @@ Development was split into two main sprints:
   - Implement task features (CRUD, filtering, overdue logic)
   - Style the app with status-based views
   - Add validation, toasts, and final deployment
+
+## Wireframes
+
+The following wireframe sketches were created during the planning phase to visualize the structure and user flow of the Task Manager Calendar App.
+
+| **Wireframe**         | **Description**                                                                 |
+|------------------------|---------------------------------------------------------------------------------|
+| **Login/Register**     | Basic form layout for user authentication (top-left sketch).                   |
+| **Task Dashboard**     | Kanban-style board showing task status columns (top-right sketch).             |
+| **Add/Edit Task Modal**| Popup form for creating or editing task details (bottom-left sketch).          |
+| **Task Details/Delete**| Modal or confirmation prompt for task actions (bottom-right sketch).           |
+
+![Wireframes](Images/wireframes.png)
+
+> 📎 *Make sure the image file is saved as `Images/wireframes.png` inside your repo before deployment.*
+
 
 ## Entity Relationship Diagram (ERD)
 
