@@ -337,7 +337,10 @@ All features were manually tested across the latest versions of Chrome, Firefox,
 - Tested all custom stylesheets
 
 📸 Screenshot proof:  
-![CSS Validation Screenshot](docs/screens/tests/css-validation.png)
+![CSS Validation Screenshot](Images/index.png)
+![CSS Validation Screenshot](Images/theme.png)
+![CSS Validation Screenshot](Images/taskmanager.png)
+![CSS Validation Screenshot](Images/taskdetail.png)
 
 ---
 
