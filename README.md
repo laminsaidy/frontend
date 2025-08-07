@@ -303,6 +303,7 @@ The database consists of two main tables:
 
 
 ## Testing
+All core features were thoroughly tested to ensure functionality, responsiveness, and reliability. Testing was conducted through a combination of manual and automated methods, with documented evidence and validation tools.
 
 ### Manual Testing
 
@@ -330,16 +331,6 @@ All features were manually tested across the latest versions of Chrome, Firefox,
 
 ### Manual Validation Tools Used
 
-#### 🔹 HTML Validation
-
-- [W3C HTML Validator](https://validator.w3.org/)
-- Validated main template and component HTML
-
-📸 Screenshot proof:  
-![HTML Validation Screenshot](docs/screens/tests/html-validation.png)
-
----
-
 #### 🔹 CSS Validation
 
 - [W3C CSS Validator](https://jigsaw.w3.org/css-validator/)
@@ -350,23 +341,15 @@ All features were manually tested across the latest versions of Chrome, Firefox,
 
 ---
 
-#### 🔹 JavaScript Linting
-
-- [JSHint](https://jshint.com/)
-- Checked for syntax errors and best practices
-
-📸 Screenshot proof:  
-![JS Linting Screenshot](docs/screens/tests/js-linting.png)
-
----
-
 #### 🔹 Responsive Design Testing
 
 - [ResponsiveDesignChecker.com](https://responsivedesignchecker.com/)
 - Tested display on iPhone, iPad, Galaxy, and desktop resolutions
 
 📸 Screenshot proof:  
-![Responsive Design Screenshot](docs/screens/tests/responsive.png)
+![Responsive Design Screenshot](docs/screens/tests/responsive-mobile.png)
+![Responsive Design Screenshot](docs/screens/tests/responsive-tablet.png)
+
 
 
 ### Automated Testing
@@ -387,6 +370,10 @@ python manage.py test
 
 ![Automation Test Result](Images/automatedtest.png)
 
+🧪 Additional Notes
+- Frontend testing with React Testing Library was considered but not implemented due to time constraints. Manual UI testing was prioritized to ensure full coverage of all user flows.
+
+- The backend test coverage focuses on authenticated API usage and CRUD functionality.
 
 ## Known Bugs
 
