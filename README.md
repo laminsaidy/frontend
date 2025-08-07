@@ -383,6 +383,10 @@ Automated tests are included in `backend-api-calender/tasks/tests.py` and test t
 Run tests using:
 python manage.py test
 
+📸 Screenshot proof:  
+
+![Automation Test Result](Images/automatedtest.png)
+
 
 ## Known Bugs
 
