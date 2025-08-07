@@ -213,8 +213,6 @@ The following wireframe sketches were created during the planning phase to visua
 
 ![Wireframes](Images/wireframes.png)
 
-> 📎 *Make sure the image file is saved as `Images/wireframes.png` inside your repo before deployment.*
-
 
 ## Entity Relationship Diagram (ERD)
 
@@ -312,21 +310,21 @@ All features were manually tested across the latest versions of Chrome, Firefox,
 
 #### ✅ Functional Testing
 
-| Feature                        | Test Performed                                                                 | Result |
-|-------------------------------|--------------------------------------------------------------------------------|--------|
-| User Registration             | Registered new user with valid and invalid credentials                        | ✅ Pass |
-| User Login                    | Logged in with correct and incorrect passwords                                | ✅ Pass |
-| Token Authenticated API Calls | Tried accessing `/api/tasks/` with and without login                          | ✅ Pass |
-| Create Task                   | Added a task with all required fields                                         | ✅ Pass |
-| Prevent Empty Title           | Tried submitting task form without a title                                    | ✅ Pass |
-| Prevent Past Due Date         | Tried adding a task with a due date before today                              | ✅ Pass |
-| Edit Task                     | Modified a task, saved changes, and confirmed update                          | ✅ Pass |
-| Delete Task                   | Deleted a task after confirmation dialog                                      | ✅ Pass |
-| Overdue Task Detection        | Verified task is marked overdue when due date has passed                      | ✅ Pass |
-| Status Switching              | Moved tasks between Open → In Progress → Done and confirmed update visually  | ✅ Pass |
-| Toast Notifications           | Saw toast messages for success/failure actions                                | ✅ Pass |
-| Mobile Responsiveness         | Checked layout on Chrome dev tools (iPhone 12, Pixel 5, Galaxy S)             | ✅ Pass |
-| Page Titles & Meta Tags       | Confirmed correct meta title on each route using `react-helmet-async`         | ✅ Pass |
+| Feature                        | Test Performed                                                               |Result|
+|-------------------------------|-------------------------------------------------------------------------------|------|
+| User Registration             | Registered new user with valid and invalid credentials                        | ✅   |
+| User Login                    | Logged in with correct and incorrect passwords                                | ✅   |
+| Token Authenticated API Calls | Tried accessing `/api/tasks/` with and without login                          | ✅   |
+| Create Task                   | Added a task with all required fields                                         | ✅   |
+| Prevent Empty Title           | Tried submitting task form without a title                                    | ✅   |
+| Prevent Past Due Date         | Tried adding a task with a due date before today                              | ✅   |
+| Edit Task                     | Modified a task, saved changes, and confirmed update                          | ✅   |
+| Delete Task                   | Deleted a task after confirmation dialog                                      | ✅   |
+| Overdue Task Detection        | Verified task is marked overdue when due date has passed                      | ✅   |
+| Status Switching              | Moved tasks between Open → In Progress → Done and confirmed update visually   | ✅   |
+| Toast Notifications           | Saw toast messages for success/failure actions                                | ✅   |
+| Mobile Responsiveness         | Checked layout on Chrome dev tools (iPhone 12, Pixel 5, Galaxy S)             | ✅   |
+| Page Titles & Meta Tags       | Confirmed correct meta title on each route using `react-helmet-async`         | ✅   |
 
 ---
 
