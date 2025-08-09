@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
-console.log("Base URL:", API_BASE_URL);
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://127.0.0.1:8081' : '');
+if (!API_BASE_URL) {
+  console.error('REACT_APP_API_BASE_URL is not set');
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -52,7 +53,6 @@ export const AuthProvider = ({ children }) => {
       response => response,
       async error => {
         const originalRequest = error.config;
-
         if (
           error.response?.status === 401 &&
           error.response?.data?.code === "token_not_valid" &&
@@ -76,11 +76,9 @@ export const AuthProvider = ({ children }) => {
             return Promise.reject(error);
           }
         }
-
         if (error.response?.status === 401 || error.response?.status === 403) {
           navigate("/unauthorized");
         }
-
         return Promise.reject(error);
       }
     );
@@ -93,27 +91,22 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (username, password) => {
     try {
-      // Step 1: Get tokens
       const response = await api.post('/api/token/', { username, password });
-      const access = response.data.token; 
+      const access = response.data.access;
       const refresh = response.data.refresh;
 
-      // Step 2: Save tokens
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
 
-      // Step 3: Make authenticated call with fresh token
       const userResponse = await axios.get(`${API_BASE_URL}/api/user/`, {
         headers: {
           Authorization: `Bearer ${access}`
         }
       });
 
-      // Step 4: Set user and default auth for future requests
-      setUser(userResponse.data);
-      api.defaults.headers.common['Authorization'] = `Bearer ${access}`; 
+      setUser(userResponse.data?.data || userResponse.data);
+      api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
 
-      // Step 5: Navigate
       navigate('/');
       toast.success("Login Successful", {
         position: "top-right",
@@ -170,7 +163,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await api.post('/api/token/verify/', { token });
       const userResponse = await api.get('/api/user/');
-      setUser(userResponse.data);
+      setUser(userResponse.data?.data || userResponse.data);
     } catch {
       logoutUser();
     } finally {
