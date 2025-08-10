@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ||
                     (window.location.hostname === 'localhost' ? 'http://127.0.0.1:8081' : 'https://backend-render-api-calender.onrender.com');
 
 const api = axios.create({
@@ -41,38 +41,46 @@ export const AuthProvider = ({ children }) => {
 
   const handleUnauthorizedError = useCallback(async (error) => {
     const originalRequest = error.config;
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) throw new Error('No refresh token');
-        
+
         const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
           refresh: refreshToken
         });
-        
+
         localStorage.setItem('access_token', response.data.access);
         api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
         originalRequest.headers['Authorization'] = `Bearer ${response.data.access}`;
-        
+
         return api(originalRequest);
       } catch (refreshError) {
+        const errorMessage = refreshError.response?.data?.detail || "Session expired. Please log in again.";
+        toast.error(errorMessage);
         logoutUser();
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }, [logoutUser]);
 
   const setupInterceptors = useCallback(() => {
-    const reqInterceptor = api.interceptors.request.use(attachTokenToRequest);
-    const resInterceptor = api.interceptors.response.use(
-      response => response,
-      handleUnauthorizedError
-    );
+    const reqInterceptor = api.interceptors.request.use((config) => {
+      return attachTokenToRequest(config);
+    }, (error) => {
+      return Promise.reject(error);
+    });
+
+    const resInterceptor = api.interceptors.response.use((response) => {
+      return response;
+    }, (error) => {
+      return handleUnauthorizedError(error);
+    });
 
     return () => {
       api.interceptors.request.eject(reqInterceptor);
@@ -84,20 +92,17 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post('/api/token/', { username, password });
       const { access, refresh } = response.data;
-
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
       api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
-
-      // Use the same axios instance with the updated token
       const userResponse = await api.get('/api/profile/');
       setUser(userResponse.data?.data || userResponse.data);
-
       navigate('/tasks');
       toast.success("Login Successful");
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Login failed");
+      const errorMessage = error.response?.data?.detail || "Login failed. Please check your credentials and try again.";
+      toast.error(errorMessage);
       return false;
     }
   };
@@ -107,19 +112,17 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/api/register/', {
         username, email, password, password2
       });
-
       if (response.status === 201) {
         toast.success("Registration Successful! Please login.");
         navigate('/login');
         return true;
       }
     } catch (error) {
-      const errorMessage = error.response?.data ? 
-        (typeof error.response.data === 'object' ? 
-          Object.values(error.response.data).flat().join('\n') : 
-          error.response.data) : 
+      const errorMessage = error.response?.data ?
+        (typeof error.response.data === 'object' ?
+          Object.values(error.response.data).flat().join('\n') :
+          error.response.data) :
         "Registration failed";
-      
       toast.error(errorMessage);
       return false;
     }
@@ -131,12 +134,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return;
     }
-
     try {
-      // Verify token first
       await api.post('/api/token/verify/', { token });
-      
-      // Fetch user profile with the authenticated api instance
       const userResponse = await api.get('/api/profile/');
       setUser(userResponse.data?.data || userResponse.data);
     } catch (error) {
@@ -152,7 +151,6 @@ export const AuthProvider = ({ children }) => {
     const interval = setInterval(async () => {
       const refreshToken = localStorage.getItem('refresh_token');
       if (!refreshToken) return;
-
       try {
         const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
           refresh: refreshToken
@@ -164,7 +162,6 @@ export const AuthProvider = ({ children }) => {
         logoutUser();
       }
     }, 55 * 60 * 1000); // 55 minutes
-
     return () => clearInterval(interval);
   }, [logoutUser]);
 
@@ -172,7 +169,6 @@ export const AuthProvider = ({ children }) => {
     const cleanupInterceptors = setupInterceptors();
     const cleanupRefresh = setupTokenRefresh();
     checkAuth();
-
     return () => {
       cleanupInterceptors();
       cleanupRefresh();
