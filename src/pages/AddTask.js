@@ -11,13 +11,13 @@ const AddTask = () => {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("Open");
   const [priority, setPriority] = useState("Medium");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("Work");
+  const [customCategory, setCustomCategory] = useState("");
   const [due_date, setDueDate] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!title.trim()) {
       toast.warning("Title is required", {
         position: "top-right",
@@ -25,7 +25,6 @@ const AddTask = () => {
       });
       return;
     }
-
     if (due_date && new Date(due_date) < new Date()) {
       toast.warning("Due date cannot be in the past.", {
         position: "top-right",
@@ -39,7 +38,7 @@ const AddTask = () => {
       description,
       status,
       priority,
-      category,
+      category: category === "Other" ? customCategory : category,
       due_date,
     };
 
@@ -73,7 +72,52 @@ const AddTask = () => {
       </Helmet>
       <h2>Add Task</h2>
       <form onSubmit={handleSubmit}>
-        {/* Form fields go here */}
+        <div>
+          <label>Title</label>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        </div>
+        <div>
+          <label>Description</label>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
+        <div>
+          <label>Status</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+        <div>
+          <label>Priority</label>
+          <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div>
+          <label>Category</label>
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Urgent">Urgent</option>
+            <option value="Other">Other</option>
+          </select>
+          {category === "Other" && (
+            <input
+              type="text"
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+              placeholder="Enter custom category"
+            />
+          )}
+        </div>
+        <div>
+          <label>Due Date</label>
+          <input type="date" value={due_date} onChange={(e) => setDueDate(e.target.value)} />
+        </div>
+        <button type="submit">Add Task</button>
       </form>
     </div>
   );
