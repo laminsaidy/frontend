@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import AuthContext from "../context/AuthContext";
 import "../styles/components/Task.css";
 
@@ -38,7 +38,8 @@ const AddTask = () => {
       description,
       status,
       priority,
-      category: category === "Other" ? customCategory : category,
+      category: category,
+      custom_category: category === "Other" ? customCategory : "",
       due_date,
     };
 
@@ -68,17 +69,28 @@ const AddTask = () => {
     <div className="add-task-container">
       <Helmet>
         <title>Add Task</title>
-        <meta name="description" content="Add a new task to your task manager." />
+        <meta
+          name="description"
+          content="Add a new task to your task manager."
+        />
       </Helmet>
       <h2>Add Task</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Title</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
         </div>
         <div>
           <label>Description</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
         </div>
         <div>
           <label>Status</label>
@@ -90,7 +102,10 @@ const AddTask = () => {
         </div>
         <div>
           <label>Priority</label>
-          <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+          <select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+          >
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
             <option value="High">High</option>
@@ -98,7 +113,10 @@ const AddTask = () => {
         </div>
         <div>
           <label>Category</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
             <option value="Work">Work</option>
             <option value="Personal">Personal</option>
             <option value="Urgent">Urgent</option>
@@ -115,7 +133,11 @@ const AddTask = () => {
         </div>
         <div>
           <label>Due Date</label>
-          <input type="date" value={due_date} onChange={(e) => setDueDate(e.target.value)} />
+          <input
+            type="date"
+            value={due_date}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
         </div>
         <button type="submit">Add Task</button>
       </form>

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import AuthContext from "../context/AuthContext";
 import LoadingSpinner from "../components/LoadingSpinner";
-import '../styles/components/Taskdetail.css';
+import "../styles/components/Taskdetail.css";
 
 const TaskDetail = () => {
   const { api } = useContext(AuthContext);
@@ -19,9 +19,10 @@ const TaskDetail = () => {
         const res = await api.get(`/api/tasks/${id}/`);
         setTask({
           ...res.data,
-          overdue: res.data.due_date && 
-                  new Date(res.data.due_date) < new Date() && 
-                  res.data.status !== "Done"
+          overdue:
+            res.data.due_date &&
+            new Date(res.data.due_date) < new Date() &&
+            res.data.status !== "Done",
         });
         setLoading(false);
       } catch (err) {
@@ -71,20 +72,31 @@ const TaskDetail = () => {
           <div className="task-detail-meta">
             <div className="meta-item">
               <span className="meta-label">Status:</span>
-              <span className={`meta-value status-${task.status.toLowerCase().replace(' ', '-')}`}>
+              <span
+                className={`meta-value status-${task.status
+                  .toLowerCase()
+                  .replace(" ", "-")}`}
+              >
                 {task.status}
               </span>
             </div>
             <div className="meta-item">
               <span className="meta-label">Priority:</span>
-              <span className={`meta-value priority-${task.priority.toLowerCase()}`}>
+              <span
+                className={`meta-value priority-${task.priority.toLowerCase()}`}
+              >
                 {task.priority}
               </span>
             </div>
             <div className="meta-item">
               <span className="meta-label">Category:</span>
-              <span className="meta-value">{task.category || "No category"}</span>
+              <span className="meta-value">
+                {task.category === "Other" && task.custom_category
+                  ? task.custom_category
+                  : task.category || "No category"}
+              </span>
             </div>
+
             <div className="meta-item">
               <span className="meta-label">Due Date:</span>
               <span className={`meta-value ${task.overdue ? "overdue" : ""}`}>
