@@ -4,14 +4,15 @@ import './index.css';
 import App from './App';
 import './styles/theme.css';
 
-
-// import "bootstrap/dist/css/bootstrap.min.css";
+// 🚫 Disable WebSockets in production without modifying the global
+if (process.env.NODE_ENV === "production" && typeof WebSocket !== "undefined") {
+  window.WebSocket = class extends window.WebSocket {
+    constructor(...args) {
+      console.warn("WebSockets are disabled in this app. Attempted to connect to:", args[0]);
+      super(); // Call parent constructor with no args to avoid actual connection
+    }
+  };
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-    <App />
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+root.render(<App />);
