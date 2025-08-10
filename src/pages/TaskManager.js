@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
-import TaskModal from "../components/TaskModal";
+import TaskModal from "./TaskModal";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import ErrorBoundary from "../components/ErrorBoundary";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -29,7 +29,8 @@ const TaskManager = () => {
 
   const refreshList = useCallback(() => {
     setLoading(true);
-    api.get("/api/tasks/")
+    api
+      .get("/api/tasks/")
       .then((res) => {
         const tasksWithOverdue = res.data.map((task) => ({
           ...task,
@@ -66,14 +67,21 @@ const TaskManager = () => {
       toast.warning("Due date cannot be in the past");
       return;
     }
+
     toggle();
+
+    // Build payload to send to backend
     const payload = {
       ...item,
       category: Array.isArray(item.category) ? item.category[0] : item.category,
+      custom_category:
+        item.category === "Other" ? item.custom_category || "" : "",
     };
+
     const request = item.id
       ? api.put(`/api/tasks/${item.id}/`, payload)
       : api.post("/api/tasks/", payload);
+
     request
       .then(() => {
         refreshList();
@@ -91,7 +99,8 @@ const TaskManager = () => {
   };
 
   const confirmDelete = () => {
-    api.delete(`/api/tasks/${itemToDelete.id}/`)
+    api
+      .delete(`/api/tasks/${itemToDelete.id}/`)
       .then(() => {
         refreshList();
         toast.success("Task deleted");
@@ -129,7 +138,8 @@ const TaskManager = () => {
 
   const updateTaskStatus = (task, newStatus) => {
     const updatedTask = { ...task, status: newStatus };
-    api.put(`/api/tasks/${task.id}/`, updatedTask)
+    api
+      .put(`/api/tasks/${task.id}/`, updatedTask)
       .then(() => {
         refreshList();
         toast.success("Task status updated");
@@ -161,7 +171,9 @@ const TaskManager = () => {
     return filteredTasks.map((task) => (
       <div
         key={task.id}
-        className={`task-card ${task.overdue ? "overdue" : ""} ${task.priority.toLowerCase()}`}
+        className={`task-card ${
+          task.overdue ? "overdue" : ""
+        } ${task.priority.toLowerCase()}`}
         onClick={() => handleTaskClick(task.id)}
       >
         <div className="task-card-header">
@@ -173,7 +185,11 @@ const TaskManager = () => {
           <span className={`priority-badge ${task.priority.toLowerCase()}`}>
             {task.priority}
           </span>
-          <span className={`status-badge ${task.status.replace(" ", "-").toLowerCase()}`}>
+          <span
+            className={`status-badge ${task.status
+              .replace(" ", "-")
+              .toLowerCase()}`}
+          >
             {task.status}
           </span>
           <span className="task-category">{task.category}</span>
@@ -185,10 +201,22 @@ const TaskManager = () => {
           </span>
         </div>
         <div className="task-actions">
-          <button className="btn-edit" onClick={(e) => { e.stopPropagation(); editItem(task); }}>
+          <button
+            className="btn-edit"
+            onClick={(e) => {
+              e.stopPropagation();
+              editItem(task);
+            }}
+          >
             ✏️ Edit
           </button>
-          <button className="btn-delete" onClick={(e) => { e.stopPropagation(); handleDelete(task); }}>
+          <button
+            className="btn-delete"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(task);
+            }}
+          >
             🗑️ Delete
           </button>
         </div>
@@ -196,7 +224,10 @@ const TaskManager = () => {
           {task.status === "Open" && (
             <button
               className="btn-move-progress"
-              onClick={(e) => { e.stopPropagation(); updateTaskStatus(task, "In Progress"); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                updateTaskStatus(task, "In Progress");
+              }}
             >
               Move to Progress
             </button>
@@ -204,7 +235,10 @@ const TaskManager = () => {
           {task.status === "In Progress" && (
             <button
               className="btn-mark-done"
-              onClick={(e) => { e.stopPropagation(); updateTaskStatus(task, "Done"); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                updateTaskStatus(task, "Done");
+              }}
             >
               Mark as Done
             </button>
@@ -222,7 +256,10 @@ const TaskManager = () => {
     <div className="task-manager-wrapper">
       <Helmet>
         <title>Task Manager | TaskManager</title>
-        <meta name="description" content="Manage and organize all your tasks in one place" />
+        <meta
+          name="description"
+          content="Manage and organize all your tasks in one place"
+        />
       </Helmet>
       <ErrorBoundary>
         <main className="task-manager-container">
@@ -243,9 +280,7 @@ const TaskManager = () => {
               </button>
             ))}
           </div>
-          <div className="task-list-container">
-            {renderItems()}
-          </div>
+          <div className="task-list-container">{renderItems()}</div>
           {modal && (
             <TaskModal
               activeItem={activeItem}
