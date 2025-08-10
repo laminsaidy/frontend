@@ -31,55 +31,54 @@ export const AuthProvider = ({ children }) => {
     toast.info("Logged out successfully");
   }, [navigate]);
 
-  // Setup interceptors with proper dependencies
-  const setupInterceptors = useCallback(() => {
-    const reqInterceptor = api.interceptors.request.use(
-      config => {
-        const token = localStorage.getItem('access_token');
-        if (token && token !== "undefined" && token !== "null") {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      error => Promise.reject(error)
-    );
+  const attachTokenToRequest = useCallback((config) => {
+    const token = localStorage.getItem('access_token');
+    if (token && token !== "undefined" && token !== "null") {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  }, []);
 
+  const handleUnauthorizedError = useCallback(async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) throw new Error('No refresh token');
+        
+        const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
+          refresh: refreshToken
+        });
+        
+        localStorage.setItem('access_token', response.data.access);
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
+        originalRequest.headers['Authorization'] = `Bearer ${response.data.access}`;
+        
+        return api(originalRequest);
+      } catch (refreshError) {
+        logoutUser();
+        return Promise.reject(refreshError);
+      }
+    }
+    
+    return Promise.reject(error);
+  }, [logoutUser]);
+
+  const setupInterceptors = useCallback(() => {
+    const reqInterceptor = api.interceptors.request.use(attachTokenToRequest);
     const resInterceptor = api.interceptors.response.use(
       response => response,
-      async error => {
-        const originalRequest = error.config;
-        
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
-          
-          try {
-            const refreshToken = localStorage.getItem('refresh_token');
-            if (!refreshToken) throw new Error('No refresh token');
-            
-            const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
-              refresh: refreshToken
-            });
-            
-            localStorage.setItem('access_token', response.data.access);
-            api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
-            originalRequest.headers['Authorization'] = `Bearer ${response.data.access}`;
-            
-            return api(originalRequest);
-          } catch (refreshError) {
-            logoutUser(); // Now properly included in dependencies
-            return Promise.reject(refreshError);
-          }
-        }
-        
-        return Promise.reject(error);
-      }
+      handleUnauthorizedError
     );
 
     return () => {
       api.interceptors.request.eject(reqInterceptor);
       api.interceptors.response.eject(resInterceptor);
     };
-  }, [logoutUser]); // Added missing dependency
+  }, [attachTokenToRequest, handleUnauthorizedError]);
 
   const loginUser = async (username, password) => {
     try {
@@ -90,6 +89,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('refresh_token', refresh);
       api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
 
+      // Use the same axios instance with the updated token
       const userResponse = await api.get('/api/profile/');
       setUser(userResponse.data?.data || userResponse.data);
 
@@ -133,7 +133,10 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
+      // Verify token first
       await api.post('/api/token/verify/', { token });
+      
+      // Fetch user profile with the authenticated api instance
       const userResponse = await api.get('/api/profile/');
       setUser(userResponse.data?.data || userResponse.data);
     } catch (error) {
@@ -158,11 +161,12 @@ export const AuthProvider = ({ children }) => {
         api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
       } catch (error) {
         console.error('Token refresh failed:', error);
+        logoutUser();
       }
-    }, 55 * 60 * 1000);
+    }, 55 * 60 * 1000); // 55 minutes
 
     return () => clearInterval(interval);
-  }, []);
+  }, [logoutUser]);
 
   useEffect(() => {
     const cleanupInterceptors = setupInterceptors();
