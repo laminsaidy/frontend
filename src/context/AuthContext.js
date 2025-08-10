@@ -12,6 +12,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
+  withCredentials: true,
 });
 
 export const AuthContext = createContext();
@@ -21,7 +22,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Logout function (no WebSocket cleanup)
   const logoutUser = useCallback(() => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -31,29 +31,65 @@ export const AuthProvider = ({ children }) => {
     toast.info("Logged out successfully");
   }, [navigate]);
 
-  // Login function (ensures token is valid before proceeding)
+  const attachTokenToRequest = useCallback((config) => {
+    const token = localStorage.getItem('access_token');
+    if (token && token !== "undefined" && token !== "null") {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  }, []);
+
+  const handleUnauthorizedError = useCallback(async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) throw new Error('No refresh token');
+        
+        const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
+          refresh: refreshToken
+        });
+        
+        localStorage.setItem('access_token', response.data.access);
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
+        originalRequest.headers['Authorization'] = `Bearer ${response.data.access}`;
+        
+        return api(originalRequest);
+      } catch (refreshError) {
+        logoutUser();
+        return Promise.reject(refreshError);
+      }
+    }
+    
+    return Promise.reject(error);
+  }, [logoutUser]);
+
+  const setupInterceptors = useCallback(() => {
+    const reqInterceptor = api.interceptors.request.use(attachTokenToRequest);
+    const resInterceptor = api.interceptors.response.use(
+      response => response,
+      handleUnauthorizedError
+    );
+
+    return () => {
+      api.interceptors.request.eject(reqInterceptor);
+      api.interceptors.response.eject(resInterceptor);
+    };
+  }, [attachTokenToRequest, handleUnauthorizedError]);
+
   const loginUser = async (username, password) => {
     try {
-      // 1. Get tokens
-      const response = await axios.post(`${API_BASE_URL}/api/token/`, { 
-        username, 
-        password 
-      });
-
+      const response = await api.post('/api/token/', { username, password });
       const { access, refresh } = response.data;
-
-      // 2. Validate tokens before storing
-      if (!access || !refresh) {
-        throw new Error("Invalid token response");
-      }
 
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
-
-      // 3. Set default auth header
       api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
 
-      // 4. Fetch user profile (with token attached)
+      // Use the same axios instance with the updated token
       const userResponse = await api.get('/api/profile/');
       setUser(userResponse.data?.data || userResponse.data);
 
@@ -61,73 +97,96 @@ export const AuthProvider = ({ children }) => {
       toast.success("Login Successful");
       return true;
     } catch (error) {
-      console.error("Login error:", error);
       toast.error(error.response?.data?.detail || "Login failed");
       return false;
     }
   };
 
-  // Check auth status on app load
+  const registerUser = async (username, email, password, password2) => {
+    try {
+      const response = await api.post('/api/register/', {
+        username, email, password, password2
+      });
+
+      if (response.status === 201) {
+        toast.success("Registration Successful! Please login.");
+        navigate('/login');
+        return true;
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data ? 
+        (typeof error.response.data === 'object' ? 
+          Object.values(error.response.data).flat().join('\n') : 
+          error.response.data) : 
+        "Registration failed";
+      
+      toast.error(errorMessage);
+      return false;
+    }
+  };
+
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('access_token');
-    if (!token) {
+    if (!token || token === "undefined" || token === "null") {
       setLoading(false);
       return;
     }
 
     try {
-      // Verify token
+      // Verify token first
       await api.post('/api/token/verify/', { token });
-
-      // Fetch user data
+      
+      // Fetch user profile with the authenticated api instance
       const userResponse = await api.get('/api/profile/');
       setUser(userResponse.data?.data || userResponse.data);
     } catch (error) {
       if (error.response?.status === 401) {
-        logoutUser(); // Auto-logout if token is invalid
+        logoutUser();
       }
     } finally {
       setLoading(false);
     }
   }, [logoutUser]);
 
-  // Setup axios interceptors (for token refresh)
-  useEffect(() => {
-    const requestInterceptor = api.interceptors.request.use(
-      config => {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      error => Promise.reject(error)
-    );
+  const setupTokenRefresh = useCallback(() => {
+    const interval = setInterval(async () => {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) return;
 
-    const responseInterceptor = api.interceptors.response.use(
-      response => response,
-      async error => {
-        if (error.response?.status === 401) {
-          logoutUser(); // Force logout on 401 errors
-        }
-        return Promise.reject(error);
+      try {
+        const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
+          refresh: refreshToken
+        });
+        localStorage.setItem('access_token', response.data.access);
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
+      } catch (error) {
+        console.error('Token refresh failed:', error);
+        logoutUser();
       }
-    );
+    }, 55 * 60 * 1000); // 55 minutes
 
-    checkAuth(); // Initial auth check
+    return () => clearInterval(interval);
+  }, [logoutUser]);
+
+  useEffect(() => {
+    const cleanupInterceptors = setupInterceptors();
+    const cleanupRefresh = setupTokenRefresh();
+    checkAuth();
 
     return () => {
-      api.interceptors.request.eject(requestInterceptor);
-      api.interceptors.response.eject(responseInterceptor);
+      cleanupInterceptors();
+      cleanupRefresh();
     };
-  }, [checkAuth, logoutUser]);
+  }, [setupInterceptors, setupTokenRefresh, checkAuth]);
 
   const contextData = {
     user,
     api,
     loginUser,
     logoutUser,
+    registerUser,
     loading,
+    checkAuth
   };
 
   return (
