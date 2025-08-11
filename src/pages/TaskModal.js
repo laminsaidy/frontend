@@ -3,7 +3,7 @@ import {
   Button, Modal, ModalHeader, ModalBody, ModalFooter,
   Form, FormGroup, Label, Input
 } from "reactstrap";
-import "../styles/components/TaskModal.css"; // Add this!
+import "../styles/components/TaskModal.css";
 
 class TaskModal extends Component {
   static defaultProps = {
@@ -11,8 +11,9 @@ class TaskModal extends Component {
       title: "",
       description: "",
       status: "Open",
-      priority: "Low",
-      category: "General",
+      priority: "Medium",
+      category: "Work",
+      custom_category: "",
       due_date: ""
     }
   };
@@ -22,7 +23,8 @@ class TaskModal extends Component {
     this.state = {
       currentItem: {
         ...this.props.activeItem,
-        category: this.props.activeItem.category || "General"
+        category: this.props.activeItem.category || "Work",
+        custom_category: this.props.activeItem.custom_category || ""
       }
     };
   }
@@ -30,7 +32,10 @@ class TaskModal extends Component {
   handleInputChange = (event) => {
     const { name, value } = event.target;
     this.setState(prevState => ({
-      currentItem: { ...prevState.currentItem, [name]: value }
+      currentItem: { 
+        ...prevState.currentItem, 
+        [name]: value 
+      }
     }));
   };
 
@@ -44,13 +49,14 @@ class TaskModal extends Component {
         <ModalBody>
           <Form>
             <FormGroup>
-              <Label for="title">Title</Label>
+              <Label for="title">Title <span className="text-danger">*</span></Label>
               <Input
                 type="text"
                 name="title"
                 value={currentItem.title}
                 onChange={this.handleInputChange}
                 placeholder="Enter Task Title"
+                required
               />
             </FormGroup>
 
@@ -62,6 +68,7 @@ class TaskModal extends Component {
                 value={currentItem.description}
                 onChange={this.handleInputChange}
                 placeholder="Describe the task"
+                rows={4}
               />
             </FormGroup>
 
@@ -73,9 +80,9 @@ class TaskModal extends Component {
                 value={currentItem.status}
                 onChange={this.handleInputChange}
               >
-                <option>Open</option>
-                <option>In Progress</option>
-                <option>Done</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
               </Input>
             </FormGroup>
 
@@ -87,21 +94,39 @@ class TaskModal extends Component {
                 value={currentItem.priority}
                 onChange={this.handleInputChange}
               >
-                <option>Low</option>
-                <option>Medium</option>
-                <option>High</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
               </Input>
             </FormGroup>
 
             <FormGroup>
               <Label for="category">Category</Label>
               <Input
-                type="text"
+                type="select"
                 name="category"
                 value={currentItem.category}
                 onChange={this.handleInputChange}
-                placeholder="e.g. Work, Home, Health"
-              />
+              >
+                <option value="Work">Work</option>
+                <option value="Personal">Personal</option>
+                <option value="Urgent">Urgent</option>
+                <option value="Other">Other</option>
+              </Input>
+              
+              {currentItem.category === "Other" && (
+                <FormGroup className="mt-2">
+                  <Label for="custom_category">Custom Category <span className="text-danger">*</span></Label>
+                  <Input
+                    type="text"
+                    name="custom_category"
+                    value={currentItem.custom_category}
+                    onChange={this.handleInputChange}
+                    placeholder="Enter your custom category name"
+                    required={currentItem.category === "Other"}
+                  />
+                </FormGroup>
+              )}
             </FormGroup>
 
             <FormGroup>
@@ -111,12 +136,19 @@ class TaskModal extends Component {
                 name="due_date"
                 value={currentItem.due_date}
                 onChange={this.handleInputChange}
+                min={new Date().toISOString().split('T')[0]}
               />
             </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="success" onClick={() => onSave(currentItem)}>Save</Button>
+          <Button 
+            color="primary" 
+            onClick={() => onSave(currentItem)}
+            disabled={!currentItem.title || (currentItem.category === "Other" && !currentItem.custom_category)}
+          >
+            Save Task
+          </Button>
           <Button color="secondary" onClick={toggle}>Cancel</Button>
         </ModalFooter>
       </Modal>

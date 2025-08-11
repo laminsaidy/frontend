@@ -18,7 +18,8 @@ const TaskManager = () => {
     description: "",
     status: "Open",
     priority: "Medium",
-    category: "General",
+    category: "Work",
+    custom_category: "",
     due_date: "",
   });
   const [taskList, setTaskList] = useState([]);
@@ -38,6 +39,9 @@ const TaskManager = () => {
             task.due_date &&
             new Date(task.due_date) < new Date() &&
             task.status !== "Done",
+          display_category: task.category === "Other" && task.custom_category 
+            ? task.custom_category 
+            : task.category
         }));
         setTaskList(tasksWithOverdue);
         setLoading(false);
@@ -63,6 +67,12 @@ const TaskManager = () => {
       toast.warning("Task title is required");
       return;
     }
+
+    if (item.category === "Other" && !item.custom_category.trim()) {
+      toast.warning("Please enter a custom category name");
+      return;
+    }
+
     if (item.due_date && new Date(item.due_date) < new Date()) {
       toast.warning("Due date cannot be in the past");
       return;
@@ -70,12 +80,14 @@ const TaskManager = () => {
 
     toggle();
 
-    // Build payload to send to backend
     const payload = {
-      ...item,
-      category: Array.isArray(item.category) ? item.category[0] : item.category,
-      custom_category:
-        item.category === "Other" ? item.custom_category || "" : "",
+      title: item.title,
+      description: item.description,
+      status: item.status,
+      priority: item.priority,
+      category: item.category,
+      custom_category: item.category === "Other" ? item.custom_category : "",
+      due_date: item.due_date || null
     };
 
     const request = item.id
@@ -89,7 +101,11 @@ const TaskManager = () => {
       })
       .catch((error) => {
         console.error("Error saving task:", error);
-        toast.error("Failed to save task");
+        const errorMsg = error.response?.data?.custom_category?.[0] || 
+                        error.response?.data?.category?.[0] || 
+                        error.response?.data?.title?.[0] ||
+                        "Failed to save task";
+        toast.error(errorMsg);
       });
   };
 
@@ -103,7 +119,7 @@ const TaskManager = () => {
       .delete(`/api/tasks/${itemToDelete.id}/`)
       .then(() => {
         refreshList();
-        toast.success("Task deleted");
+        toast.success("Task deleted successfully");
       })
       .catch((error) => {
         console.error("Error deleting task:", error);
@@ -124,15 +140,20 @@ const TaskManager = () => {
       description: "",
       status: "Open",
       priority: "Medium",
-      category: "General",
-      due_date: "",
+      category: "Work",
+      custom_category: "",
+      due_date: ""
     };
     setActiveItem(item);
     setModal(true);
   };
 
   const editItem = (item) => {
-    setActiveItem(item);
+    setActiveItem({
+      ...item,
+      category: item.category || "Work",
+      custom_category: item.custom_category || ""
+    });
     setModal(true);
   };
 
@@ -142,7 +163,7 @@ const TaskManager = () => {
       .put(`/api/tasks/${task.id}/`, updatedTask)
       .then(() => {
         refreshList();
-        toast.success("Task status updated");
+        toast.success(`Task marked as ${newStatus}`);
       })
       .catch((error) => {
         console.error("Error updating task status:", error);
@@ -156,6 +177,7 @@ const TaskManager = () => {
 
   const renderItems = () => {
     const filteredTasks = taskList.filter((task) => task.status === viewStatus);
+    
     if (filteredTasks.length === 0) {
       return (
         <div className="empty-state">
@@ -168,6 +190,7 @@ const TaskManager = () => {
         </div>
       );
     }
+
     return filteredTasks.map((task) => (
       <div
         key={task.id}
@@ -192,11 +215,11 @@ const TaskManager = () => {
           >
             {task.status}
           </span>
-          <span className="task-category">{task.category}</span>
+          <span className="task-category">{task.display_category}</span>
           <span className="task-due">
             Due:{" "}
             <span className={task.overdue ? "overdue-text" : ""}>
-              {task.due_date || "No due date"}
+              {task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}
             </span>
           </span>
         </div>
@@ -293,7 +316,7 @@ const TaskManager = () => {
               show={showConfirmationDialog}
               onConfirm={confirmDelete}
               onCancel={cancelDelete}
-              message="Are you sure you want to delete this task?"
+              message="Are you sure you want to delete this task? This action cannot be undone."
             />
           )}
         </main>
